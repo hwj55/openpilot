@@ -70,7 +70,7 @@ def manager_init() -> None:
     ("dp_lat_road_edge_detection", "0"),
     ("dp_device_disable_logging", "0"),
     ("dp_toyota_pcm_compensation", "0"),
-    ("dp_device_is_clone", "0"),
+    ("dp_device_is_clone", "1"),
     ("dp_device_dm_unavailable", "0"),
     ("dp_toyota_enhanced_bsm", "0"),
     ("dp_toyota_auto_brake_hold", "0"),
