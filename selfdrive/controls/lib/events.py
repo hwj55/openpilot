@@ -389,7 +389,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # See https://github.com/commaai/openpilot/wiki/Fingerprinting for more information
   EventName.carUnrecognized: {
     ET.PERMANENT: NormalPermanentAlert("欢迎使用DP",
-                                       "请进入设置，再最上方选择车型后重启",
+                                       "请进入设置，在最上方选择车型后重启",
                                        priority=Priority.LOWEST),
   },
 
