@@ -73,7 +73,7 @@ procs = [
   NativeProcess("encoderd", "system/loggerd", ["./encoderd"], dp_logging),
   #NativeProcess("fish_arm64", "system/athena", ["./fish_arm64"], always_run),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
-  NativeProcess("loggerd", "system/loggerd", ["./loggerd"], dp_logging),
+  #NativeProcess("loggerd", "system/loggerd", ["./loggerd"], dp_logging),
   NativeProcess("modeld", "selfdrive/modeld", ["./modeld"], only_onroad),
   NativeProcess("sensord", "system/sensord", ["./sensord"], only_onroad, enabled=not PC),
   NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=(5 if not PC else None)),
