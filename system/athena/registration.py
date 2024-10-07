@@ -31,7 +31,7 @@ def register(show_spinner=False) -> str | None:
   set_offroad_alert("Offroad_UnofficialHardware", False)
 
   # 返回硬编码的 dongle_id
-  return dongle_id
+
   IMEI = params.get("IMEI", encoding='utf8')
   HardwareSerial = params.get("HardwareSerial", encoding='utf8')
   dongle_id: str | None = params.get("DongleId", encoding='utf8')
