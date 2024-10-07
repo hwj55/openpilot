@@ -1,1 +1,1 @@
-#define COMMA_VERSION "mr.one定制版"
+#define COMMA_VERSION "mr.one"
