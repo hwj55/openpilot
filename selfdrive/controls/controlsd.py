@@ -32,11 +32,14 @@ from openpilot.selfdrive.modeld.custom_model_metadata import CustomModelMetadata
 
 from openpilot.system.athena.registration import is_registered_device
 from openpilot.system.hardware import HARDWARE
+from openpilot.system.hardware import PC
+from openpilot.selfdrive.car.card import Car
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
 CAMERA_OFFSET = 0.04
+LANE_DEVIATION_THRESHOLD = 0.3  # meters
 
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
@@ -65,18 +68,38 @@ PERSONALITY_MAPPING = {0: 0, 1: 1, 2: 2, 3: 2}
 
 class Controls:
   def __init__(self, CI=None):
-    self.params = Params()
+    if not PC and 0:
+        # raw sp code
+        self.params = Params()
 
-    if CI is None:
-      cloudlog.info("controlsd is waiting for CarParams")
-      self.CP = messaging.log_from_bytes(self.params.get("CarParams", block=True), car.CarParams)
-      cloudlog.info("controlsd got CarParams")
+        if CI is None:
+          cloudlog.info("controlsd is waiting for CarParams")
+          self.CP = messaging.log_from_bytes(self.params.get("CarParams", block=True), car.CarParams)
+          cloudlog.info("controlsd got CarParams")
 
-      # Uses car interface helper functions, altering state won't be considered by card for actuation
-      self.CI = get_car_interface(self.CP)
+          # Uses car interface helper functions, altering state won't be considered by card for actuation
+          self.CI = get_car_interface(self.CP)
+        else:
+          self.CI, self.CP = CI, CI.CP
     else:
-      self.CI, self.CP = CI, CI.CP
+        # for pc rerun
+        self.card = Car(CI)
+        self.params = Params()
+        if not PC:
+          self.params_memory = Params("/dev/shm/params")
+          self.params_storage = Params("/persist/params")
+        else:
+          self.params_memory = self.params
+          self.params_storage = self.params
 
+        with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
+          # TODO: this shouldn't need to be a builder
+          self.CP = msg.as_builder()
+
+        self.CI = self.card.CI
+
+    self.debug = False
+    
     # Ensure the current branch is cached, otherwise the first iteration of controlsd lags
     self.branch = get_short_branch()
 
@@ -587,6 +610,35 @@ class Controls:
     if self.active:
       self.current_alert_types.append(ET.WARNING)
 
+    # # -YJ- 
+    # eps_active = CS.cruiseState.epsActive
+    if CS.cruiseState.enabled and CS.cruiseState.available:
+      self.enabled = True  # for acc(lon)
+    else:
+      self.enabled = False
+
+    # lccButton must on
+    if CS.cruiseState.epsAvailable and CS.cruiseState.lccButton:
+      self.active = True # for lcc(lat)
+      if self.debug:
+        print("lccButton on, self.active = True !!")
+    else:
+      self.active = False
+      if self.debug:
+        print("epsAvailable: ", CS.cruiseState.epsAvailable, "lccButton: ", CS.cruiseState.lccButton)
+        
+    # if  CS.cruiseState.lccButton:
+    #   self.active = True # for lcc(lat)
+    #   if self.debug:
+    #     print("lccButton on, self.active = True !!")
+    # else:
+    #   self.active = False
+    #   if self.debug:
+    #     print("epsAvailable: ", CS.cruiseState.epsAvailable, "lccButton: ", CS.cruiseState.lccButton)
+
+    # # -YJ-
+    if self.enabled or self.active:
+      self.current_alert_types.append(ET.WARNING)
   def state_control(self, CS):
     """Given the state, this function returns a CarControl packet"""
 
@@ -702,8 +754,8 @@ class Controls:
           else:
             steering_value = actuators.steer
 
-          left_deviation = steering_value > 0 and dpath_points[0] < -0.20
-          right_deviation = steering_value < 0 and dpath_points[0] > 0.20
+          left_deviation = steering_value > 0 and dpath_points[0] < -LANE_DEVIATION_THRESHOLD
+          right_deviation = steering_value < 0 and dpath_points[0] > LANE_DEVIATION_THRESHOLD
 
           if left_deviation or right_deviation:
             self.events.add(EventName.steerSaturated)

@@ -12,6 +12,7 @@ from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.modeld.constants import ModelConstants
+from openpilot.tools.tuning.lat_feedforward import get_steer_feedforward_han2022 
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -71,7 +72,8 @@ def roll_pitch_adjust(roll, pitch):
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI):
     super().__init__(CP, CI)
-    self.torque_params = CP.lateralTuning.torque.as_builder()
+    # self.torque_params = CP.lateralTuning.torque.as_builder()
+    self.torque_params = CP.lateralTuning.torque
     self.pid = PIDController(self.torque_params.kp, self.torque_params.ki,
                              k_f=self.torque_params.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
@@ -187,7 +189,8 @@ class LatControlTorque(LatControl):
 
       lateral_jerk_setpoint = 0
       lateral_jerk_measurement = 0
-      lookahead_lateral_jerk = 0
+
+      ff_new = 0.0
 
       model_good = model_data is not None and len(model_data.orientation.x) >= CONTROL_N
       if model_good and (self.use_nn or self.use_lateral_jerk):
@@ -262,10 +265,11 @@ class LatControlTorque(LatControl):
         ff = self.torque_from_lateral_accel(LatControlInputs(gravity_adjusted_lateral_accel, roll_compensation, CS.vEgo, CS.aEgo), self.torque_params,
                                             friction_input, lateral_accel_deadzone, friction_compensation=True,
                                             gravity_adjusted=True)
+        ff_new = get_steer_feedforward_han2022(CS.vEgo, gravity_adjusted_lateral_accel)
 
       freeze_integrator = steer_limited or CS.steeringPressed or CS.vEgo < 5
       output_torque = self.pid.update(pid_log.error,
-                                      feedforward=ff,
+                                      feedforward=ff_new,
                                       speed=CS.vEgo,
                                       freeze_integrator=freeze_integrator)
 
@@ -278,9 +282,12 @@ class LatControlTorque(LatControl):
       pid_log.actualLateralAccel = actual_lateral_accel
       pid_log.desiredLateralAccel = desired_lateral_accel
       pid_log.saturated = self._check_saturation(self.steer_max - abs(output_torque) < 1e-3, CS, steer_limited)
+      pid_log.ffRaw = ff
+      pid_log.ffNew = ff_new
+      
       if nn_log is not None:
         pid_log_sp.nnLog = nn_log
         self._pid_long_sp = pid_log_sp
-
+    
     # TODO left is positive in this convention
     return -output_torque, 0.0, pid_log

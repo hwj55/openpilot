@@ -1,47 +1,359 @@
 {
+  // 使用 IntelliSense 了解相关属性。
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
-  "inputs": [
-    {
-      "id": "python_process",
-      "type": "pickString",
-      "description": "Select the process to debug",
-      "options": [
-        "selfdrive/controls/controlsd.py",
-        "selfdrive/navd/navd.py",
-        "system/timed/timed.py",
-        "tools/sim/run_bridge.py"
-      ]
-    },
-    {
-      "id": "cpp_process",
-      "type": "pickString",
-      "description": "Select the process to debug",
-      "options": [
-        "selfdrive/ui/ui"
-      ]
-    },
-    {
-      "id": "args",
-      "description": "Arguments to pass to the process",
-      "type": "promptString"
-    }
-  ],
   "configurations": [
-    {
-      "name": "Python: openpilot Process",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${input:python_process}",
-      "console": "integratedTerminal",
-      "justMyCode": true,
-      "args": "${input:args}"
+      {
+          "name": "controlsd",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+        //   "cwd": "${workspaceFolder}/selfdrive/controls",
+          "cwd": "/home/yj/op/sunnypilot/selfdrive/controls",
+          "program": "./controlsd.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "SKIP_FW_QUERY": "1",
+            //   "FINGERPRINT": "TOYOTA_COROLLA_TSS2",
+            // "FINGERPRINT": "BYD HAN EV 2020",
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+          ]
+      },
+      {
+        "name": "card",
+        "type": "python",
+        "launch":"python3",
+        "request": "launch",
+        "cwd": "/home/yj/op/sunnypilot/selfdrive/car",
+        "program": "./card.py",
+        "console": "integratedTerminal",
+        "justMyCode": true,
+        "env": {
+            "SKIP_FW_QUERY": "1",
+          //   "FINGERPRINT": "TOYOTA_COROLLA_TSS2",
+          "FINGERPRINT": "BYD_HAN_DMP_22",
+            "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+        },
+        "args": [
+            // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+        ]
     },
-    {
-      "name": "C++: openpilot Process",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/${input:cpp_process}",
-      "cwd": "${workspaceFolder}",
-    }
+      {
+          "name": "plannerd",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/selfdrive/controls",
+          "program": "./plannerd.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "SKIP_FW_QUERY": "1",
+              "FINGERPRINT": "NETA L ARS513",
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+          ]
+      },
+      {
+        "name": "plannerd_fp_process",
+        "type": "python",
+        "launch":"python3",
+        "request": "launch",
+        "cwd": "${workspaceFolder}/selfdrive/frogpilot",
+        "program": "./frogpilot_process.py",
+        "console": "integratedTerminal",
+        "justMyCode": true,
+        "env": {
+            "SKIP_FW_QUERY": "1",
+            "FINGERPRINT": "NETA L ARS513",
+            "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+        },
+        "args": [
+            // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+        ]
+    },
+      {
+          "name": "modeld",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/selfdrive/modeld",
+          "program": "./modeld.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "SKIP_FW_QUERY": "1",
+              "FINGERPRINT": "NETA L ARS513",
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+          ]
+      },
+      {
+          "name": "radar",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/selfdrive/controls",
+          "program": "./radard.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "SKIP_FW_QUERY": "1",
+              "FINGERPRINT": "BYD HAN DMP 22",
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              "PC"
+              // "-bin=/home/yj/bak/data/EP40/EP40_70/20220827_EP70_fusion_usbcamera_深南大道/20220827135423/mdc.1",
+          ]
+      },
+      {
+          "name": "run_bridge",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/sim",
+          "program": "./run_bridge.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env":{
+              // export PYTHONPATH="$HOME/openpilot_dev":$PYTHONPATH
+              // 关键的部分是"env"字段，它设置了PYTHONPATH环境变量
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
+          },
+          "args": [
+              "--simulator", "metadrive"
+          ]
+      },
+      {
+          "name": "launch_op",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/sim",
+          "program": "./run_bridge.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env":  {
+                      "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
+                  },
+          "args": [
+              // "--simulator", "metadrive"
+              // ./tools/sim/launch_sh
+          ]
+      },
+      {
+          "name": "plotjuggle_py",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/plotjuggler_yj/",
+          "program": "./juggle.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+
+          "args": [
+
+                // 097  实验模式 acc加速慢  停车远
+                // "/home/yj/bak/data/comma_data/C3_byd/20240625_hil/2aef53e13714ee01|2024-06-25--15-14-28--1",
+
+                // byd
+                // "/home/yj/bak/data/comma_data/C3_byd/20240819_byd_han/2aef53e13714ee01|2024-08-19--21-28-54--0",
+                // "/home/yj/bak/data/comma_data/C3_byd/20240820_byd_han_原车控制/2aef53e13714ee01|2023-11-22--05-11-02--1",
+                // "/home/yj/bak/data/comma_data/C3_byd_han2022/20240825_han2022/night2/2aef53e13714ee01|2024-08-25--21-51-46--35",
+
+                "/home/yj/bak/data/comma_data/C3_byd_han2022/20240911_高速长时间数据/data1/2aef53e13714ee01|2024-09-11--12-13-32--0",
+                // "/home/yj/bak/data/comma_data/C3_byd_han2022/20240909_不同PID系数/realdata-2-0-0/2aef53e13714ee01|2023-11-22--05-10-59--0",
+
+                // HIL
+                // "/home/yj/bak/data/comma_data/C3_byd/20240625_hil/2aef53e13714ee01|2024-06-25--21-42-41--0",
+
+                // "PC"
+                // "/home/yj/.comma/media/0/realdata/2aef53e13714ee01|2024-08-19--20-01-06--0",
+
+                // 现代
+                // "/home/yj/bak/data/comma_data/c3_canfd_from_ma/2aef53e13714ee01|2023-08-02--20-57-39--8",
+
+                "--segment_count", "25",
+                "--dbc", "/home/yj/op/byd_han_2021.dbc",
+                // "--layout", "/home/yj/frogpilot/tools/plotjuggler_yj/layouts/dev/acc_new.xml",
+                // "--layout", "/home/yj/op/frogpilot_byd/tools/plotjuggler_yj/layouts/dev/lcc_pid.xml",
+                //   "--layout", "/home/yj/openpilot/tools/plotjuggler_yj/layouts/dev/desired_curvature_with_speed.xml",
+          ]
+      },
+      {
+          "name": "plotjuggle_live_c3",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/plotjuggler_yj/",
+          "program": "./juggle.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+              "ZMQ": "1",
+          },
+
+          "args": [
+                "--stream",
+                // "--layout", "/home/yj/frogpilot/tools/plotjuggler_yj/layouts/dev/acc_speed_analyze.xml",
+                // "--layout", "/home/yj/frogpilot/tools/plotjuggler_yj/layouts/dev/lcc_state.xml",
+                //   "--layout", "/home/yj/openpilot/tools/plotjuggler_yj/layouts/dev/desired_curvature_with_speed.xml",
+          ]
+      },
+      {
+        "name": "plotjuggle_live_pc",
+        "type": "python",
+        "launch":"python3",
+        "request": "launch",
+        "cwd": "${workspaceFolder}/tools/plotjuggler_yj/",
+        "program": "./juggle.py",
+        "console": "integratedTerminal",
+        "justMyCode": true,
+        "env": {
+            "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+        },
+        "args": [
+              "--stream",
+              // "--layout", "/home/yj/frogpilot/tools/plotjuggler_yj/layouts/dev/acc_speed_analyze.xml",
+              "--layout", "/home/yj/op/frogpilot_byd/tools/plotjuggler_yj/layouts/dev/lcc_pid.xml",
+              //   "--layout", "/home/yj/openpilot/tools/plotjuggler_yj/layouts/dev/desired_curvature_with_speed.xml",
+        ]
+      },
+      {
+          "name": "logreader",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/lib/",
+          "program": "./logreader_yj.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+
+          "args": [
+              // "--demo",
+              // "--qlog",
+              // "--layout=layouts/demo.xml",
+              // "/home/yj/bak/data/comma_data/EP40/PC/v0.9.5/2aef53e13714ee01|2023-11-22--20-30-20--2"
+              // "/home/yj/2aef53e13714ee01|2024-03-19--15-31-13"
+              // "/home/yj/2024-03-19--15-31-13--0/qlog"
+              "/home/yj/bak/data/comma_data/c3_canfd_from_ma/2023-08-02--20-57-39--8/qlog"
+              // "--layout","layouts/CAN-bus-debug.xml",
+          ]
+      },
+      {
+          "name": "cabana",
+          "type": "cppdbg",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/cabana/",
+          "program": "${workspaceFolder}/tools/cabana/cabana",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              // "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+
+          "args": [
+            // 得用 op_dev   fp的运行会报错
+              // "--demo",
+            //   "--route","2aef53e13714ee01|2023-11-22--05-52-52--5",
+            //   "--data_dir", "/home/yj/bak/data/comma_data/EP32/20240506_EP32_N29_fp_097_OK",
+          ]
+      },
+      {
+          "name": "ui_dev",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/replay",
+          "program": "./ui_yj.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              // "--demo",
+              // "--qlog",
+              // "--layout=layouts/demo.xml",
+              // "/home/yj/bak/data/comma_data/EP40/PC/v0.9.5/2aef53e13714ee01|2023-11-22--20-30-20--2"
+              // "--data_dir",
+              // "/home/yj/bak/data/comma_data/EP40/20240116 2aef53e13714ee01|2024-01-16--17-03-45--1"
+              // "--route-name","2aef53e13714ee01|2024-02-01--18-01-48",
+              // "--data_dir", "/home/yj/bak/data/comma_data/EP40/20240201_地库测试_不能控车",
+          ]
+      },
+      {
+          "name": "ui",
+          "type": "cppdbg",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/selfdrive/ui/",
+          "program": "${workspaceFolder}/selfdrive/ui/ui",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "SKIP_FW_QUERY": "1",
+              "FINGERPRINT": "NETA L CH",
+              "LD_LIBRARY_PATH": "/home/yj/src/comma/ui_lib/bin::${LD_LIBRARY_PATH}",
+          },
+      },
+      {
+          "name": "can_replay",
+          "type": "python",
+          "launch":"python3",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/tools/replay",
+          "program": "./can_replay.py",
+          "console": "integratedTerminal",
+          "justMyCode": true,
+          "env": {
+              "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+          },
+          "args": [
+              // "--route_or_segment_name",
+              "/home/yj/bak/data/comma_data/EP32/20240330_EP32_095_ok/2aef53e13714ee01|2024-03-30--11-03-23--0"
+              // "/home/yj/bak/data/comma_data/A1J_LX/PC/2aef53e13714ee01|2023-02-06--17-09-03--0"
+          ]
+      },
+      {
+            "name": "rlog_process",
+            "type": "python",
+            "launch":"python3",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/tools/tuning/",
+            "program": "./rlog_pre_process.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                // "SKIP_FW_QUERY": "1",
+                // "FINGERPRINT": "BYD HAN DMP 22",
+                "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+            },
+            "args": [
+              "--is_preprocess", "1",
+            //   "--path=/home/yj/bak/data/comma_data/C3_byd_han2022/20240914_长里程",
+            //   "--outpath=/home/yj/bak/data/comma_data/C3_byd_han2022/NNFF_data",
+            //   "--outpath=/home/yj/bak/data/comma_data/C3_byd_han2022/NNFF_data_0914",
+            "--path=/home/yj/bak/data/nas/nas_yj/sync/baidu_yuji/dataset/comma/长里程数据/",
+            "--outpath=/home/yj/bak/data/nas/nas_yj/sync/baidu_yuji/dataset/comma/长里程数据/lat_data/0926_cal"
+            //   "--dongleid=2aef53e13714ee01",
+            ]
+        },
   ]
 }

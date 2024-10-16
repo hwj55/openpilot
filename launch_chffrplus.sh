@@ -84,6 +84,7 @@ function launch {
   # start manager
   cd system/manager
   if [ ! -f $DIR/prebuilt ]; then
+    echo "build openpilot. This will take a while. !!!!!!!"
     ./build.py
   fi
 

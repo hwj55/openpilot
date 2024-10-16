@@ -12,6 +12,7 @@ from openpilot.selfdrive.car.subaru.values import CAR as SUBARU
 from openpilot.selfdrive.car.tesla.values import CAR as TESLA
 from openpilot.selfdrive.car.toyota.values import CAR as TOYOTA
 from openpilot.selfdrive.car.volkswagen.values import CAR as VW
+from openpilot.selfdrive.car.byd.values import CAR as BYD
 
 FW_VERSIONS = get_interface_attr('FW_VERSIONS', combine_brands=True, ignore_none=True)
 _FINGERPRINTS = get_interface_attr('FINGERPRINTS', combine_brands=True, ignore_none=True)
@@ -65,6 +66,7 @@ MIGRATION = {
   "ACURA RDX 2018 ACURAWATCH PLUS": HONDA.ACURA_RDX,
   "ACURA RDX 2020 TECH": HONDA.ACURA_RDX_3G,
   "AUDI A3": VW.AUDI_A3_MK3,
+  "BYD HAN DMP 22": BYD.BYD_HAN_DMP_22,
   "HONDA ACCORD 2018 HYBRID TOURING": HONDA.HONDA_ACCORD,
   "HONDA ACCORD 1.5T 2018": HONDA.HONDA_ACCORD,
   "HONDA ACCORD 2018 LX 1.5T": HONDA.HONDA_ACCORD,
