@@ -38,6 +38,7 @@ Version 0.9.6 (2024-02-27)
 * Toyota RAV4 2023-24 support
 * Toyota RAV4 Hybrid 2023-24 support
 
+
 Version 0.9.5 (2023-11-17)
 ========================
 * New driving model
