@@ -1,0 +1,204 @@
+VERSION ""
+
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: XXX X
+
+
+BO_ 287 Steering: 5 XXX
+ SG_ Steering_Angle : 0|16@1- (0.1,0) [-450|450] "" XXX
+ SG_ Steer_Speed_NOTSURE : 16|8@1+ (0.05,0) [0|25.5] "" XXX
+ SG_ Counter : 32|4@1+ (1,0) [0|15] "" XXX
+
+BO_ 290 WHEELSPEED_CLEAN: 8 XXX
+ SG_ WHEELSPEED_FL : 0|12@1- (0.1,0) [0|255] "kph" XXX
+ SG_ WHEELSPEED_FR : 16|12@1- (0.1,0) [0|255] "kph" XXX
+ SG_ WHEELSPEED_BL : 32|12@1- (0.1,0) [0|255] "kph" XXX
+ SG_ WHEELSPEED_BR : 48|12@1- (0.1,0) [0|255] "kph" XXX
+
+BO_ 307 STALKS: 8 XXX
+ SG_ GENERIC_TOGGLE : 31|1@0+ (1,0) [0|1] "" XXX
+ SG_ LEFT_BLINKER : 37|1@0+ (1,0) [0|1] "" XXX
+ SG_ RIGHT_BLINKER : 38|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 48|4@1+ (1,0) [0|15] "" XXX
+
+BO_ 660 METER_CLUSTER: 8 XXX
+ SG_ FRONT_RIGHT_DOOR : 1|1@1+ (1,0) [0|511] "" XXX
+ SG_ FRONT_LEFT_DOOR : 3|1@0+ (1,0) [0|1] "" XXX
+ SG_ BACK_LEFT_DOOR : 5|1@1+ (1,0) [0|511] "" XXX
+ SG_ BACK_RIGHT_DOOR : 7|1@0+ (1,0) [0|1] "" XXX
+ SG_ SEATBELT_DRIVER : 17|1@0+ (1,0) [0|1] "" XXX
+ SG_ tail_light : 26|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 790 LKAS_HUD_ADAS: 8 XXX
+ SG_ SETME_0x01 : 0|4@1+ (1,0) [0|3] "" XXX
+ SG_ LeftLane : 4|2@1+ (1,0) [0|3] "" XXX
+ SG_ Config : 6|2@1+ (1,0) [0|3] "" XXX
+ SG_ SETME2_0x01 : 8|2@1+ (1,0) [0|3] "" XXX
+ SG_ Keep_Hands_On_Wheel : 10|1@1+ (1,0) [0|1] "" XXX
+ SG_ MPCErr : 11|4@1+ (1,0) [0|1] "" XXX
+ SG_ SETME3_0x01 : 15|1@0+ (1,0) [0|1] "" XXX
+ SG_ LKAS_Output : 16|11@1- (1,0) [-1024|1023] "" XXX
+ SG_ LKASPrepare : 27|1@1+ (1,0) [0|1] "" XXX
+ SG_ LKAS_ACTIVE : 28|1@1+ (1,0) [0|1] "" XXX
+ SG_ SETME_0x02 : 29|3@1+ (1,0) [0|1] "" XXX
+ SG_ TSREnabled : 32|2@1+ (1,0) [0|1] "" XXX
+ SG_ RightLane : 34|2@1+ (1,0) [0|3] "" XXX
+ SG_ LKAS_Mode : 36|2@1+ (1,0) [0|3] "" XXX
+ SG_ SETME_0x00 : 38|2@1+ (1,0) [0|3] "" XXX
+ SG_ TSRResult : 40|8@1+ (1,0) [0|255] "" XXX
+ SG_ Unknow1 : 48|4@1+ (1,0) [0|15] "" XXX
+ SG_ COUNTER : 52|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 792 Steering_Torque: 8 XXX
+ SG_ LKSPrepare : 0|1@1+ (1,0) [0|1] "" XXX
+ SG_ Cruise_Activated : 1|1@1+ (1,0) [0|1] "" XXX
+ SG_ Steer_Warning : 4|1@1+ (1,0) [0|1] "" XXX
+ SG_ Steer_Error_1 : 5|1@1+ (1,0) [0|1] "" XXX
+ SG_ Steer_Error_2 : 6|1@1+ (1,0) [0|1] "" XXX
+ SG_ Steer_Torque_Output : 8|12@1- (1,0) [-2048|2047] "" XXX
+ SG_ Steer_Torque_Sensor : 24|12@1- (1,0) [-2048|2047] "" XXX
+ SG_ Counter : 52|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 813 ACC_HUD_ADAS: 8 XXX
+ SG_ SET_SPEED : 0|9@1+ (0.5,0) [0|511] "" XXX
+ SG_ FRONT_CAR : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_DISTANCE : 12|3@0+ (1,0) [0|7] "" XXX
+ SG_ GEN_CHE : 14|2@0+ (1,0) [0|3] "" XXX
+ SG_ ACC_ON2 : 20|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHAOYUE : 21|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_ON1 : 22|1@0+ (1,0) [0|1] "" XXX
+ SG_ PENG_ZHUANG_YU_JING : 23|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_MESSAGE : 30|4@0+ (1,0) [0|15] "" XXX
+ SG_ AEB_SETTING : 36|1@0+ (1,0) [0|1] "" XXX
+ SG_ FCW_SETTING : 38|2@0+ (1,0) [0|3] "" XXX
+ SG_ SET_ME_XFF : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ COUNTER : 48|4@1+ (1,0) [0|15] "" XXX
+ SG_ SET_ME_XF : 55|4@0+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 814 ACC_CMD: 8 XXX
+ SG_ ACCEL_CMD : 0|8@1+ (1,-100) [0|255] "" XXX
+ SG_ ACC_ON_1 : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_25_1 : 10|6@1+ (1,0) [0|255] "" XXX
+ SG_ ACC_ON_2 : 17|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_24_2 : 18|6@1+ (1,0) [0|255] "" XXX
+ SG_ DECEL_FACTOR : 24|4@1+ (1,0) [0|15] "" XXX
+ SG_ SET_ME_X8 : 31|4@0+ (1,0) [0|255] "" XXX
+ SG_ ACCEL_FACTOR : 32|4@1+ (1,0) [0|15] "" XXX
+ SG_ CMD_REQ_ACTIVE_LOW : 36|1@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_1 : 38|1@0+ (1,0) [0|1] "" XXX
+ SG_ STANDSTILL_RESUME : 39|1@0+ (1,0) [0|1] "" XXX
+ SG_ STANDSTILL_STATE : 40|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_REQ_NOT_STANDSTILL : 43|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_CONTROLLABLE_AND_ON : 44|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_OVERRIDE_OR_STANDSTILL : 45|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 48|4@1+ (1,0) [0|15] "" XXX
+ SG_ SET_ME_XF : 55|4@0+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 834 PEDAL: 8 XXX
+ SG_ GAS_PEDAL : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ BRAKE_PEDAL : 8|8@1+ (0.01,0) [0|255] "" XXX
+ SG_ COUNTER : 55|4@0+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 843 MPC_Distance: 8 XXX
+ SG_ BYTE1 : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE2 : 8|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE3 : 16|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE4 : 24|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE5 : 32|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE6 : 40|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE7 : 48|8@1+ (1,0) [0|255] "" XXX
+ SG_ Counter : 52|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 578 DRIVE_STATE: 8 XXX
+ SG_ NEW_SIGNAL_1 : 7|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_2 : 11|4@0+ (1,0) [0|15] "" XXX
+ SG_ RAW_THROTTLE : 30|7@0+ (1,0) [0|127] "" XXX
+ SG_ BRAKE_PRESSED : 37|1@0+ (1,0) [0|1] "" XXX
+ SG_ GEAR : 40|3@1+ (1,0) [0|7] "" XXX
+
+BO_ 863 BSD_RCTA_RIGHT: 8 XXX
+ SG_ Constant0x08 : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Constant0 : 8|32@1+ (1,0) [0|1] "" XXX
+ SG_ Constant0xFFC : 40|12@1+ (1,0) [0|4095] "" XXX
+ SG_ Counter : 52|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 879 BSD_RCTA_LEFT: 8 XXX
+ SG_ Constant0x08 : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Constant0 : 8|32@1+ (1,0) [0|1] "" XXX
+ SG_ Constant0xFFC : 40|12@1+ (1,0) [0|4095] "" XXX
+ SG_ Counter : 52|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 56|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 944 PCM_BUTTONS: 8 XXX
+ SG_ SET_ME_1_1 : 2|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_BTN : 3|1@0+ (1,0) [0|1] "" XXX
+ SG_ RES_BTN : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ LKAS_ON_BTN : 6|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_1 : 8|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_1_2 : 12|1@0+ (1,0) [0|1] "" XXX
+ SG_ DEC_DISTANCE_BTN : 15|1@0+ (1,0) [0|1] "" XXX
+ SG_ INC_DISTANCE_BTN : 16|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_ON_BTN : 19|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 55|4@0+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1048 BSM: 8 XXX
+ SG_ NEW_SIGNAL_2 : 2|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_1 : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ LEFT_APPROACH : 8|1@0+ (1,0) [0|1] "" XXX
+ SG_ RIGHT_APPROACH : 10|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_4 : 16|1@0+ (1,0) [0|1] "" XXX
+ SG_ BSD_SETTING : 18|1@0+ (1,0) [0|1] "" XXX
+ SG_ RCW_SETTING : 20|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOW_SETTING : 22|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 1074 MPC_HeartBeat: 8 XXX
+ SG_ DBYTE1 : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE2 : 8|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE3 : 16|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE4 : 24|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE5 : 32|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE6 : 40|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE7 : 48|8@1+ (1,0) [0|255] "" XXX
+ SG_ DBYTE8 : 56|8@1+ (1,0) [0|255] "" XXX
+
+VAL_ 578 GEAR 4 "D" 3 "N" 2 "R" 1 "P";

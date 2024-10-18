@@ -1,0 +1,1739 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Vehicle ADAS Left_BCM_L1 Left_BCM_L2_L3 Left_BCM_L4 Right_BCM Rear_BCM SEC HFRM Media INFC LTE4G INS CS SWS WCM ECL MDS AVAS RSCU RRSE LRSE DB PSDL PSDR IRM PM25 BD PHP SASD SASP ALS PAL SECUP AMP ACCD FPTC RPTC OH LBMS SCPA SCU ECM ECM_Fuel TCU VCU BMS LS DCOBC DCDC BDC FMCU RMCU ISG BSG TCU_Fuel BH IPB EPS SRS MPC ADS MRR BSMCL BSMCR FCR APA FLL FLR MSR_DRV MSR_PSG SGS VDS Valeo_AC
+
+
+BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
+ SG_ RCR_R_Sys_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ ELKA_Warning_Left_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ELKA_Warn_Right_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ R_BSD_Warning_Left_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ R_BSD_Warning_Right_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ RRadar_RCTA_Warning_Left_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Radar_RCTA_Warn_Right_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ RCW_Warning_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ R_BSD_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Right_Radar_RCTA_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Right_Radar_RCW_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Right_Radar_DOW_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ RRadar_DOW_Warning_Left_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ RRadar_DOW_WarningRight_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Right_Radar_RCTB_Status_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Right_Radar_RCTB_Braking_Req_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ RCTBTargetDecel_S : 0|8@1+ (0.05,-10) [-10|2.75] "" Vector__XXX
+ SG_ Message_counter418_S : 0|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Checksum418_S : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ VCU_Vehicle_Run_Mode_S : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ IPB_Simulator_Pressure_S : 0|12@1+ (0.3,-5) [-5|301.9] "bar" Vector__XXX
+ SG_ IPB_Simulator_Pressure_Sts_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ IPB_Plunger_Pres_status_S : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ IPB_Plunger_Pressure_S : 0|12@1+ (0.3,-5) [-5|301.9] "bar" Vector__XXX
+
+BO_ 660 Left_BCM_0x294: 8 Left_BCM_L1
+ SG_ Left_Front_Door_Status_294_S : 0|2@1+ (1,0) [0|3] ""  ADAS,Right_BCM,Rear_BCM,Media,LTE4G,CS,WCM,PM25,SCPA,SCU,ECM_Fuel,DCOBC,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL
+ SG_ Right_Front_Door_Status_294_S : 2|2@1+ (1,0) [0|3] ""  ADAS,Media,LTE4G,CS,PM25,SCPA,ECM_Fuel,DCOBC,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL
+ SG_ Left_Back_Door_Status_294_S : 4|2@1+ (1,0) [0|3] ""  ADAS,Right_BCM,Rear_BCM,Media,LTE4G,CS,PM25,SCPA,ECM_Fuel,DCOBC,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL
+ SG_ Right_Back_Door_Status_294_S : 6|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,LTE4G,CS,PM25,SCPA,ECM_Fuel,DCOBC,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL
+ SG_ LeftF_Door_Stats_Valid_Bit_S : 8|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ RightF_Door_Sts_Valid_Bit_294_S : 9|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ LeftR_Door_Stats_Valid_Bit_S : 10|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ RightR_Door_Sts_Valid_Bit_294_S : 11|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Driver_Belt_Stat_Effective_Bit_S : 12|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,ECM_Fuel,IPB,SRS,MPC,ADS,MRR,APA
+ SG_ Back_Door_Sts_Effectiv_Bit_294_S : 13|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,MPC,ADS,MRR,APA
+ SG_ Frnt_Hatch_Stat_Effective_Bit_S : 14|1@1+ (1,0) [0|1] ""  ADAS,Media,LTE4G,MPC,ADS,MRR,APA
+ SG_ Emergency_Alarm_Effective_Bit_S : 15|1@1+ (1,0) [0|1] ""  ADAS,CS,MPC,ADS
+ SG_ Driver_Belt_Status_S : 16|2@1+ (1,0) [0|3] ""  ADAS,Media,LTE4G,ECM_Fuel,IPB,SRS,MPC,ADS,MRR,APA
+ SG_ Back_Door_Status_294_S : 18|2@1+ (1,0) [0|3] ""  ADAS,Right_BCM,Media,LTE4G,CS,SCPA,ECM_Fuel,DCOBC,MPC,ADS,MRR,APA,FLL
+ SG_ Former_Hatch_Status_294_S : 20|2@1+ (1,0) [0|3] ""  ADAS,Media,LTE4G,LBMS,ECM_Fuel,BMS,MPC,ADS,MRR,APA
+ SG_ Emergency_Alarm_Status_S : 22|2@1+ (1,0) [0|3] ""  ADAS,CS,MPC,ADS
+ SG_ Rolling_counter_294_S : 48|4@1+ (1,0) [0|15] ""  ADAS,ECM,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum_294_S : 56|8@1+ (1,0) [0|255] ""  ADAS,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 1031 Left_BCM_0x407: 8 Left_BCM_L1
+ SG_ FL_Door_Lock_Sttus407_S : 0|2@1+ (1,0) [0|3] ""  Right_BCM,VCU,ADS,BSMCL,BSMCR
+ SG_ FR_Door_Lock_Status_407_S : 2|2@1+ (1,0) [0|3] ""  VCU,ADS,BSMCL,BSMCR
+ SG_ RL_Door_Lock_Status_S : 4|2@1+ (1,0) [0|3] ""  PSDL,VCU,ADS,BSMCL,BSMCR
+ SG_ RR_Door_Lock_Status_407_S : 6|2@1+ (1,0) [0|3] ""  PSDR,VCU,ADS,BSMCL,BSMCR
+ SG_ Fldig_Extrr_Mrors_Expand_S : 22|2@1+ (1,0) [0|3] ""  PSDR,VCU,ADS,BSMCL,BSMCR
+
+BO_ 948 Left_BCM_0x3B4: 8 Left_BCM_L1
+ SG_ Left_Sunshine_Intensity_S : 24|8@1+ (5,0) [0|1270] "w/m2"  ADAS,Right_BCM,VCU,ADS
+ SG_ Right_Sunshine_Intensity_S : 32|8@1+ (5,0) [0|1270] "w/m2"  ADAS,VCU,ADS
+ SG_ Rainfall_Values_S : 58|4@1+ (1,0) [0|14] ""  ADAS,PSDL,VCU,ADS
+ SG_ Sun_Sensor_Hardware_Fault_S : 62|1@1+ (1,0) [0|1] ""  ADAS,PSDR,VCU,ADS
+ SG_ Humidity_Sensor_Fault_Sign_S : 63|1@1+ (1,0) [0|1] ""  ADAS,PSDR,VCU,ADS
+
+BO_ 973 Left_BCM_0x3CD: 8 Left_BCM_L1
+ SG_ Tyre_Position_S : 0|4@1+ (1,0) [0|15] "w/m2"  Right_BCM,VCU,ADS
+ SG_ Single_Tire_Status_Signal_S : 4|1@1+ (1,0) [0|1] "w/m2"  VCU,ADS
+ SG_ BSD_Sys_Stat_S : 5|3@1+ (1,0) [0|7] ""  PSDL,VCU,ADS
+ SG_ Single_Tire_Press_Value_S : 16|12@1+ (1,0) [0|4094] "kpa"  PSDR,VCU,ADS
+ SG_ Single_Tire_Temperature_Value_S : 32|12@1+ (0.1,-40) [-40|369.4] "��"  PSDR,VCU,ADS,BSMCL,BSMCR
+
+BO_ 906 Left_BCM_0x38A: 8 Left_BCM_L1
+ SG_ Dipped_Headlight_38A_S : 2|2@1+ (1,0) [0|3] ""  Media,ALS,ECM_Fuel,MPC,ADS,FLL,FLR
+ SG_ High_Beam_Light_38A_S : 4|2@1+ (1,0) [0|3] ""  Media,ALS,ECM_Fuel,MPC,ADS,FLL,FLR
+ SG_ Back_Fog_Light_38A_S : 8|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,Media,MPC,ADS
+ SG_ All_Weather_Lights_38A_S : 14|2@1+ (1,0) [0|3] ""  Right_BCM,Media,ALS,MPC,ADS,FLL,FLR
+
+BO_ 301 Left_BCM_0x12D: 8 Left_BCM_L1
+ SG_ BCMPower_Gear_12D_S : 34|3@1+ (1,0) [0|7] ""  ADAS,Right_BCM,Rear_BCM,Media,LTE4G,CS,SWS,WCM,RRSE,LRSE,PSDL,PSDR,IRM,BD,ALS,PAL,LBMS,SCPA,SCU,ECM_Fuel,VCU,BMS,DCOBC,TCU,MPC,ADS,BSMCL,BSMCR,FCR,APA,FLL,FLR
+
+BO_ 1141 Left_BCM_0x475: 8 Left_BCM_L1
+ SG_ Wiper_Speed_S : 26|2@1+ (1,0) [0|3] ""  ADAS,Media,CS,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+
+BO_ 337 Left_BCM_0x151: 8 Left_BCM_L1
+ SG_ Speed_Signal_151_S : 0|8@1+ (1,0) [0|240] "km/h"  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Speed_Unit_Setting_151_S : 8|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Rolling_Counter_151_S : 52|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum_151_S : 56|8@1+ (1,0) [0|255] ""  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 803 Left_BCM_0x323: 8 Left_BCM_L1
+ SG_ INS_Show_Fault_323_S : 7|1@1+ (1,0) [0|1] ""  Media,INS,MPC,ADS,MRR
+
+BO_ 985 Left_BCM_0x3D9: 8 Left_BCM_L1
+ SG_ Child_ID_3D9_S M : 0|8@1+ (1,0) [0|255] ""  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Total_Distance_3D9s5_S m5 : 8|27@1+ (0.1,0) [0|9999999.9] "km"  ADAS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+
+BO_ 1028 Right_BCM_0x404: 8 Right_BCM
+ SG_ Temperature_Conversion_S : 31|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,Media,LTE4G,RRSE,LRSE,PAL,OH,ECM,ECM_Fuel,TCU_Fuel,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ ACHMC_Outside_Temperature_S : 48|8@1+ (1,-128) [-40|50] "��"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,Media,LTE4G,RRSE,LRSE,ECM,ECM_Fuel,BMS,TCU_Fuel,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Rolling_Counter_0x404_S : 60|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L4,ECM,ECM_Fuel,TCU_Fuel,MPC,ADS,MRR
+
+BO_ 536 Rear_BCM_0x218: 8 Rear_BCM
+ SG_ Ele_Park_Brake_Switch_Status_S : 0|2@1+ (1,0) [0|3] ""  ADAS,ECM_Fuel,VCU,IPB,MPC,ADS,MRR
+ SG_ EPB_Status_S : 9|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,LTE4G,PSDL,PSDR,SCPA,SCU,ECM_Fuel,VCU,TCU,IPB,EPS,MPC,ADS,MRR,APA
+ SG_ Rolling_Counter_218_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,ECM_Fuel,IPB,MPC,ADS,MRR,APA
+ SG_ Checksum_218_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,ECM_Fuel,IPB,MPC,ADS,MRR,APA
+
+BO_ 724 Media_0x2D4: 8 Media
+ SG_ Latitd_Info_Decimal_Part_S : 0|7@1+ (1,0) [0|99] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Latitude_Direction_2D4_S : 7|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,INFC,MPC,ADS,MRR
+ SG_ Latitd_Info_Integ_Part_S : 8|8@1+ (1,0) [0|179] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Longitd_Info_Deciml_Part_S : 16|7@1+ (1,0) [0|99] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Longitd_Direction_2D4_S : 23|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,INFC,MPC,ADS,MRR
+ SG_ Longitd_Info_Integr_Part_S : 24|8@1+ (1,0) [0|179] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Orientation_Info_2D4_S : 32|12@1+ (1,0) [0|359] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Height_Decimal_Part_2D4_S : 44|4@1+ (1,0) [0|9] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Height_Integer_Part_2D4_S : 48|14@1+ (1,0) [0|8000] ""  Left_BCM_L1,Left_BCM_L2_L3,MPC,ADS,MRR
+ SG_ Altitude_2D4_S : 62|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,INFC,MPC,ADS,MRR
+ SG_ GPS_Signal_2D4_S : 63|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,INFC,MPC,ADS,MRR
+
+BO_ 901 Media_0x385: 8 Media
+ SG_ DOW_Enable_S : 10|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,BSMCL,BSMCR,FCR
+ SG_ TJA_ICAwitch_S : 12|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+ SG_ HMA_funtion_Switch_Signal_S : 24|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS
+ SG_ ISLI_Switch_S : 60|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS
+ SG_ PCW_Enable_S : 30|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+ SG_ LKS_Enable_S : 32|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS
+ SG_ AEB_Enable_S : 36|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+ SG_ LDW_Warning_Mode_S : 38|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS
+ SG_ PCWLevelReq : 52|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+ SG_ RCTA_Enable_S : 6|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,BSMCL,BSMCR,FCR
+ SG_ RCW_Enable_S : 8|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,BSMCL,BSMCR,FCR
+ SG_ RCTB_Enable_S : 22|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,BSMCL,BSMCR,FCR
+ SG_ SLA_SpdLimOffs_S : 56|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS,MRR
+ SG_ TSR_Switch_S : 26|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+ SG_ ELKA_Enable_S : 62|2@1+ (1,0) [0|3] ""  ADAS,MPC,ADS,MRR
+
+BO_ 1263 Media_0x4EF: 8 Media
+ SG_ Medium_0x4EF_ChilD_ID_S M : 0|8@1+ (1,0) [0|255] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ FCTA_Enable_S m51 : 8|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ FCTB_Enable_S m51 : 10|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ ILCA_Enable_S m51 : 12|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ HNP_Enable_S m51 : 14|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ ISLC_Enable_S m51 : 16|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ LTA_Enable_S m51 : 18|2@1+ (1,0) [0|3] ""  Right_BCM,Rear_BCM,MPC,ADS
+ SG_ PCW_Level_Req_S m51 : 28|3@1+ (1,0) [0|7] ""  MRR
+
+BO_ 694 Media_0x2B6: 8 Media
+ SG_ Date_Information_Year_2B6_S : 0|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Date_Information_Month_2B6_S : 8|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,LBMS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Date_Information_Day_2B6_S : 16|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,LBMS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Date_Information_Hour_2B6_S : 24|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,LBMS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Date_Information_Minute_2B6_S : 32|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,LBMS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Date_Information_Second_2B6_S : 40|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,ALS,LBMS,BMS,DCOBC,SRS,MPC,ADS,MRR
+ SG_ Week_2B6_S : 48|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,MPC,ADS,MRR
+
+BO_ 995 Media_0x3E3: 8 Media
+ SG_ Media_Factory_Default_S : 8|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,AVAS,PSDL,PSDR,BD,PAL,LBMS,DCOBC,BSMCL,BSMCR,FCR,APA,FLL,FLR
+ SG_ SfAsist_Restr_Dflt_Log_S : 55|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,MPC,ADS,MRR,FLL,FLR
+ SG_ Drv_Asis_St_RstrDflt_Flg_S : 56|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,AVAS,VCU,BMS,MPC,ADS,BSMCL,BSMCR,FCR,APA
+ SG_ Roa_Asis_St_RstrDflt_Flg_S : 57|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,MPC,ADS
+
+BO_ 307 CS_0x133: 8 CS
+ SG_ Front_And_Rear_Fog_Lamp_Gear_S : 0|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,MPC,ADS,APA,FLL
+ SG_ CS_Front_Wiper_Gear_S : 8|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,IPB,MPC,ADS,MRR,FLL
+ SG_ Light_Knob_Mechan_Gear_S : 27|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,ALS,MPC,ADS,APA,FLL,FLR
+ SG_ High_Beam_Attendan_Lamp_Stall_S : 30|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,MPC,ADS,APA,FLL,FLR
+ SG_ Turn_Signal_Switch_S : 36|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Media,ALS,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL
+ SG_ Loss_Cycle_Counter133_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,MPC,ADS,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum133_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,MPC,ADS,BSMCL,BSMCR,FCR,APA
+
+BO_ 322 CS_0x142: 5 CS
+ SG_ Steering_Wheel_Angle_142_S : 0|16@1- (0.1,0) [-780|779.9] "��"  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,VCU,TCU,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Steering_Wheel_Rotat_Speed_142_S : 16|8@1+ (4,0) [0|1016] "?/s"  IPB,MPC,ADS,MRR,APA
+ SG_ Failure_Stats_OK_142_S : 24|1@1+ (1,0) [0|1] ""  TCU,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Sensor_Calibration_Stats_142_S : 25|1@1+ (1,0) [0|1] ""  TCU,IPB,MPC,ADS,MRR,APA
+ SG_ TRIM_Trimming_Stats_142_S : 26|1@1+ (1,0) [0|1] ""  MPC,ADS,MRR
+ SG_ RollingCounter_142_S : 32|4@1+ (1,0) [0|15] ""  IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ SAS_Checksum_142_S : 36|4@1+ (1,0) [0|15] ""  IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 944 SWS_0x3B0: 8 SWS
+ SG_ SWS_Dist_Set_S : 0|3@1+ (1,0) [0|7] ""  ADAS,ECM_Fuel,ADS,MRR
+ SG_ SWS_Speed_Set_S : 3|3@1+ (1,0) [0|7] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ Dipilot_Switch_Signal_S : 6|2@1+ (1,0) [0|3] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ SWS_Cruise_Or_Speed_Limit_Mode_S : 8|2@1+ (1,0) [0|3] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ SWS_Reset_Signal_S : 10|2@1+ (1,0) [0|3] ""  ADAS,ECM_Fuel,ADS,MRR
+ SG_ SWS_Cruis_Swch_Fault_Stat_flg_S : 12|2@1+ (1,0) [0|3] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ SWS_Set_Signal_S : 14|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,ADS,MRR
+ SG_ SWS_Dist_Switch_Signal_Down_S : 15|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ SWS_Dist_Switch_Signal_Up_S : 16|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS,MRR
+ SG_ Cruise_Switch_Operation_Mode_S : 18|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,ADS,MRR
+ SG_ ACC_Switch_Signal_S : 19|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS
+ SG_ Loss_Cycle_Counter3B0_S : 52|4@1+ (1,0) [0|15] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ CheckCode3B0_S : 56|8@1+ (1,0) [0|255] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+
+BO_ 269 ECM_0x10D: 8 ECM
+ SG_ ECM_Engine_Rev10D_S : 0|16@1+ (0.25,0) [0|10000] "rpm"  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,LTE4G,VCU,BSG,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Engine_Rev_Error_S : 36|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,VCU,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Rev_Drag_Start_Cmd_S : 39|1@1+ (1,0) [0|1] ""  TCU,MPC,ADS
+ SG_ ECM_Acc_Pedal_Pos_S : 40|8@1+ (0.392,0) [0|99.6] "%"  SRS,MPC,ADS
+ SG_ ECM_Engine_Status_S : 48|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,AVAS,ALS,LBMS,VCU,BMS,DCOBC,BDC,FMCU,RMCU,ISG,BSG,TCU,IPB,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+
+BO_ 833 VCU_0x341: 8 VCU
+ SG_ VCU_READY_Indicator_Light_S : 8|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,ALS,LBMS,SCPA,SCU,BMS,DCOBC,EPS,ADS,MRR,APA
+ SG_ Checksum341_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,BMS,ADS,MRR,APA
+
+BO_ 576 VCU_0x240: 8 VCU
+ SG_ Power_System_Failure_S : 0|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SCPA,SCU,BMS,IPB,MPC,ADS,MRR,APA
+ SG_ VCU_Goal_Road_Mode_S : 40|3@1+ (1,0) [0|7] ""  ADAS,IPB,MPC,ADS,MRR
+ SG_ VCU_Practice_Road_Mode_S : 43|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,MPC,ADS,MRR,APA
+ SG_ Checksum240_S : 56|8@1+ (1,0) [0|255] ""  ADAS,BDC,MPC,ADS,MRR,APA
+
+BO_ 834 VCU_0x342: 8 VCU
+ SG_ VCU_Accelerograph_Depth_S : 0|8@1+ (1,0) [0|100] "%"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,LTE4G,IPB,SRS,MPC,ADS,MRR,APA
+ SG_ VCU_Brake_Depth_S : 8|8@1+ (1,0) [0|100] "%"  ADAS,Media,LTE4G,SCPA,SCU,SRS,MPC,ADS
+ SG_ VCU_Acelrogra_Dpth_Virtual_Val_S : 16|1@1+ (1,0) [0|1] ""  ADAS,Media,IPB,SRS,MPC,ADS,MRR,APA
+ SG_ VCU_Brake_Depth_Virtual_Value_S : 17|1@1+ (1,0) [0|1] ""  ADAS,SCPA,SCU,SRS,MPC,ADS
+ SG_ VCU_Vehicle_Run_Mode_S : 20|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SCPA,SCU,BMS,IPB,MPC,ADS,MRR,APA
+ SG_ VCU_Goal_Gear_S : 24|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,AVAS,PSDL,PSDR,ALS,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Rolling_Counter_342_S : 52|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,FMCU,RMCU,BSG,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum342_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,FMCU,RMCU,BSG,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 578 VCU_0x242: 8 VCU
+ SG_ VCU_Driver_VLC_Request_Torque_S : 33|1@1+ (1,0) [0|1] ""  ADAS,IPB,MPC,ADS,MRR
+ SG_ Acceleration_Pedal_depth_error_S : 36|1@1+ (1,0) [0|1] ""  ADAS,IPB,MPC,ADS,MRR
+ SG_ Alive_counter242_S : 52|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,IPB,MPC,ADS,MRR
+ SG_ Checksum242_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,FMCU,RMCU,BSG,MPC,ADS,MRR
+
+BO_ 836 BMS_0x344: 8 BMS
+
+BO_ 530 TCU_0x212: 8 TCU
+ SG_ Gear_Shift_Progress_S : 4|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,IPB,MPC,ADS
+ SG_ Gear_Shift_Progress_State_S : 5|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,IPB,MPC,ADS
+ SG_ TCU_Mode_Switch_S : 6|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ECM_Fuel,MPC,ADS
+ SG_ Actual_Shift_Gear_Mode_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,PSDL,PSDR,ALS,LBMS,SCPA,SCU,ECM_Fuel,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Actual_Gear_S : 52|4@1+ (1,0) [0|15] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,SCPA,SCU,ECM_Fuel,IPB,MPC,ADS,MRR
+ SG_ Checksum212_S : 56|8@1+ (1,0) [0|255] ""  ADAS,ECM_Fuel,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 289 IPB_0x121: 8 IPB
+ SG_ IPB_Vehicle_Speed_S : 0|12@1+ (0.06875,0) [0|281.4625] "km/h"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,AVAS,PSDL,PSDR,BD,ALS,LBMS,SCPA,SCU,ECM,ECM_Fuel,VCU,BMS,DCOBC,BDC,FMCU,RMCU,ISG,BSG,TCU,EPS,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA,FLL,FLR
+ SG_ Vehicle_Speed_Stats_S : 15|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,LTE4G,PSDL,PSDR,BD,ALS,SCPA,SCU,ECM,ECM_Fuel,VCU,BDC,FMCU,RMCU,ISG,BSG,TCU,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ AWB_Available_S : 28|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ AWB_Active_Brake_Warning_S : 29|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ AEB_Dec_Active_S : 30|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ECM_Fuel,VCU,TCU,SRS,MPC,ADS,MRR,APA
+ SG_ AEB_not_Available_S : 31|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,VCU,SRS,MPC,ADS,MRR
+ SG_ Prefill_Available_S : 32|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ Prefill_Active_S : 33|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ ABAavailable_S : 34|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ ABA_Active_S : 35|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ Alive_Counter_121_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Rear_BCM,ECM,ECM_Fuel,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checknum121_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,Media,ECM,ECM_Fuel,TCU,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 291 IPB_0x123: 8 IPB
+ SG_ HDC_CtrlStatus_S : 41|2@1+ (1,0) [0|3] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ECM_Fuel,VCU,TCU,MPC,ADS,MRR
+ SG_ Brake_Pedal_Status_S : 43|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,ECM_Fuel,EPS,SRS,MPC,ADS,MRR,APA
+ SG_ Counter123_S : 48|4@1+ (1,0) [0|15] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ ESP_OFF_S : 52|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,Media,SCPA,ECM_Fuel,TCU,EPS,SRS,MPC,ADS,MRR
+ SG_ ESP_Active_S : 53|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,ECM_Fuel,VCU,TCU,EPS,SRS,MPC,ADS,MRR,APA
+ SG_ TCS_Fault_S : 54|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,ECM_Fuel,VCU,TCU,EPS,MPC,ADS,MRR
+ SG_ VDC_Fault_S : 55|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,ECM_Fuel,VCU,TCU,MPC,ADS,MRR
+ SG_ Checksum123_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR,APA
+
+BO_ 546 IPB_0x222: 8 IPB
+ SG_ Yaw_Rate_Signal_S : 0|12@1+ (0.002132603,-2.094216146) [-2.094216146|2.094216146] "rad/s"  ADAS,ECM_Fuel,EPS,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Yaw_Rate_Offset_S : 12|12@1+ (0.002132603,-0.130088783) [-0.130088783|0.130088783] "rad/s"  ADAS,ECM_Fuel,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ EBD_Active_222_S : 24|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR
+ SG_ ABS_Active_222_S : 25|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR,APA
+ SG_ EBD_Fault_222_S : 26|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR
+ SG_ ABS_Fault_222_S : 27|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR
+ SG_ TCS_Active_222_S : 28|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR,APA
+ SG_ DTC_Active_222_S : 29|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS,MRR
+ SG_ VDC_Active_222_S : 30|1@1+ (1,0) [0|1] ""  ADAS,EPS,MPC,ADS,MRR
+ SG_ Yaw_Rate_Status_S : 31|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,EPS,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Message_Counter222_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum222_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 547 IPB_0x223: 8 IPB
+ SG_ IPB_AX_S : 0|12@1+ (0.027126736,-21.592881856) [-21.592881856|21.592881856] "m/s?"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,Media,ECM_Fuel,TCU,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ IPB_AX_offset_S : 12|12@1+ (0.027126736,-21.592881856) [-21.592881856|21.592881856] "m/s?"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Rear_BCM,Media,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ IPB_AY_S : 24|12@1+ (0.027126736,-21.592881856) [-21.592881856|21.592881856] "m/s?"  ADAS,Rear_BCM,Media,ECM_Fuel,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ IPB_AY_Offset_S : 36|12@1+ (0.027126736,-21.592881856) [-21.592881856|21.592881856] "m/s?"  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Message_Counter223_S : 48|4@1+ (1,0) [0|15] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ IPB_AY_Status_S : 54|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,Media,ECM_Fuel,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ IPB_AX_Status_S : 55|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,Media,ECM_Fuel,TCU,SRS,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Checksum223_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Rear_BCM,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 801 IPB_0x321: 8 IPB
+ SG_ MC_Pressure_Value_S : 0|12@1+ (0.153,-42.5) [-42.5|42.5] "bar"  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR
+ SG_ MC_Pressure_Status_S : 12|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR
+ SG_ MC_Pressure_Offset_Status_S : 13|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR
+ SG_ MC_Pressure_Offset_Value_S : 16|12@1+ (0.153,-42.5) [-42.5|42.5] "bar"  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR
+ SG_ Message_Counter321_S : 52|4@1+ (1,0) [0|15] ""  ADAS,Rear_BCM,ECM_Fuel,MPC,ADS,MRR
+ SG_ Checksum321_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Rear_BCM,ECM_Fuel,TCU,MPC,ADS,MRR
+
+BO_ 544 IPB_0x220: 8 IPB
+ SG_ RR_Wheel_Drive_Direction_S : 0|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ RL_Wheel_Drive_Direction_S : 2|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ FR_Wheel_Drive_Direction_S : 4|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ FL_Wheel_Drive_Direction_S : 6|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Active_Vehicle_Hold_S : 8|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,ECM_Fuel,TCU,MPC,ADS,APA
+ SG_ VLC_Available_S : 9|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ VLC_Active_S : 10|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,Media,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ VLC_Fail_S : 11|1@1+ (1,0) [0|1] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ No_Brake_Force_S : 12|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ QDC_ACC_S : 15|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ ECD_Temp_Off_S : 16|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Vehicle_Stand_Still_S : 18|2@1+ (1,0) [0|3] ""  ADAS,Rear_BCM,Media,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ FL_Wheel_Drive_Direct_Stat_S : 20|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ FR_Wheel_Drive_Direct_Stat_S : 21|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ RL_Wheel_Drive_Direct_Stat_S : 22|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ RR_Wheel_Drive_Direct_Stat_S : 23|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ VLC_Internal_Targ_Accel_S : 24|8@1+ (0.05,-7) [-7|5.75] "m/s2"  ADAS,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ Message_Counter220_S : 48|4@1+ (1,0) [0|15] ""  ADAS,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ CDD_Available_S : 53|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ CDD_Active_S : 54|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ CDD_Fail_S : 55|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+ SG_ CheckSum220_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Rear_BCM,Media,ECM_Fuel,TCU,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 1058 IPB_0x422: 8 IPB
+ SG_ FL_Wheel_Pulse_Counter_422_S : 0|10@1+ (1,0) [0|1022] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ RR_Wheel_Puls_Count_Valid_422_S : 12|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ RL_Wheel_Puls_Count_Valid_422_S : 13|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ FR_Wheel_Puls_Count_Valid_422_S : 14|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ FL_Wheel_Puls_Count_Valid_422_S : 15|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ FR_Wheel_Pulse_Counter_422_S : 16|10@1+ (1,0) [0|1022] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ RL_Wheel_Pulse_Counter_422_S : 28|10@1+ (1,0) [0|1022] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ RR_Wheel_Pulse_Counter_422_S : 40|10@1+ (1,0) [0|1022] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Message_Counter422_S : 52|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS,MRR,APA
+ SG_ CheckSum422_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Media,MPC,ADS,MRR,APA
+
+BO_ 496 IPB_0x1F0: 8 IPB
+ SG_ Wheel_Speed_FL_1F0_S : 0|12@1+ (0.06875,0) [0|281.4625] "km/h"  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_FR_Stats_1F0_S : 12|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_FL_Stats_1F0_S : 13|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_RR_Stats_1F0_S : 14|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ WheelSpeed_RL_Status_1F0_S : 15|1@1+ (1,0) [0|1] ""  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_FR_1F0_S : 16|12@1+ (0.06875,0) [0|281.4625] "km/h"  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_RL_1F0_S : 28|12@1+ (0.06875,0) [0|281.4625] "km/h"  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Wheel_Speed_RR_1F0_S : 40|12@1+ (0.06875,0) [0|281.4625] "km/h"  ADAS,Media,MPC,ADS,MRR,APA
+ SG_ Message_Counter_1F0_S : 52|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS,MRR,APA
+ SG_ Checksum_1F0_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Media,MPC,ADS,MRR,APA
+
+BO_ 213 IPB_0x0D5: 8 IPB
+ SG_ IPB_Input_Rod_Stroke_S : 0|10@1+ (0.05,-5) [-5|46.15] "mm"  ADAS,VCU,MPC,ADS,MRR
+ SG_ IPB_Input_Rod_Stroke_State_S : 10|1@1+ (1,0) [0|1] ""  ADAS,VCU,MPC,ADS,MRR
+ SG_ Message_Counter0D5_S : 52|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS,MRR
+ SG_ CheckSum_0D5_S : 56|8@1+ (1,0) [0|255] ""  ADAS,MPC,ADS,MRR
+
+BO_ 588 EPS_0x24C: 8 EPS
+ SG_ Steering_Mode_Status_S : 8|3@1+ (1,0) [0|7] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,MPC,ADS
+ SG_ Counter_24C_S : 52|4@1+ (1,0) [0|15] ""  ADAS,MPC,ADS
+ SG_ CheckSum24C_S : 56|8@1+ (1,0) [0|255] ""  ADAS,MPC,ADS
+
+BO_ 287 EPS_0x11F: 5 EPS
+ SG_ Steering_Wheel_Angle_S : 0|16@1- (0.1,0) [-780|779.9] "��"  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ALS,ECM_Fuel,VCU,TCU,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,APA,FLL,FLR
+ SG_ Steering_Wheel_Rotation_Speed_S : 16|8@1+ (4,0) [0|1016] "?/s"  ADAS,Media,ECM_Fuel,IPB,MPC,ADS,MRR,APA
+ SG_ Failure_Stats_OK_S : 24|1@1+ (1,0) [0|1] ""  ADAS,ALS,ECM_Fuel,TCU,IPB,SRS,MPC,ADS,MRR,BSMCL,BSMCR,APA
+ SG_ Sensor_Calibration_Stats_S : 25|1@1+ (1,0) [0|1] ""  ADAS,ALS,ECM_Fuel,TCU,IPB,MPC,ADS,MRR,APA
+ SG_ TRIM_Trimming_Stats_S : 26|1@1+ (1,0) [0|1] ""  ADAS,ECM_Fuel,MPC,ADS,MRR
+ SG_ SAS_Scroll_Cycle_11F_Cnt_S : 32|4@1+ (1,0) [0|15] ""  ADAS,ECM_Fuel,IPB,MPC,ADS,MRR,BSMCL,BSMCR,APA
+ SG_ SAS_Checksum11F_S : 36|4@1+ (1,0) [0|15] ""  ADAS,ECM_Fuel,IPB,MPC,ADS,MRR,BSMCL,BSMCR,APA
+
+BO_ 508 EPS_0x1FC: 8 EPS
+ SG_ EPSAngleCtrlSt_S : 0|3@1+ (1,0) [0|7] ""  ADS,MRR
+ SG_ StrngWhlTorqVD_S : 3|1@1+ (1,0) [0|1] ""  ADS,MRR
+ SG_ StrngWhlTorq_S : 4|12@1- (0.01,0) [-12.5|12.5] "Nm"  ADS,MRR
+ SG_ EPSAngleCtrlDlvdValue_S : 16|16@1- (0.1,0) [-780|779.9] "��"  ADS,MRR
+ SG_ EPSAngleCtrlDlvdTorsionBarTorque : 32|12@1- (0.01,0) [-5|5] "Nm"  ADS,MRR
+ SG_ HandsOffDetSt_S : 45|1@1+ (1,0) [0|1] ""  ADS,MRR
+ SG_ RequestAngleOverRange_S : 46|1@1+ (1,0) [0|1] ""  ADS,MRR
+ SG_ RequestAnglespeedOverRange_S : 47|1@1+ (1,0) [0|1] ""  ADS,MRR
+ SG_ EPSAngleCtrlAbortFeedback_S : 48|4@1+ (1,0) [0|15] ""  ADS,MRR
+ SG_ EPS_2_MsgCounter_S : 52|4@1+ (1,0) [0|15] ""  ADS
+ SG_ Checksum1FC_S : 56|8@1+ (1,0) [0|255] ""  Rear_BCM,ECM_Fuel,TCU,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_ 792 EPS_0x318: 8 EPS
+ SG_ EPS_LKA_Control_State_S : 0|3@1+ (1,0) [0|7] ""  ADAS,MPC,ADS
+ SG_ LKA_Control_Delivered_Value_S : 8|12@1- (0.01,0) [-5|5] "Nm"  ADAS,MPC,ADS
+ SG_ LKACtrlDlvdValue_VD_S : 20|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS
+ SG_ Hnads_Off_Detected_States_S : 21|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS
+ SG_ Hnads_Off_Detected_States_VD_S : 22|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS
+ SG_ StrngWhlTorqVD_S : 23|1@1+ (1,0) [0|1] ""  ADAS,MPC,ADS
+ SG_ StrngWhlTorq_S : 24|12@1- (0.01,0) [-12.5|12.5] "Nm"  ADAS,MPC,ADS
+ SG_ Counter318_S : 52|4@1+ (1,0) [0|15] ""  ADAS
+ SG_ Checksum318_S : 56|8@1+ (1,0) [0|255] ""  ADAS,MPC,ADS
+
+BO_ 813 MRR_0x32D: 8 ADS
+ SG_ Set_Speed_S : 0|9@1+ (0.5,0) [0|2555] "km/h"  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Obj_Valid_S : 9|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Tau_Gap_Set_S : 10|3@1+ (1,0) [0|7] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Dx_Tar_Obj_S : 13|3@1+ (1,0) [0|7] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ PCW_Pre_Warning_S : 16|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ PCW_Latent_Warning_S : 17|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ PCW_State_S : 18|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ ACC_State_S : 22|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Take_Over_Req_S : 23|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Speed_Unit_Set_S : 24|2@1+ (1,0) [0|3] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ CCR_AEB_Error_S : 26|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ ACC_Text_Info_For_Driver_S : 27|5@1+ (1,0) [0|31] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ CCR_FCW_Error_S : 32|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Pedestrian_FCW_Brak_Error_S : 33|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Acute_Warning_S : 35|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ AEB_State_S : 36|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ PCWLevelState : 37|2@1+ (1,0) [0|3] ""  Vehicle,Media
+ SG_ ACC_Mode_Display1_S : 44|4@1+ (1,0) [0|15] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,APA
+ SG_ Alive_Counter32D_S : 48|4@1+ (1,0) [0|15] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Checksum32D_S : 56|8@1+ (1,0) [0|255] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+
+BO_ 790 MRR_0x316: 8 ADS
+ SG_ PT31 : 3|5@0+ (1,0) [0|31] "" XXX
+ SG_ Left_Line_Tracking_Status_S : 4|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SWS
+ SG_ Lane_Assistant_Mode_Status_S : 6|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SCPA,EPS
+ SG_ LKS_Sensitivity_S : 8|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ PT1_1 : 10|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDP_LDW_Camera_Blocked_S : 11|1@1+ (1,0) [0|1] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ LDP_Fault_S : 12|1@1+ (1,0) [0|1] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ LDW_fault1_S : 13|1@1+ (1,0) [0|1] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ ACC_AEB_Camera_Blocked_Infro_S : 14|1@1+ (1,0) [0|1] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4
+ SG_ Output_LKS_torque_request_S : 16|11@1- (0.01,0) [-10.24|10.23] "Nm" Vehicle
+ SG_ LKS_torque_request_staus_S : 27|2@1+ (1,0) [0|3] "" Vehicle
+ SG_ PT7 : 31|3@0+ (1,0) [0|7] "" XXX
+ SG_ PT3 : 33|2@0+ (1,0) [0|3] "" XXX
+ SG_ Right_Line_Tracking_Stats_S : 34|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SWS
+ SG_ TJA_ICA_function_status_S : 36|3@1+ (1,0) [0|7] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ ALL_Function_Camera_Bloc_Infro_S : 39|1@1+ (1,0) [0|1] "" Vehicle
+ SG_ PTFF : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ LDW_Warning_Mode_Stats_S : 48|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SWS
+ SG_ MPC_Take_Over_Req1_S : 50|2@1+ (1,0) [0|3] "" Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ Message_Alive_Counter316_S : 52|4@1+ (1,0) [0|15] "" Vehicle,EPS
+ SG_ Messge_Checksum316_S : 56|8@1+ (1,0) [0|255] "" Vehicle,EPS
+
+BO_ 482 MRR_0x1E2: 8 ADS
+ SG_ MotorTorqueUpperLimit_S : 0|10@1+ (0.01,0) [0|5] ""  EPS
+ SG_ MotorTorqueLowerLimit_S : 10|10@1- (0.01,0) [-5|0] ""  EPS
+ SG_ ADAS_AngleReq_St_S : 20|2@1+ (1,0) [0|3] ""  EPS
+ SG_ ADAS_AngleReq_S : 24|16@1- (0.1,0) [-780|779.9] ""  EPS
+ SG_ MsgCounter1E2_S : 52|4@1+ (1,0) [0|15] ""  EPS
+ SG_ Checksum1E2_S : 56|8@1+ (1,0) [0|255] ""  EPS
+
+BO_ 1074 MPC_0x432: 8 MPC
+ SG_ ACC_Assemble_Status_S : 0|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,VCU,IPB,EPS,ADS
+ SG_ AEB_Assemble_Status_S : 1|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,VCU,IPB,EPS,ADS
+ SG_ FCW_Assemble_Status_S : 2|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ HMA_Assemble_Status_S : 3|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ LDW_Assemble_Status_S : 4|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ LKS_Assemble_Status_S : 5|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ TSR_Assemble_Status_S : 6|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ TJA_ICA_Assemble_Status_S : 7|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ Module_Manufacturer_S : 8|4@1+ (1,0) [0|15] ""  Vehicle,Media,IPB,EPS,ADS
+ SG_ LDW_Warning_Conf_Exchange_S : 12|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,EPS,ADS
+ SG_ TJA_ICA_SoftKey_Status_S : 13|1@1+ (1,0) [0|1] ""  Vehicle,Media,IPB,EPS,ADS
+ SG_ LDP_Assemble_Status_S : 14|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ ELK_Assemble_Status_S : 15|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ FCTA_Assemble_Status_S : 16|1@1+ (1,0) [0|1] ""  Vehicle,Media,ADS
+ SG_ FCTB_Assemble_Status_S : 17|1@1+ (1,0) [0|1] ""  Vehicle,Media,ADS
+ SG_ ISLI_Assemble_Statue_S : 18|1@1+ (1,0) [0|1] ""  Vehicle,Media,ADS
+ SG_ HNP_Assemble_Status_S : 19|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ ILCA_Assemble_Status_S : 20|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ TLA_Assemble_Status_S : 21|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ ISLC_Assemble_Status_S : 22|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ ESA_Assemble_Status_S : 23|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ LDW_UI_Assemble_Status_S : 24|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+ SG_ Meterdisplaymode_S : 25|1@1+ (1,0) [0|1] ""  Vehicle,ADS
+
+BO_ 311 MRR_0x137: 8 ADS
+ SG_ MPC_VLC_Torque_Request_Value_S : 0|16@1+ (1,-12000) [-12000|12000] "NM" Vector__XXX
+ SG_ MPC_VLC_Active_S : 16|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ VLC_Fault_S : 17|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ MPC_Torque_Request_Status_S : 18|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ FRS_ALOD_ADC_Req_Ena_S : 19|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Energy_Fedbak_Valid_Stats_S : 22|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Engy_Fdbck_Torq_Req_Valid_S : 23|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Engy_Fdbck_Torq_to_VCU_S : 24|14@1+ (1,-6000) [-6000|6000] "NM" Vector__XXX
+ SG_ MPC_Rolling_Counter137_S : 52|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ MPC_Checksum137_S : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 312 MRR_0x138: 8 ADS
+ SG_ Indi_FCW_Sensitive_Lv_s : 0|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Media,INS
+ SG_ MPC_Rolling_Counter138_S : 52|4@1+ (1,0) [0|15] ""  Media,INS
+ SG_ MPC_Checksum138_S : 56|8@1+ (1,0) [0|255] ""  Media,INS
+
+BO_ 814 MRR_0x32E: 8 ADS
+ SG_ ACC_Axv_Cv_Aim_S : 0|8@1+ (0.05,-5) [-5|7.75] "m/s2"  Vehicle,IPB
+ SG_ Axv_Cv_Coft_Band_Upper_Val_S : 8|8@1+ (0.05,-5) [-5|7.75] "m/s2"  Vehicle,IPB
+ SG_ Axv_Cv_Coft_Band_Lower_Val_S : 16|8@1+ (0.05,-5) [-5|7.75] "m/s2"  Vehicle,IPB
+ SG_ ADt_Upper_Limit_Axv_Cv_S : 24|7@1+ (0.2,0) [0|16] "m/s3"  Vehicle,IPB
+ SG_ Adt_Lower_Limit_Axv_Cv_S : 32|7@1+ (0.2,-16) [-16|0] "m/s3"  Vehicle,IPB
+ SG_ ACC_Drive_Off_Req_S : 39|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ ACC_DecTo_Stop_Req_S : 40|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ ACC_Minimum_Braking_S : 41|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ Brake_Preferred_S : 42|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ ACC_Mode_S : 43|3@1+ (1,0) [0|7] ""  Vehicle,IPB,SRS
+ SG_ ESP_VLC_Shut_Down_Request_S : 46|2@1+ (1,0) [0|3] ""  Vehicle,IPB
+ SG_ Alive_Counter32E_S : 48|4@1+ (1,0) [0|15] ""  Vehicle,IPB
+ SG_ Checksum32E_S : 56|8@1+ (1,0) [0|255] ""  Vehicle,IPB
+
+BO_ 815 MRR_0x32F: 8 ADS
+ SG_ AEB_Ax_Tar_S : 0|16@1+ (0.0004882,-16) [-16|16] "m/s2"  Vehicle,IPB
+ SG_ Req_EBA_Decel_Ctrl_S : 16|1@1+ (1,0) [0|1] ""  Vehicle,IPB,APA
+ SG_ ESP_Prefill_Req_S : 18|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ AWB_Request_S : 19|1@1+ (1,0) [0|1] ""  Vehicle,IPB,APA
+ SG_ ABA_Available_S : 20|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ ABA_Level_S : 21|2@1+ (1,0) [0|3] ""  Vehicle,IPB
+ SG_ AEB_DecCtrl_Request_S : 23|1@1+ (1,0) [0|1] ""  Vehicle,IPB,APA
+ SG_ AWB_Level_S : 28|4@1+ (1,0) [0|15] ""  Vehicle,IPB
+ SG_ Req_ESC_Ctrl_Veh_S : 32|1@1+ (1,0) [0|1] ""  Vehicle,IPB
+ SG_ ISLC_Sts_S : 33|1@1+ (1,0) [0|1] ""  Vehicle
+ SG_ ELK_status_S : 34|2@1+ (1,0) [0|3] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media
+ SG_ ISLC_Warnning_S : 36|1@1+ (1,0) [0|1] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB
+ SG_ ELK_Take_Over_Req_S : 37|2@1+ (1,0) [0|3] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB
+ SG_ ELK_OT_Fault_Status_Flag_S : 39|1@1+ (1,0) [0|1] ""  Vehicle,INS
+ SG_ Alive_Counter32F_S : 48|4@1+ (1,0) [0|15] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,APA
+ SG_ Checksum32F_S : 56|8@1+ (1,0) [0|255] ""  Vehicle,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB,APA
+
+BO_ 714 FCR_R_0x2CA: 8 FCR
+ SG_ FCR_Sys_Status_S : 0|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,SCPA,ADS
+ SG_ Sts_FCTA_S : 4|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ Sts_FCTB_S : 6|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ RRadar_FCTA_Warning_Right_S : 10|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ RRadar_FCTA_Warning_Left_S : 11|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ FCTBBrkReq_S : 12|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ FCTBTargetDecel_S : 16|8@1+ (0.05,-10) [-10|2.75] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ Message_Counter_2CA_S : 52|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS
+ SG_ CheckSum2CA_S : 56|8@1+ (1,0) [0|255] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS
+
+BO_ 668 ADS_0x29C: 8 ADS
+ SG_ ILCASysSts_S : 0|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB
+ SG_ ILCALaneSts_S : 8|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,IPB
+ SG_ Message_Counter_29C_S : 52|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,IPB
+ SG_ CheckSum29C_S : 56|8@1+ (1,0) [0|255] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,IPB
+
+BO_ 319 APA_0x13F: 8 APA
+ SG_ APA_MEB_States_S : 32|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,BH,EPS,ADS,MRR
+ SG_ Scroll_Cycle_Cnt_13F_S : 52|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,BH,ADS,MRR
+ SG_ Checksum_13F_S : 56|8@1+ (1,0) [0|255] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,BH,ADS,MRR
+
+BO_ 308 APA_0x134: 8 APA
+ SG_ APA_Auto_Parking_Status_S : 0|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,EPS,MPC,ADS,MRR,BSMCL,BSMCR,FCR
+
+BO_ 884 MRR_0x374: 8 ADS
+ SG_ Child_ID_374_S M : 0|8@1+ (1,0) [0|7] ""  Media,INFC
+ SG_ Lock_Target_Abscissa_374s1_S m1 : 8|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Lock_Target_Ordinate_374s1_S m1 : 16|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Goal_Length_Relative_Spd_374s1_S m1 : 24|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Goal_Late_Relative_Spd_374s1_S m1 : 32|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Target_State_B6_374s1_S m1 : 40|2@1+ (1,0) [0|3] ""  Media,INFC
+ SG_ Target_State_B1_374s1_S m1 : 43|1@1+ (1,0) [0|1] ""  Media,INFC
+ SG_ Target_Type_374s1_S m1 : 44|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ AliveCounter_374s1_S m1 : 52|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ CheckSum_374s1_S m1 : 56|8@1+ (1,0) [0|255] ""  Media,INFC
+ SG_ Lock_Target_Abscissa_374s2_S m2 : 8|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Lock_Target_Ordinate_374s2_S m2 : 16|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Goal_Length_Relative_Spd_374s2_S m2 : 24|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Goal_Late_Relative_Spd_374s2_S m2 : 32|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Target_State_B6_374s2_S m2 : 40|2@1+ (1,0) [0|3] ""  Media,INFC
+ SG_ Target_State_B1_374s2_S m2 : 43|1@1+ (1,0) [0|1] ""  Media,INFC
+ SG_ Target_Type_374s2_S m2 : 44|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ AliveCounter_374s2_S m2 : 52|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ CheckSum_374s2_S m2 : 56|8@1+ (1,0) [0|255] ""  Media,INFC
+ SG_ Lock_Target_Abscissa_374s3_S m3 : 8|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Lock_Target_Ordinate_374s3_S m3 : 16|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Goal_Length_Relative_Spd_374s3_S m3 : 24|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Goal_Late_Relative_Spd_374s3_S m3 : 32|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Target_State_B6_374s3_S m3 : 40|2@1+ (1,0) [0|3] ""  Media,INFC
+ SG_ Target_State_B1_374s3_S m3 : 43|1@1+ (1,0) [0|1] ""  Media,INFC
+ SG_ Target_Type_374s3_S m3 : 44|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ AliveCounter_374s3_S m3 : 52|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ CheckSum_374s3_S m3 : 56|8@1+ (1,0) [0|255] ""  Media,INFC
+ SG_ Lock_Target_Abscissa_374s4_S m4 : 8|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Lock_Target_Ordinate_374s4_S m4 : 16|8@1+ (1,-100) [-100|100] "pot"  Media,INFC
+ SG_ Goal_Length_Relative_Spd_374s4_S m4 : 24|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Goal_Late_Relative_Spd_374s4_S m4 : 32|8@1+ (1,0) [0|254] "km/h"  Media,INFC
+ SG_ Target_State_B6_374s4_S m4 : 40|2@1+ (1,0) [0|3] ""  Media,INFC
+ SG_ Target_State_B1_374s4_S m4 : 43|1@1+ (1,0) [0|1] ""  Media,INFC
+ SG_ Target_Type_374s4_S m4 : 44|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ AliveCounter_374s4_S m4 : 52|4@1+ (1,0) [0|15] ""  Media,INFC
+ SG_ CheckSum_374s4_S m4 : 56|8@1+ (1,0) [0|255] ""  Media,INFC
+ SG_ Lock_Target_Abscissa_374s5_S m5 : 8|8@1+ (1,-100) [-100|100] "pot"  Media,INFC,ADS
+ SG_ Lock_Target_Ordinate_374s5_S m5 : 16|8@1+ (1,-100) [-100|100] "pot"  Media,INFC,ADS
+ SG_ Goal_Length_Relative_Spd_374s5_S m5 : 24|8@1+ (1,0) [0|254] "km/h"  Media,INFC,ADS
+ SG_ Goal_Late_Relative_Spd_374s5_S m5 : 32|8@1+ (1,0) [0|254] "km/h"  Media,INFC,ADS
+ SG_ Target_State_B6_374s5_S m5 : 40|2@1+ (1,0) [0|3] ""  Media,INFC,ADS
+ SG_ Target_State_B1_374s5_S m5 : 43|1@1+ (1,0) [0|1] ""  Media,INFC,ADS
+ SG_ Target_Type_374s5_S m5 : 44|4@1+ (1,0) [0|15] ""  Media,INFC,ADS
+ SG_ AliveCounter_374s5_S m5 : 52|4@1+ (1,0) [0|15] ""  Media,INFC,ADS
+ SG_ CheckSum_374s5_S m5 : 56|8@1+ (1,0) [0|255] ""  Media,INFC,ADS
+
+BO_ 843 MPC_0x34B: 8 ADS
+ SG_ Left_Lane_Line_Type_S : 0|2@1+ (1,0) [0|3] ""  Vehicle,Media,INFC
+ SG_ Right_Lane_Line_Type_S : 2|2@1+ (1,0) [0|3] ""  Vehicle,Media,INFC
+ SG_ Left_Lane_Line_Y_Distance_S : 4|12@1+ (0.00390625,-8) [-8|7.9960938] ""  Vehicle,Media,INFC
+ SG_ Right_Lane_Line_Y_Distance_S : 16|12@1+ (0.00390625,-8) [-8|7.9960938] ""  Vehicle,Media,INFC
+ SG_ Lane_Line_Curvature_S : 28|12@1+ (1.5E-005,-0.03071) [-0.030705|0.030705] ""  Vehicle,Media,INFC
+ SG_ AliveCounter_34B_S : 52|4@1+ (1,0) [0|15] ""  Vehicle,Media,INFC
+ SG_ CheckSum_34B_S : 56|8@1+ (1,0) [0|255] ""  Vehicle,Media,INFC
+
+BO_ 692 MPC_0x2B4: 8 MPC
+ SG_ HMA_Stats_S : 0|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ HMA_High_Beam_Request_S : 3|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ MPC_ReTrsmReq_S : 4|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ TSR_function_status_S : 5|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ RSI_SignMisc_S : 8|6@1+ (1,0) [0|63] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ SILI_Warning_Status_S : 14|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ ISLI_Sta_S : 16|1@1+ (1,0) [0|1] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ SLA__Output_Speed_Limit_Unit_S : 18|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ MPC_SpdLimOffs_SLA_S : 20|4@1+ (1,0) [0|15] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ SLA_Output_Speed_Limit_S : 24|8@1+ (1,0) [0|255] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ TLA_Sts_S : 32|2@1+ (1,0) [0|3] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ MPC_Warn_TLA_left_S : 34|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ MPC_Warn_TLA_stright : 37|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+ SG_ MPC_Warn_TLA_right : 40|3@1+ (1,0) [0|7] ""  Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Media,ADS,MRR
+
+BO_ 1226 Media_0x4CA: 64 Media
+ SG_ OffFrontCrossingDis_S : 0|8@1+ (10,0) [0|2550] "m"  MPC,ADS
+ SG_ OffFrontTunnelDis_S : 8|8@1+ (10,0) [0|2550] "m"  MPC,ADS
+ SG_ FrontCrossingLaneNumber_S : 16|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ CrossingLaneNumberValid_S : 20|1@1+ (1,0) [0|1] ""  MPC,ADS
+ SG_ TunneStates_S : 21|3@1+ (1,0) [0|7] ""  MPC,ADS
+ SG_ Lane_1_States_S : 24|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_2_States_S : 28|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_3_States_S : 32|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_4_States_S : 36|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_5_States_S : 40|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_6_States_S : 44|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_7_States_S : 48|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_8_States_S : 52|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Speedlimit_S : 56|8@1+ (1,0) [0|255] ""  MPC,ADS
+ SG_ NaviCorp_S : 64|3@1+ (1,0) [0|7] ""  MPC,ADS
+ SG_ MPC_IFC_NaviSt_S : 67|2@1+ (1,0) [0|3] ""  MPC,ADS
+ SG_ MPC_ZoneCode_S : 69|3@1+ (1,0) [0|7] ""  MPC,ADS
+ SG_ Roadtype_S : 72|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_9_States_S : 76|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_10_States_S : 80|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_11_States_S : 84|4@1+ (1,0) [0|15] ""  MPC,ADS
+ SG_ Lane_12_States_S : 88|4@1+ (1,0) [0|15] ""  MPC,ADS
+
+BO_ 1178 LTE4G_0x49A: 8 Media
+ SG_ Medium_Enter_OTA_Mode_Req_S : 4|1@1+ (1,0) [0|1] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,Right_BCM,Rear_BCM,SWS,AVAS,PSDL,PSDR,PM25,ALS,PAL,FPTC,LBMS,SCPA,SCU,ECM,VCU,BMS,DCOBC,BDC,ISG,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+ SG_ Medium_Checksum_49A_S : 56|8@1+ (1,0) [0|255] ""  ADAS,Left_BCM_L1,Left_BCM_L2_L3,Left_BCM_L4,VCU,FMCU,RMCU,BSG,IPB,MPC,ADS,MRR,BSMCL,BSMCR,FCR,APA
+
+BO_TX_BU_ 660 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 948 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 301 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 1141 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 337 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 985 : Vehicle,Left_BCM_L1;
+BO_TX_BU_ 1028 : Vehicle,Right_BCM;
+BO_TX_BU_ 536 : Vehicle,Rear_BCM;
+BO_TX_BU_ 901 : Vehicle,Media;
+BO_TX_BU_ 694 : Vehicle,Media;
+BO_TX_BU_ 307 : Vehicle,CS;
+BO_TX_BU_ 944 : Vehicle,SWS;
+BO_TX_BU_ 833 : Vehicle,VCU;
+BO_TX_BU_ 576 : Vehicle,VCU;
+BO_TX_BU_ 834 : Vehicle,VCU;
+BO_TX_BU_ 578 : Vehicle,VCU;
+BO_TX_BU_ 530 : Vehicle,TCU;
+BO_TX_BU_ 289 : Vehicle,IPB;
+BO_TX_BU_ 291 : Vehicle,IPB;
+BO_TX_BU_ 546 : Vehicle,IPB;
+BO_TX_BU_ 547 : Vehicle,IPB;
+BO_TX_BU_ 801 : Vehicle,IPB;
+BO_TX_BU_ 544 : Vehicle,IPB;
+BO_TX_BU_ 1058 : Vehicle,IPB;
+BO_TX_BU_ 496 : Vehicle,IPB;
+BO_TX_BU_ 213 : Vehicle,IPB;
+BO_TX_BU_ 588 : Vehicle,EPS;
+BO_TX_BU_ 287 : Vehicle,EPS;
+BO_TX_BU_ 792 : Vehicle,EPS;
+BO_TX_BU_ 813 : ADAS,ADS;
+BO_TX_BU_ 790 : ADAS,ADS;
+BO_TX_BU_ 1074 : ADAS,MPC;
+BO_TX_BU_ 814 : ADAS,ADS;
+BO_TX_BU_ 815 : ADAS,ADS;
+BO_TX_BU_ 843 : ADAS,ADS;
+BO_TX_BU_ 1178 : Vehicle,Media;
+
+
+CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+CM_ SG_ 3221225472 RCR_R_Sys_Status_S "RCR_R_Sys_Status_S";
+CM_ SG_ 3221225472 ELKA_Warning_Left_S "ELKA_Warning_Left_S";
+CM_ SG_ 3221225472 ELKA_Warn_Right_S "ELKA_Warn_Right_S";
+CM_ SG_ 3221225472 R_BSD_Warning_Left_S "R_BSD_Warning_Left_S";
+CM_ SG_ 3221225472 R_BSD_Warning_Right_S "R_BSD_Warning_Right_S";
+CM_ SG_ 3221225472 RRadar_RCTA_Warning_Left_S "RRadar_RCTA_Warning_Left_S";
+CM_ SG_ 3221225472 Radar_RCTA_Warn_Right_S "Radar_RCTA_Warn_Right_S";
+CM_ SG_ 3221225472 RCW_Warning_S "RCW_Warning_S";
+CM_ SG_ 3221225472 R_BSD_Status_S "R_BSD_Status_S";
+CM_ SG_ 3221225472 Right_Radar_RCTA_Status_S "Right_Radar_RCTA_Status_S";
+CM_ SG_ 3221225472 Right_Radar_RCW_Status_S "Right_Radar_RCW_Status_S";
+CM_ SG_ 3221225472 Right_Radar_DOW_Status_S "Right_Radar_DOW_Status_S";
+CM_ SG_ 3221225472 RRadar_DOW_Warning_Left_S "RRadar_DOW_Warning_Left_S";
+CM_ SG_ 3221225472 RRadar_DOW_WarningRight_S "RRadar_DOW_WarningRight_S";
+CM_ SG_ 3221225472 Right_Radar_RCTB_Status_S "Right_Radar_RCTB_Status_S";
+CM_ SG_ 3221225472 Right_Radar_RCTB_Braking_Req_S "Right_Radar_RCTB_Braking_Req_S";
+CM_ SG_ 3221225472 RCTBTargetDecel_S "RCTBTargetDecel_S";
+CM_ SG_ 3221225472 Message_counter418_S "Message_counter418_S";
+CM_ SG_ 3221225472 Checksum418_S "Checksum418_S";
+CM_ SG_ 3221225472 VCU_Vehicle_Run_Mode_S "VCU_Vehicle_Run_Mode_SVCU_Vehicle_Run_Mode_S";
+CM_ SG_ 3221225472 IPB_Simulator_Pressure_S "IPB_Simulator_Pressure_S";
+CM_ SG_ 3221225472 IPB_Simulator_Pressure_Sts_S "IPB_Simulator_Pressure_Sts_S";
+CM_ SG_ 3221225472 IPB_Plunger_Pres_status_S "IPB_Plunger_Pres_status_S";
+CM_ SG_ 3221225472 IPB_Plunger_Pressure_S "IPB_Plunger_Pressure_S";
+CM_ SG_ 660 Left_Front_Door_Status_294_S "Left_Front_Door_Status_294_S";
+CM_ SG_ 660 Right_Front_Door_Status_294_S "Right_Front_Door_Status_294_S";
+CM_ SG_ 660 Left_Back_Door_Status_294_S "Left_Back_Door_Status_294_S";
+CM_ SG_ 660 Right_Back_Door_Status_294_S "Right_Back_Door_Status_294_S";
+CM_ SG_ 660 LeftF_Door_Stats_Valid_Bit_S "LeftF_Door_Stats_Valid_Bit_S";
+CM_ SG_ 660 RightF_Door_Sts_Valid_Bit_294_S "RightF_Door_Sts_Valid_Bit_294_S";
+CM_ SG_ 660 LeftR_Door_Stats_Valid_Bit_S "LeftR_Door_Stats_Valid_Bit_S";
+CM_ SG_ 660 RightR_Door_Sts_Valid_Bit_294_S "RightR_Door_Sts_Valid_Bit_294_S";
+CM_ SG_ 660 Driver_Belt_Stat_Effective_Bit_S "Driver_Belt_Stat_Effective_Bit_S";
+CM_ SG_ 660 Back_Door_Sts_Effectiv_Bit_294_S "Back_Door_Sts_Effectiv_Bit_294_S";
+CM_ SG_ 660 Frnt_Hatch_Stat_Effective_Bit_S "Frnt_Hatch_Stat_Effective_Bit_S";
+CM_ SG_ 660 Emergency_Alarm_Effective_Bit_S "Emergency_Alarm_Effective_Bit_S";
+CM_ SG_ 660 Driver_Belt_Status_S "Driver_Belt_Status_S";
+CM_ SG_ 660 Back_Door_Status_294_S "Back_Door_Status_294_S";
+CM_ SG_ 660 Former_Hatch_Status_294_S "Former_Hatch_Status_294_S";
+CM_ SG_ 660 Emergency_Alarm_Status_S "Emergency_Alarm_Status_S";
+CM_ SG_ 660 Rolling_counter_294_S "Rolling_counter_294_S";
+CM_ SG_ 660 Checksum_294_S "Checksum_294_S";
+CM_ SG_ 1031 FL_Door_Lock_Sttus407_S "FL_Door_Lock_Sttus407_S";
+CM_ SG_ 1031 FR_Door_Lock_Status_407_S "FR_Door_Lock_Status_407_S";
+CM_ SG_ 1031 RL_Door_Lock_Status_S "RL_Door_Lock_Status_S";
+CM_ SG_ 1031 RR_Door_Lock_Status_407_S "RR_Door_Lock_Status_407_S";
+CM_ SG_ 1031 Fldig_Extrr_Mrors_Expand_S "Fldig_Extrr_Mrors_Expand_S";
+CM_ SG_ 948 Left_Sunshine_Intensity_S "Left_Sunshine_Intensity_S";
+CM_ SG_ 948 Right_Sunshine_Intensity_S "Right_Sunshine_Intensity_S";
+CM_ SG_ 948 Rainfall_Values_S "Rainfall_Values_S";
+CM_ SG_ 948 Sun_Sensor_Hardware_Fault_S "Sun_Sensor_Hardware_Fault_S";
+CM_ SG_ 948 Humidity_Sensor_Fault_Sign_S "Humidity_Sensor_Fault_Sign_S";
+CM_ SG_ 973 Tyre_Position_S "Tyre_Position_S";
+CM_ SG_ 973 Single_Tire_Status_Signal_S "Single_Tire_Status_Signal_S";
+CM_ SG_ 973 BSD_Sys_Stat_S "BSD_Sys_Stat_S";
+CM_ SG_ 973 Single_Tire_Press_Value_S "Single_Tire_Press_Value_S";
+CM_ SG_ 973 Single_Tire_Temperature_Value_S "Single_Tire_Temperature_Value_S";
+CM_ SG_ 906 Dipped_Headlight_38A_S "Dipped_Headlight_38A_S";
+CM_ SG_ 906 High_Beam_Light_38A_S "High_Beam_Light_38A_S";
+CM_ SG_ 906 Back_Fog_Light_38A_S "Back_Fog_Light_38A_S";
+CM_ SG_ 906 All_Weather_Lights_38A_S "All_Weather_Lights_38A_S";
+CM_ SG_ 301 BCMPower_Gear_12D_S "BCMPower_Gear_12D_S";
+CM_ SG_ 1141 Wiper_Speed_S "Wiper_Speed_S";
+CM_ SG_ 337 Speed_Signal_151_S "Speed_Signal_151_S";
+CM_ SG_ 337 Speed_Unit_Setting_151_S "Speed_Unit_Setting_151_S";
+CM_ SG_ 337 Rolling_Counter_151_S "Rolling_Counter_151_S";
+CM_ SG_ 337 Checksum_151_S "Checksum_151_S";
+CM_ SG_ 803 INS_Show_Fault_323_S "INS_Show_Fault_323_S";
+CM_ SG_ 985 Child_ID_3D9_S "Child_ID_3D9_S";
+CM_ SG_ 985 Total_Distance_3D9s5_S "Total_Distance_3D9s5_S";
+CM_ SG_ 1028 Temperature_Conversion_S "Temperature_Conversion_S";
+CM_ SG_ 1028 ACHMC_Outside_Temperature_S "ACHMC_Outside_Temperature_S";
+CM_ SG_ 1028 Rolling_Counter_0x404_S "Rolling_Counter_0x404_S";
+CM_ SG_ 536 Ele_Park_Brake_Switch_Status_S "Ele_Park_Brake_Switch_Status_S";
+CM_ SG_ 536 EPB_Status_S "EPB_Status_S";
+CM_ SG_ 536 Rolling_Counter_218_S "Rolling_Counter_218_S";
+CM_ SG_ 536 Checksum_218_S "Checksum_218_S";
+CM_ SG_ 724 Latitd_Info_Decimal_Part_S "Latitd_Info_Decimal_Part_S";
+CM_ SG_ 724 Latitude_Direction_2D4_S "Latitude_Direction_2D4_S";
+CM_ SG_ 724 Latitd_Info_Integ_Part_S "Latitd_Info_Integ_Part_S";
+CM_ SG_ 724 Longitd_Info_Deciml_Part_S "Longitd_Info_Deciml_Part_S";
+CM_ SG_ 724 Longitd_Direction_2D4_S "Longitd_Direction_2D4_S";
+CM_ SG_ 724 Longitd_Info_Integr_Part_S "Longitd_Info_Integr_Part_S";
+CM_ SG_ 724 Orientation_Info_2D4_S "Orientation_Info_2D4_S";
+CM_ SG_ 724 Height_Decimal_Part_2D4_S "Height_Decimal_Part_2D4_S";
+CM_ SG_ 724 Height_Integer_Part_2D4_S "Height_Integer_Part_2D4_S";
+CM_ SG_ 724 Altitude_2D4_S "Altitude_2D4_S";
+CM_ SG_ 724 GPS_Signal_2D4_S "GPS_Signal_2D4_S";
+CM_ SG_ 901 DOW_Enable_S "DOW_Enable_S";
+CM_ SG_ 901 TJA_ICAwitch_S "TJA_ICAwitch_S";
+CM_ SG_ 901 HMA_funtion_Switch_Signal_S "HMA_funtion_Switch_Signal_S";
+CM_ SG_ 901 ISLI_Switch_S "ISLI_Switch_S";
+CM_ SG_ 901 PCW_Enable_S "PCW_Enable_S";
+CM_ SG_ 901 LKS_Enable_S "LKS_Enable_S";
+CM_ SG_ 901 AEB_Enable_S "AEB_Enable_S";
+CM_ SG_ 901 LDW_Warning_Mode_S "LDW_Warning_Mode_S";
+CM_ SG_ 901 PCWLevelReq "PCWLevelReq";
+CM_ SG_ 901 RCTA_Enable_S "RCTA_Enable_S";
+CM_ SG_ 901 RCW_Enable_S "RCW_Enable_S";
+CM_ SG_ 901 RCTB_Enable_S "RCTB_Enable_S";
+CM_ SG_ 901 SLA_SpdLimOffs_S "SLA_SpdLimOffs_S";
+CM_ SG_ 901 TSR_Switch_S "TSR_Switch_S";
+CM_ SG_ 901 ELKA_Enable_S "ELKA_Enable_S";
+CM_ SG_ 1263 Medium_0x4EF_ChilD_ID_S "Medium_0x4EF_ChilD_ID_S";
+CM_ SG_ 1263 FCTA_Enable_S "FCTA_Enable_S";
+CM_ SG_ 1263 FCTB_Enable_S "FCTB_Enable_S";
+CM_ SG_ 1263 ILCA_Enable_S "ILCA_Enable_S";
+CM_ SG_ 1263 HNP_Enable_S "HNP_Enable_S";
+CM_ SG_ 1263 ISLC_Enable_S "ISLC_Enable_S";
+CM_ SG_ 1263 LTA_Enable_S "LTA_Enable_S";
+CM_ SG_ 1263 PCW_Level_Req_S "PCW_Level_Req_S";
+CM_ SG_ 694 Date_Information_Year_2B6_S "Date_Information_Year_2B6_S";
+CM_ SG_ 694 Date_Information_Month_2B6_S "Date_Information_Month_2B6_S";
+CM_ SG_ 694 Date_Information_Day_2B6_S "Date_Information_Day_2B6_S";
+CM_ SG_ 694 Date_Information_Hour_2B6_S "Date_Information_Hour_2B6_S";
+CM_ SG_ 694 Date_Information_Minute_2B6_S "Date_Information_Minute_2B6_S";
+CM_ SG_ 694 Date_Information_Second_2B6_S "Date_Information_Second_2B6_S";
+CM_ SG_ 694 Week_2B6_S "Week_2B6_S";
+CM_ SG_ 995 Media_Factory_Default_S "Media_Factory_Default_S";
+CM_ SG_ 995 SfAsist_Restr_Dflt_Log_S "SfAsist_Restr_Dflt_Log_S";
+CM_ SG_ 995 Drv_Asis_St_RstrDflt_Flg_S "Drv_Asis_St_RstrDflt_Flg_S";
+CM_ SG_ 995 Roa_Asis_St_RstrDflt_Flg_S "Roa_Asis_St_RstrDflt_Flg_S";
+CM_ SG_ 307 Front_And_Rear_Fog_Lamp_Gear_S "Front_And_Rear_Fog_Lamp_Gear_S";
+CM_ SG_ 307 CS_Front_Wiper_Gear_S "CS_Front_Wiper_Gear_S";
+CM_ SG_ 307 Light_Knob_Mechan_Gear_S "Light_Knob_Mechan_Gear_S";
+CM_ SG_ 307 High_Beam_Attendan_Lamp_Stall_S "High_Beam_Attendan_Lamp_Stall_S";
+CM_ SG_ 307 Turn_Signal_Switch_S "Turn_Signal_Switch_S";
+CM_ SG_ 307 Loss_Cycle_Counter133_S "Loss_Cycle_Counter133_S";
+CM_ SG_ 307 Checksum133_S "Checksum133_S";
+CM_ SG_ 322 Steering_Wheel_Angle_142_S "Steering_Wheel_Angle_142_S";
+CM_ SG_ 322 Steering_Wheel_Rotat_Speed_142_S "Steering_Wheel_Rotat_Speed_142_S";
+CM_ SG_ 322 Failure_Stats_OK_142_S "Failure_Stats_OK_142_S";
+CM_ SG_ 322 Sensor_Calibration_Stats_142_S "Sensor_Calibration_Stats_142_S";
+CM_ SG_ 322 TRIM_Trimming_Stats_142_S "TRIM_Trimming_Stats_142_S";
+CM_ SG_ 322 RollingCounter_142_S "RollingCounter_142_S";
+CM_ SG_ 322 SAS_Checksum_142_S "SAS_Checksum_142_S";
+CM_ SG_ 944 SWS_Dist_Set_S "SWS_Dist_Set_S";
+CM_ SG_ 944 SWS_Speed_Set_S "SWS_Speed_Set_S";
+CM_ SG_ 944 Dipilot_Switch_Signal_S "Dipilot_Switch_Signal_S";
+CM_ SG_ 944 SWS_Cruise_Or_Speed_Limit_Mode_S "SWS_Cruise_Or_Speed_Limit_Mode_S";
+CM_ SG_ 944 SWS_Reset_Signal_S "SWS_Reset_Signal_S";
+CM_ SG_ 944 SWS_Cruis_Swch_Fault_Stat_flg_S "SWS_Cruis_Swch_Fault_Stat_flg_S";
+CM_ SG_ 944 SWS_Set_Signal_S "SWS_Set_Signal_S";
+CM_ SG_ 944 SWS_Dist_Switch_Signal_Down_S "SWS_Dist_Switch_Signal_Down_S";
+CM_ SG_ 944 SWS_Dist_Switch_Signal_Up_S "SWS_Dist_Switch_Signal_Up_S";
+CM_ SG_ 944 Cruise_Switch_Operation_Mode_S "Cruise_Switch_Operation_Mode_S";
+CM_ SG_ 944 ACC_Switch_Signal_S "ACC_Switch_Signal_S";
+CM_ SG_ 944 Loss_Cycle_Counter3B0_S "Loss_Cycle_Counter3B0_S";
+CM_ SG_ 944 CheckCode3B0_S "CheckCode3B0_S";
+CM_ SG_ 269 ECM_Engine_Rev10D_S "ECM_Engine_Rev10D_S";
+CM_ SG_ 269 Engine_Rev_Error_S "Engine_Rev_Error_S";
+CM_ SG_ 269 Rev_Drag_Start_Cmd_S "Rev_Drag_Start_Cmd_S";
+CM_ SG_ 269 ECM_Acc_Pedal_Pos_S "ECM_Acc_Pedal_Pos_S";
+CM_ SG_ 269 ECM_Engine_Status_S "ECM_Engine_Status_S";
+CM_ SG_ 833 VCU_READY_Indicator_Light_S "VCU_READY_Indicator_Light_S";
+CM_ SG_ 833 Checksum341_S "Checksum341_S";
+CM_ SG_ 576 Power_System_Failure_S "Power_System_Failure_S";
+CM_ SG_ 576 VCU_Goal_Road_Mode_S "VCU_Goal_Road_Mode_S";
+CM_ SG_ 576 VCU_Practice_Road_Mode_S "VCU_Practice_Road_Mode_S";
+CM_ SG_ 576 Checksum240_S "Checksum240_S";
+CM_ SG_ 834 VCU_Accelerograph_Depth_S "VCU_Accelerograph_Depth_S";
+CM_ SG_ 834 VCU_Brake_Depth_S "VCU_Brake_Depth_S";
+CM_ SG_ 834 VCU_Acelrogra_Dpth_Virtual_Val_S "VCU_Acelrogra_Dpth_Virtual_Val_S";
+CM_ SG_ 834 VCU_Brake_Depth_Virtual_Value_S "VCU_Brake_Depth_Virtual_Value_S";
+CM_ SG_ 834 VCU_Goal_Gear_S "VCU_Goal_Gear_S";
+CM_ SG_ 834 Rolling_Counter_342_S "Rolling_Counter_342_S";
+CM_ SG_ 834 Checksum342_S "Checksum342_S";
+CM_ SG_ 578 VCU_Driver_VLC_Request_Torque_S "VCU_Driver_VLC_Request_Torque_S";
+CM_ SG_ 578 Acceleration_Pedal_depth_error_S "Acceleration_Pedal_depth_error_S";
+CM_ SG_ 578 Alive_counter242_S "Alive_counter242_S";
+CM_ SG_ 578 Checksum242_S "Checksum242_S";
+CM_ SG_ 530 Gear_Shift_Progress_S "Gear_Shift_Progress_S";
+CM_ SG_ 530 Gear_Shift_Progress_State_S "Gear_Shift_Progress_State_S";
+CM_ SG_ 530 TCU_Mode_Switch_S "TCU_Mode_Switch_S";
+CM_ SG_ 530 Actual_Shift_Gear_Mode_S "Actual_Shift_Gear_Mode_S";
+CM_ SG_ 530 Actual_Gear_S "Actual_Gear_S";
+CM_ SG_ 530 Checksum212_S "Checksum212_S";
+CM_ SG_ 289 IPB_Vehicle_Speed_S "IPB_Vehicle_Speed_S";
+CM_ SG_ 289 Vehicle_Speed_Stats_S "Vehicle_Speed_Stats_S";
+CM_ SG_ 289 AWB_Available_S "AWB_Available_S";
+CM_ SG_ 289 AWB_Active_Brake_Warning_S "AWB_Active_Brake_Warning_S";
+CM_ SG_ 289 AEB_Dec_Active_S "AEB_Dec_Active_S";
+CM_ SG_ 289 AEB_not_Available_S "AEB_not_Available_S";
+CM_ SG_ 289 Prefill_Available_S "Prefill_Available_S";
+CM_ SG_ 289 Prefill_Active_S "Prefill_Active_S";
+CM_ SG_ 289 ABAavailable_S "ABAavailable_S";
+CM_ SG_ 289 ABA_Active_S "ABA_Active_S";
+CM_ SG_ 289 Alive_Counter_121_S "Alive_Counter_121_S";
+CM_ SG_ 289 Checknum121_S "Checknum121_S";
+CM_ SG_ 291 HDC_CtrlStatus_S "HDC_CtrlStatus_S";
+CM_ SG_ 291 Brake_Pedal_Status_S "Brake_Pedal_Status_S";
+CM_ SG_ 291 Counter123_S "Counter123_S";
+CM_ SG_ 291 ESP_OFF_S "ESP_OFF_S";
+CM_ SG_ 291 ESP_Active_S "ESP_Active_S";
+CM_ SG_ 291 TCS_Fault_S "TCS_Fault_S";
+CM_ SG_ 291 VDC_Fault_S "VDC_Fault_S";
+CM_ SG_ 291 Checksum123_S "Checksum123_S";
+CM_ SG_ 546 Yaw_Rate_Signal_S "Yaw_Rate_Signal_S";
+CM_ SG_ 546 Yaw_Rate_Offset_S "Yaw_Rate_Offset_S";
+CM_ SG_ 546 EBD_Active_222_S "EBD_Active_222_S";
+CM_ SG_ 546 ABS_Active_222_S "ABS_Active_222_S";
+CM_ SG_ 546 EBD_Fault_222_S "EBD_Fault_222_S";
+CM_ SG_ 546 ABS_Fault_222_S "ABS_Fault_222_S";
+CM_ SG_ 546 TCS_Active_222_S "TCS_Active_222_S";
+CM_ SG_ 546 DTC_Active_222_S "DTC_Active_222_S";
+CM_ SG_ 546 VDC_Active_222_S "VDC_Active_222_S";
+CM_ SG_ 546 Yaw_Rate_Status_S "Yaw_Rate_Status_S";
+CM_ SG_ 546 Message_Counter222_S "Message_Counter222_S";
+CM_ SG_ 546 Checksum222_S "Checksum222_S";
+CM_ SG_ 547 IPB_AX_S "IPB_AX_S";
+CM_ SG_ 547 IPB_AX_offset_S "IPB_AX_offset_S";
+CM_ SG_ 547 IPB_AY_S "IPB_AY_S";
+CM_ SG_ 547 IPB_AY_Offset_S "IPB_AY_Offset_S";
+CM_ SG_ 547 Message_Counter223_S "Message_Counter223_S";
+CM_ SG_ 547 IPB_AY_Status_S "IPB_AY_Status_S";
+CM_ SG_ 547 IPB_AX_Status_S "IPB_AX_Status_S";
+CM_ SG_ 547 Checksum223_S "Checksum223_S";
+CM_ SG_ 801 MC_Pressure_Value_S "MC_Pressure_Value_S";
+CM_ SG_ 801 MC_Pressure_Status_S "MC_Pressure_Status_S";
+CM_ SG_ 801 MC_Pressure_Offset_Status_S "MC_Pressure_Offset_Status_S";
+CM_ SG_ 801 MC_Pressure_Offset_Value_S "MC_Pressure_Offset_Value_S";
+CM_ SG_ 801 Message_Counter321_S "Message_Counter321_S";
+CM_ SG_ 801 Checksum321_S "Checksum321_S";
+CM_ SG_ 544 RR_Wheel_Drive_Direction_S "RR_Wheel_Drive_Direction_S";
+CM_ SG_ 544 RL_Wheel_Drive_Direction_S "RL_Wheel_Drive_Direction_S";
+CM_ SG_ 544 FR_Wheel_Drive_Direction_S "FR_Wheel_Drive_Direction_S";
+CM_ SG_ 544 FL_Wheel_Drive_Direction_S "FL_Wheel_Drive_Direction_S";
+CM_ SG_ 544 Active_Vehicle_Hold_S "Active_Vehicle_Hold_S";
+CM_ SG_ 544 VLC_Available_S "VLC_Available_S";
+CM_ SG_ 544 VLC_Active_S "VLC_Active_S";
+CM_ SG_ 544 VLC_Fail_S "VLC_Fail_S";
+CM_ SG_ 544 No_Brake_Force_S "No_Brake_Force_S";
+CM_ SG_ 544 QDC_ACC_S "QDC_ACC_S";
+CM_ SG_ 544 ECD_Temp_Off_S "ECD_Temp_Off_S";
+CM_ SG_ 544 Vehicle_Stand_Still_S "Vehicle_Stand_Still_S";
+CM_ SG_ 544 FL_Wheel_Drive_Direct_Stat_S "FL_Wheel_Drive_Direct_Stat_S";
+CM_ SG_ 544 FR_Wheel_Drive_Direct_Stat_S "FR_Wheel_Drive_Direct_Stat_S";
+CM_ SG_ 544 RL_Wheel_Drive_Direct_Stat_S "RL_Wheel_Drive_Direct_Stat_S";
+CM_ SG_ 544 RR_Wheel_Drive_Direct_Stat_S "RR_Wheel_Drive_Direct_Stat_S";
+CM_ SG_ 544 VLC_Internal_Targ_Accel_S "VLC_Internal_Targ_Accel_S";
+CM_ SG_ 544 Message_Counter220_S "Message_Counter220_S";
+CM_ SG_ 544 CDD_Available_S "CDD_Available_S";
+CM_ SG_ 544 CDD_Active_S "CDD_Active_S";
+CM_ SG_ 544 CDD_Fail_S "CDD_Fail_S";
+CM_ SG_ 544 CheckSum220_S "CheckSum220_S";
+CM_ SG_ 1058 FL_Wheel_Pulse_Counter_422_S "FL_Wheel_Pulse_Counter_422_S";
+CM_ SG_ 1058 RR_Wheel_Puls_Count_Valid_422_S "RR_Wheel_Puls_Count_Valid_422_S";
+CM_ SG_ 1058 RL_Wheel_Puls_Count_Valid_422_S "RL_Wheel_Puls_Count_Valid_422_S";
+CM_ SG_ 1058 FR_Wheel_Puls_Count_Valid_422_S "FR_Wheel_Puls_Count_Valid_422_S";
+CM_ SG_ 1058 FL_Wheel_Puls_Count_Valid_422_S "FL_Wheel_Puls_Count_Valid_422_S";
+CM_ SG_ 1058 FR_Wheel_Pulse_Counter_422_S "FR_Wheel_Pulse_Counter_422_S";
+CM_ SG_ 1058 RL_Wheel_Pulse_Counter_422_S "RL_Wheel_Pulse_Counter_422_S";
+CM_ SG_ 1058 RR_Wheel_Pulse_Counter_422_S "RR_Wheel_Pulse_Counter_422_S";
+CM_ SG_ 1058 Message_Counter422_S "Message_Counter422_S";
+CM_ SG_ 1058 CheckSum422_S "CheckSum422_S";
+CM_ SG_ 496 Wheel_Speed_FL_1F0_S "Wheel_Speed_FL_1F0_S";
+CM_ SG_ 496 Wheel_Speed_FR_Stats_1F0_S "Wheel_Speed_FR_Stats_1F0_S";
+CM_ SG_ 496 Wheel_Speed_FL_Stats_1F0_S "Wheel_Speed_FL_Stats_1F0_S";
+CM_ SG_ 496 Wheel_Speed_RR_Stats_1F0_S "Wheel_Speed_RR_Stats_1F0_S";
+CM_ SG_ 496 WheelSpeed_RL_Status_1F0_S "WheelSpeed_RL_Status_1F0_S";
+CM_ SG_ 496 Wheel_Speed_FR_1F0_S "Wheel_Speed_FR_1F0_S";
+CM_ SG_ 496 Wheel_Speed_RL_1F0_S "Wheel_Speed_RL_1F0_S";
+CM_ SG_ 496 Wheel_Speed_RR_1F0_S "Wheel_Speed_RR_1F0_S";
+CM_ SG_ 496 Message_Counter_1F0_S "Message_Counter_1F0_S";
+CM_ SG_ 496 Checksum_1F0_S "Checksum_1F0_S";
+CM_ SG_ 213 IPB_Input_Rod_Stroke_S "IPB_Input_Rod_Stroke_S";
+CM_ SG_ 213 IPB_Input_Rod_Stroke_State_S "IPB_Input_Rod_Stroke_State_S";
+CM_ SG_ 213 Message_Counter0D5_S "Message_Counter0D5_S";
+CM_ SG_ 213 CheckSum_0D5_S "CheckSum_0D5_S";
+CM_ SG_ 588 Steering_Mode_Status_S "Steering_Mode_Status_S";
+CM_ SG_ 588 Counter_24C_S "Counter_24C_S";
+CM_ SG_ 588 CheckSum24C_S "CheckSum24C_S";
+CM_ SG_ 287 Steering_Wheel_Angle_S "Steering_Wheel_Angle_S";
+CM_ SG_ 287 Steering_Wheel_Rotation_Speed_S "Steering_Wheel_Rotation_Speed_S";
+CM_ SG_ 287 Failure_Stats_OK_S "Failure_Stats_OK_S";
+CM_ SG_ 287 Sensor_Calibration_Stats_S "Sensor_Calibration_Stats_S";
+CM_ SG_ 287 TRIM_Trimming_Stats_S "TRIM_Trimming_Stats_S";
+CM_ SG_ 287 SAS_Scroll_Cycle_11F_Cnt_S "SAS_Scroll_Cycle_11F_Cnt_S";
+CM_ SG_ 287 SAS_Checksum11F_S "SAS_Checksum11F_S";
+CM_ BO_ 508 "�ǶȽӿ����";
+CM_ SG_ 508 EPSAngleCtrlSt_S "EPSAngleCtrlSt_S";
+CM_ SG_ 508 StrngWhlTorqVD_S "StrngWhlTorqVD_S";
+CM_ SG_ 508 StrngWhlTorq_S "StrngWhlTorq_S";
+CM_ SG_ 508 EPSAngleCtrlDlvdValue_S "EPSAngleCtrlDl vdValue_S";
+CM_ SG_ 508 EPSAngleCtrlDlvdTorsionBarTorque "EPSAngleCtrlDl vdTorsionBar TorqueValue_S";
+CM_ SG_ 508 HandsOffDetSt_S "HandsOffDetSt_S";
+CM_ SG_ 508 RequestAngleOverRange_S "Request Angle Over Range_S";
+CM_ SG_ 508 RequestAnglespeedOverRange_S "Request Angle speed Over Range_S";
+CM_ SG_ 508 EPSAngleCtrlAbortFeedback_S "EPSAngleCtrlAb ortFeedback_S";
+CM_ SG_ 508 EPS_2_MsgCounter_S "EPS_2_MsgCou nter_S";
+CM_ SG_ 508 Checksum1FC_S "Checksum1FC_S";
+CM_ BO_ 792 "Ť�ؽӿ����";
+CM_ SG_ 792 EPS_LKA_Control_State_S "EPS_LKA_Control_State_S";
+CM_ SG_ 792 LKA_Control_Delivered_Value_S "LKA_Control_Delivered_Value_S";
+CM_ SG_ 792 LKACtrlDlvdValue_VD_S "LKACtrlDlvdValue_VD_S";
+CM_ SG_ 792 Hnads_Off_Detected_States_S "Hnads_Off_Detected_States_S";
+CM_ SG_ 792 Hnads_Off_Detected_States_VD_S "Hnads_Off_Detected_States_VD_S";
+CM_ SG_ 792 StrngWhlTorqVD_S "StrngWhlTorqVD_S";
+CM_ SG_ 792 StrngWhlTorq_S "StrngWhlTorq_S";
+CM_ SG_ 792 Counter318_S "Counter318_S";
+CM_ SG_ 792 Checksum318_S "Checksum318_S";
+CM_ SG_ 813 Set_Speed_S "Set_Speed_S";
+CM_ SG_ 813 Obj_Valid_S "Obj_Valid_S";
+CM_ SG_ 813 Tau_Gap_Set_S "Tau_Gap_Set_S";
+CM_ SG_ 813 Dx_Tar_Obj_S "Dx_Tar_Obj_S";
+CM_ SG_ 813 PCW_Pre_Warning_S "PCW_Pre_Warning_S";
+CM_ SG_ 813 PCW_Latent_Warning_S "PCW_Latent_Warning_S";
+CM_ SG_ 813 PCW_State_S "PCW_State_S";
+CM_ SG_ 813 ACC_State_S "ACC_State_S";
+CM_ SG_ 813 Take_Over_Req_S "Take_Over_Req_S";
+CM_ SG_ 813 Speed_Unit_Set_S "Speed_Unit_Set_S";
+CM_ SG_ 813 CCR_AEB_Error_S "CCR_AEB_Error_S";
+CM_ SG_ 813 ACC_Text_Info_For_Driver_S "ACC_Text_Info_For_Driver_S";
+CM_ SG_ 813 CCR_FCW_Error_S "CCR_FCW_Error_S";
+CM_ SG_ 813 Pedestrian_FCW_Brak_Error_S "Pedestrian_FCW_Brak_Error_S";
+CM_ SG_ 813 Acute_Warning_S "Acute_Warning_S";
+CM_ SG_ 813 AEB_State_S "AEB_State_S";
+CM_ SG_ 813 PCWLevelState "PCWLevelState";
+CM_ SG_ 813 ACC_Mode_Display1_S "ACC_Mode_Display1_S";
+CM_ SG_ 813 Alive_Counter32D_S "Alive_Counter32D_S";
+CM_ SG_ 813 Checksum32D_S "Checksum32D_S";
+CM_ SG_ 790 Left_Line_Tracking_Status_S "Left_Line_Tracking_Status_S";
+CM_ SG_ 790 Lane_Assistant_Mode_Status_S "Lane_Assistant_Mode_Status_S";
+CM_ SG_ 790 LKS_Sensitivity_S "LKS_Sensitivity_S";
+CM_ SG_ 790 LDP_LDW_Camera_Blocked_S "LDP_LDW_Camera_Blocked_S";
+CM_ SG_ 790 LDP_Fault_S "LDP_Fault_S";
+CM_ SG_ 790 LDW_fault1_S "LDW_fault1_S";
+CM_ SG_ 790 ACC_AEB_Camera_Blocked_Infro_S "ACC_AEB_Camera_Blocked_Infro_S";
+CM_ SG_ 790 Output_LKS_torque_request_S "Output_LKS_torque_request_S";
+CM_ SG_ 790 LKS_torque_request_staus_S "LKS_torque_request_staus_S";
+CM_ SG_ 790 Right_Line_Tracking_Stats_S "Right_Line_Tracking_Stats_S";
+CM_ SG_ 790 TJA_ICA_function_status_S "TJA_ICA_function_status_S";
+CM_ SG_ 790 ALL_Function_Camera_Bloc_Infro_S "ALL_Function_Camera_Bloc_Infro_S";
+CM_ SG_ 790 LDW_Warning_Mode_Stats_S "LDW_Warning_Mode_Stats_S";
+CM_ SG_ 790 MPC_Take_Over_Req1_S "MPC_Take_Over_Req1_S";
+CM_ SG_ 790 Message_Alive_Counter316_S "Message_Alive_Counter316_S";
+CM_ SG_ 790 Messge_Checksum316_S "Messge_Checksum316_S";
+CM_ BO_ 482 "�ǶȽӿ����";
+CM_ SG_ 482 MotorTorqueUpperLimit_S "MotorTorqueUpperLimit_S";
+CM_ SG_ 482 MotorTorqueLowerLimit_S "MotorTorqueLowerLimit_S";
+CM_ SG_ 482 ADAS_AngleReq_St_S "ADAS_AngleReq_St_S";
+CM_ SG_ 482 ADAS_AngleReq_S "ADAS_AngleReq_S";
+CM_ SG_ 482 MsgCounter1E2_S "MsgCounter1E2_S";
+CM_ SG_ 482 Checksum1E2_S "Checksum1E2_S";
+CM_ SG_ 1074 ACC_Assemble_Status_S "ACC_Assemble_Status_S";
+CM_ SG_ 1074 AEB_Assemble_Status_S "AEB_Assemble_Status_S";
+CM_ SG_ 1074 FCW_Assemble_Status_S "FCW_Assemble_Status_S";
+CM_ SG_ 1074 HMA_Assemble_Status_S "HMA_Assemble_Status_S";
+CM_ SG_ 1074 LDW_Assemble_Status_S "LDW_Assemble_Status_S";
+CM_ SG_ 1074 LKS_Assemble_Status_S "LKS_Assemble_Status_S";
+CM_ SG_ 1074 TSR_Assemble_Status_S "TSR_Assemble_Status_S";
+CM_ SG_ 1074 TJA_ICA_Assemble_Status_S "TJA_ICA_Assemble_Status_S";
+CM_ SG_ 1074 Module_Manufacturer_S "Module_Manufacturer_S";
+CM_ SG_ 1074 LDW_Warning_Conf_Exchange_S "LDW_Warning_Conf_Exchange_S";
+CM_ SG_ 1074 TJA_ICA_SoftKey_Status_S "TJA_ICA_SoftKey_Status_S";
+CM_ SG_ 1074 LDP_Assemble_Status_S "LDP_Assemble_Status_S";
+CM_ SG_ 1074 ELK_Assemble_Status_S "ELK_Assemble_Status_S";
+CM_ SG_ 1074 FCTA_Assemble_Status_S "FCTA_Assemble_Status_S";
+CM_ SG_ 1074 FCTB_Assemble_Status_S "FCTB_Assemble_Status_S";
+CM_ SG_ 1074 ISLI_Assemble_Statue_S "ISLI_Assemble_Statue_S";
+CM_ SG_ 1074 HNP_Assemble_Status_S "HNP_Assemble_Status_S";
+CM_ SG_ 1074 ILCA_Assemble_Status_S "ILCA_Assemble_Status_S";
+CM_ SG_ 1074 TLA_Assemble_Status_S "TLA_Assemble_Status_S";
+CM_ SG_ 1074 ISLC_Assemble_Status_S "ISLC_Assemble_Status_S";
+CM_ SG_ 1074 ESA_Assemble_Status_S "ESA_Assemble_Status_S";
+CM_ SG_ 1074 LDW_UI_Assemble_Status_S "LDW_UI_Assemble_Status_S";
+CM_ SG_ 1074 Meterdisplaymode_S "Meter display mode_S";
+CM_ BO_ 311 "IPBŤ�ؽӿ�";
+CM_ SG_ 311 MPC_VLC_Torque_Request_Value_S "MPC_VLC_Torque_Request_Value_S";
+CM_ SG_ 311 MPC_VLC_Active_S "MPC_VLC_Active_S";
+CM_ SG_ 311 VLC_Fault_S "VLC_Fault_S";
+CM_ SG_ 311 MPC_Torque_Request_Status_S "MPC_Torque_Request_Status_S";
+CM_ SG_ 311 FRS_ALOD_ADC_Req_Ena_S "FRS_ALOD_ADC_Req_Ena_S";
+CM_ SG_ 311 Energy_Fedbak_Valid_Stats_S "Energy_Fedbak_Valid_Stats_S";
+CM_ SG_ 311 Engy_Fdbck_Torq_Req_Valid_S "Engy_Fdbck_Torq_Req_Valid_S";
+CM_ SG_ 311 Engy_Fdbck_Torq_to_VCU_S "Engy_Fdbck_Torq_to_VCU_S";
+CM_ SG_ 311 MPC_Rolling_Counter137_S "MPC_Rolling_Counter137_S";
+CM_ SG_ 311 MPC_Checksum137_S "MPC_Checksum137_S";
+CM_ SG_ 312 Indi_FCW_Sensitive_Lv_s "Indi_FCW_Sensitive_Lv_s";
+CM_ SG_ 312 MPC_Rolling_Counter138_S "MPC_Rolling_Counter138_S";
+CM_ SG_ 312 MPC_Checksum138_S "MPC_Checksum138_S";
+CM_ SG_ 814 ACC_Axv_Cv_Aim_S "ACC_Axv_Cv_Aim_S";
+CM_ SG_ 814 Axv_Cv_Coft_Band_Upper_Val_S "Axv_Cv_Coft_Band_Upper_Val_S";
+CM_ SG_ 814 Axv_Cv_Coft_Band_Lower_Val_S "Axv_Cv_Coft_Band_Lower_Val_S";
+CM_ SG_ 814 ADt_Upper_Limit_Axv_Cv_S "ADt_Upper_Limit_Axv_Cv_S";
+CM_ SG_ 814 Adt_Lower_Limit_Axv_Cv_S "Adt_Lower_Limit_Axv_Cv_S";
+CM_ SG_ 814 ACC_Drive_Off_Req_S "ACC_Drive_Off_Req_S";
+CM_ SG_ 814 ACC_DecTo_Stop_Req_S "ACC_DecTo_Stop_Req_S";
+CM_ SG_ 814 ACC_Minimum_Braking_S "ACC_Minimum_Braking_S";
+CM_ SG_ 814 Brake_Preferred_S "Brake_Preferred_S";
+CM_ SG_ 814 ACC_Mode_S "ACC_Mode_S";
+CM_ SG_ 814 ESP_VLC_Shut_Down_Request_S "ESP_VLC_Shut_Down_Request_S";
+CM_ SG_ 814 Alive_Counter32E_S "Alive_Counter32E_S";
+CM_ SG_ 814 Checksum32E_S "Checksum32E_S";
+CM_ SG_ 815 AEB_Ax_Tar_S "AEB_Ax_Tar_S";
+CM_ SG_ 815 Req_EBA_Decel_Ctrl_S "Req_EBA_Decel_Ctrl_S";
+CM_ SG_ 815 ESP_Prefill_Req_S "ESP_Prefill_Req_S";
+CM_ SG_ 815 AWB_Request_S "AWB_Request_S";
+CM_ SG_ 815 ABA_Available_S "ABA_Available_S";
+CM_ SG_ 815 ABA_Level_S "ABA_Level_S";
+CM_ SG_ 815 AEB_DecCtrl_Request_S "AEB_DecCtrl_Request_S";
+CM_ SG_ 815 AWB_Level_S "AWB_Level_S";
+CM_ SG_ 815 Req_ESC_Ctrl_Veh_S "Req_ESC_Ctrl_Veh_S";
+CM_ SG_ 815 ISLC_Sts_S "ISLC_Sts_S";
+CM_ SG_ 815 ELK_status_S "ELK_status_S";
+CM_ SG_ 815 ISLC_Warnning_S "ISLC_Warnning_S";
+CM_ SG_ 815 ELK_Take_Over_Req_S "ELK_Take_Over_Req_S";
+CM_ SG_ 815 ELK_OT_Fault_Status_Flag_S "ELK_OT_Fault_ Status_Flag_S";
+CM_ SG_ 815 Alive_Counter32F_S "Alive_Counter32F_S";
+CM_ SG_ 815 Checksum32F_S "Checksum32F_S";
+CM_ BO_ 714 "��ǰ���״�";
+CM_ SG_ 714 FCR_Sys_Status_S "FCR_Sys_Status_S";
+CM_ SG_ 714 Sts_FCTA_S "Sts_FCTA_S";
+CM_ SG_ 714 Sts_FCTB_S "Sts_FCTB_S";
+CM_ SG_ 714 RRadar_FCTA_Warning_Right_S "RRadar_FCTA_Warning_Right_S";
+CM_ SG_ 714 RRadar_FCTA_Warning_Left_S "RRadar_FCTA_Warning_Left_S";
+CM_ SG_ 714 FCTBBrkReq_S "FCTBBrkReq_S";
+CM_ SG_ 714 FCTBTargetDecel_S "FCTBTargetDecel_S";
+CM_ SG_ 714 Message_Counter_2CA_S "Message_Counter_2CA_S";
+CM_ SG_ 714 CheckSum2CA_S "CheckSum2CA_S";
+CM_ BO_ 668 "���˻���";
+CM_ SG_ 668 ILCASysSts_S "ILCASysSts_S";
+CM_ SG_ 668 ILCALaneSts_S "ILCALaneSts_S";
+CM_ SG_ 668 Message_Counter_29C_S "Message_Counter_29C_S";
+CM_ SG_ 668 CheckSum29C_S "CheckSum29C_S";
+CM_ BO_ 319 "��������Adas����";
+CM_ SG_ 319 APA_MEB_States_S "APA_MEB_States_S";
+CM_ SG_ 319 Scroll_Cycle_Cnt_13F_S "Scroll_Cycle_Cnt_13F_S";
+CM_ SG_ 319 Checksum_13F_S "Checksum_13F_S";
+CM_ BO_ 308 "��������Adas����";
+CM_ SG_ 308 APA_Auto_Parking_Status_S "APA_Auto_Parking_Status_S";
+CM_ BO_ 884 "Ŀ������";
+CM_ SG_ 884 Child_ID_374_S "Child_ID_374_SChild_ID_374_SChild_ID_374_SChild_ID_374_SChild_ID_374_S";
+CM_ SG_ 884 Lock_Target_Abscissa_374s1_S "Lock_Target_Abscissa_374s1_S";
+CM_ SG_ 884 Lock_Target_Ordinate_374s1_S "Lock_Target_Ordinate_374s1_S";
+CM_ SG_ 884 Goal_Length_Relative_Spd_374s1_S "Goal_Length_Relative_Spd_374s1_S";
+CM_ SG_ 884 Goal_Late_Relative_Spd_374s1_S "Goal_Late_Relative_Spd_374s1_S";
+CM_ SG_ 884 Target_State_B6_374s1_S "Target_State_B6_374s1_S";
+CM_ SG_ 884 Target_State_B1_374s1_S "Target_State_B1_374s1_S";
+CM_ SG_ 884 Target_Type_374s1_S "Target_Type_374s1_S";
+CM_ SG_ 884 AliveCounter_374s1_S "AliveCounter_374s1_S";
+CM_ SG_ 884 CheckSum_374s1_S "CheckSum_374s1_S";
+CM_ SG_ 884 Lock_Target_Abscissa_374s2_S "Lock_Target_Abscissa_374s2_S";
+CM_ SG_ 884 Lock_Target_Ordinate_374s2_S "Lock_Target_Ordinate_374s2_S";
+CM_ SG_ 884 Goal_Length_Relative_Spd_374s2_S "Goal_Length_Relative_Spd_374s2_S";
+CM_ SG_ 884 Goal_Late_Relative_Spd_374s2_S "Goal_Late_Relative_Spd_374s2_S";
+CM_ SG_ 884 Target_State_B6_374s2_S "Target_State_B6_374s2_S";
+CM_ SG_ 884 Target_State_B1_374s2_S "Target_State_B1_374s2_S";
+CM_ SG_ 884 Target_Type_374s2_S "Target_Type_374s2_S";
+CM_ SG_ 884 AliveCounter_374s2_S "AliveCounter_374s2_S";
+CM_ SG_ 884 CheckSum_374s2_S "CheckSum_374s2_S";
+CM_ SG_ 884 Lock_Target_Abscissa_374s3_S "Lock_Target_Abscissa_374s3_S";
+CM_ SG_ 884 Lock_Target_Ordinate_374s3_S "Lock_Target_Ordinate_374s3_S";
+CM_ SG_ 884 Goal_Length_Relative_Spd_374s3_S "Goal_Length_Relative_Spd_374s3_S";
+CM_ SG_ 884 Goal_Late_Relative_Spd_374s3_S "Goal_Late_Relative_Spd_374s3_S";
+CM_ SG_ 884 Target_State_B6_374s3_S "Target_State_B6_374s3_S";
+CM_ SG_ 884 Target_State_B1_374s3_S "Target_State_B1_374s3_S";
+CM_ SG_ 884 Target_Type_374s3_S "Target_Type_374s3_S";
+CM_ SG_ 884 AliveCounter_374s3_S "AliveCounter_374s3_S";
+CM_ SG_ 884 CheckSum_374s3_S "CheckSum_374s3_S";
+CM_ SG_ 884 Lock_Target_Abscissa_374s4_S "Lock_Target_Abscissa_374s4_S";
+CM_ SG_ 884 Lock_Target_Ordinate_374s4_S "Lock_Target_Ordinate_374s4_S";
+CM_ SG_ 884 Goal_Length_Relative_Spd_374s4_S "Goal_Length_Relative_Spd_374s4_S";
+CM_ SG_ 884 Goal_Late_Relative_Spd_374s4_S "Goal_Late_Relative_Spd_374s4_S";
+CM_ SG_ 884 Target_State_B6_374s4_S "Target_State_B6_374s4_S";
+CM_ SG_ 884 Target_State_B1_374s4_S "Target_State_B1_374s4_S";
+CM_ SG_ 884 Target_Type_374s4_S "Target_Type_374s4_S";
+CM_ SG_ 884 AliveCounter_374s4_S "AliveCounter_374s4_S";
+CM_ SG_ 884 CheckSum_374s4_S "CheckSum_374s4_S";
+CM_ SG_ 884 Lock_Target_Abscissa_374s5_S "Lock_Target_Abscissa_374s5_S";
+CM_ SG_ 884 Lock_Target_Ordinate_374s5_S "Lock_Target_Ordinate_374s5_S";
+CM_ SG_ 884 Goal_Length_Relative_Spd_374s5_S "Goal_Length_Relative_Spd_374s5_S";
+CM_ SG_ 884 Goal_Late_Relative_Spd_374s5_S "Goal_Late_Relative_Spd_374s5_S";
+CM_ SG_ 884 Target_State_B6_374s5_S "Target_State_B6_374s5_S";
+CM_ SG_ 884 Target_State_B1_374s5_S "Target_State_B1_374s5_S";
+CM_ SG_ 884 Target_Type_374s5_S "Target_Type_374s5_S";
+CM_ SG_ 884 AliveCounter_374s5_S "AliveCounter_374s5_S";
+CM_ SG_ 884 CheckSum_374s5_S "CheckSum_374s5_S";
+CM_ BO_ 843 "������Ŀ��";
+CM_ SG_ 843 Left_Lane_Line_Type_S "Left_Lane_Line_Type_S";
+CM_ SG_ 843 Right_Lane_Line_Type_S "Right_Lane_Line_Type_S";
+CM_ SG_ 843 Left_Lane_Line_Y_Distance_S "Left_Lane_Line_Y_Distance_S";
+CM_ SG_ 843 Right_Lane_Line_Y_Distance_S "Right_Lane_Line_Y_Distance_S";
+CM_ SG_ 843 Lane_Line_Curvature_S "Lane_Line_Curvature_S";
+CM_ SG_ 843 AliveCounter_34B_S "AliveCounter_34B_S";
+CM_ SG_ 843 CheckSum_34B_S "CheckSum_34B_S";
+CM_ BO_ 692 "TSR��HMA����";
+CM_ SG_ 692 HMA_Stats_S "HMA_Stats_S";
+CM_ SG_ 692 HMA_High_Beam_Request_S "HMA_High_Beam_Request_S";
+CM_ SG_ 692 MPC_ReTrsmReq_S "MPC_ReTrsmReq_S";
+CM_ SG_ 692 TSR_function_status_S "TSR_function_status_S";
+CM_ SG_ 692 RSI_SignMisc_S "RSI_SignMisc_S";
+CM_ SG_ 692 SILI_Warning_Status_S "SILI_Warning_Status_S";
+CM_ SG_ 692 ISLI_Sta_S "ISLI_Sta_S";
+CM_ SG_ 692 SLA__Output_Speed_Limit_Unit_S "SLA__Output_Speed_Limit_Unit_S";
+CM_ SG_ 692 MPC_SpdLimOffs_SLA_S "MPC_SpdLimOffs_SLA_S";
+CM_ SG_ 692 SLA_Output_Speed_Limit_S "SLA_Output_Speed_Limit_S";
+CM_ SG_ 692 TLA_Sts_S "TLA_Sts_S";
+CM_ SG_ 692 MPC_Warn_TLA_left_S "MPC_Warn_TLA_left_S";
+CM_ SG_ 692 MPC_Warn_TLA_stright "MPC_Warn_TLA_stright";
+CM_ SG_ 692 MPC_Warn_TLA_right "MPC_Warn_TLA_right";
+CM_ BO_ 1226 "������ͼ�ź�";
+CM_ SG_ 1226 OffFrontCrossingDis_S "OffFrontCrossingDis_S";
+CM_ SG_ 1226 OffFrontTunnelDis_S "OffFrontTunnelDis_S";
+CM_ SG_ 1226 FrontCrossingLaneNumber_S "FrontCrossingLaneNumber_S";
+CM_ SG_ 1226 CrossingLaneNumberValid_S "CrossingLaneNumberValid_S";
+CM_ SG_ 1226 TunneStates_S "TunneStates_S";
+CM_ SG_ 1226 Lane_1_States_S "Lane_1_States_S";
+CM_ SG_ 1226 Lane_2_States_S "Lane_2_States_S";
+CM_ SG_ 1226 Lane_3_States_S "Lane_3_States_S";
+CM_ SG_ 1226 Lane_4_States_S "Lane_4_States_S";
+CM_ SG_ 1226 Lane_5_States_S "Lane_5_States_S";
+CM_ SG_ 1226 Lane_6_States_S "Lane_6_States_S";
+CM_ SG_ 1226 Lane_7_States_S "Lane_7_States_S";
+CM_ SG_ 1226 Lane_8_States_S "Lane_8_States_S";
+CM_ SG_ 1226 Speedlimit_S "Speedlimit_S";
+CM_ SG_ 1226 NaviCorp_S "NaviCorp_S";
+CM_ SG_ 1226 MPC_IFC_NaviSt_S "MPC_IFC_NaviSt_S";
+CM_ SG_ 1226 MPC_ZoneCode_S "MPC_ZoneCode_S";
+CM_ SG_ 1226 Roadtype_S "Roadtype_S";
+CM_ SG_ 1226 Lane_9_States_S "Lane_9_States_S";
+CM_ SG_ 1226 Lane_10_States_S "Lane_10_States_S";
+CM_ SG_ 1226 Lane_11_States_S "Lane_11_States_S";
+CM_ SG_ 1226 Lane_12_States_S "Lane_12_States_S";
+CM_ SG_ 1178 Medium_Enter_OTA_Mode_Req_S "Medium_Enter_OTA_Mode_Req_S";
+CM_ SG_ 1178 Medium_Checksum_49A_S "Medium_Checksum_49A_S";
+BA_DEF_ BO_  "GenMsgCycleTimeFast" INT 0 1000000;
+BA_DEF_ BO_  "VFrameFormat" ENUM  "StandardCAN","ExtendedCAN","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","StandardCAN_FD","ExtendedCAN_FD";
+BA_DEF_ SG_  "GenSigStartValue" INT 0 0;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cycle","Event","CE";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 0;
+BA_DEF_  "DBName" STRING ;
+BA_DEF_ SG_  "SystemSignalLongSymbol" STRING ;
+BA_DEF_DEF_  "GenMsgCycleTimeFast" 0;
+BA_DEF_DEF_  "VFrameFormat" "StandardCAN_FD";
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "GenMsgSendType" "Cycle";
+BA_DEF_DEF_  "BusType" "CANFD";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "DBName" "";
+BA_DEF_DEF_  "SystemSignalLongSymbol" "";
+BA_ "BusType" "CAN FD";
+BA_ "DBName" "VehicleSignal";
+BA_ "GenMsgCycleTime" BO_ 660 50;
+BA_ "VFrameFormat" BO_ 660 14;
+BA_ "GenMsgCycleTime" BO_ 1031 1000;
+BA_ "GenMsgSendType" BO_ 1031 2;
+BA_ "GenMsgCycleTimeFast" BO_ 1031 100;
+BA_ "VFrameFormat" BO_ 1031 14;
+BA_ "GenMsgCycleTime" BO_ 948 1000;
+BA_ "GenMsgSendType" BO_ 948 2;
+BA_ "GenMsgCycleTimeFast" BO_ 948 100;
+BA_ "VFrameFormat" BO_ 948 14;
+BA_ "GenMsgCycleTime" BO_ 973 1000;
+BA_ "GenMsgSendType" BO_ 973 2;
+BA_ "GenMsgCycleTimeFast" BO_ 973 50;
+BA_ "VFrameFormat" BO_ 973 14;
+BA_ "GenMsgCycleTime" BO_ 906 1000;
+BA_ "GenMsgSendType" BO_ 906 2;
+BA_ "GenMsgCycleTimeFast" BO_ 906 100;
+BA_ "VFrameFormat" BO_ 906 14;
+BA_ "GenMsgCycleTime" BO_ 301 50;
+BA_ "VFrameFormat" BO_ 301 14;
+BA_ "GenMsgCycleTime" BO_ 1141 1000;
+BA_ "GenMsgSendType" BO_ 1141 2;
+BA_ "GenMsgCycleTimeFast" BO_ 1141 100;
+BA_ "VFrameFormat" BO_ 1141 14;
+BA_ "GenMsgCycleTime" BO_ 337 100;
+BA_ "VFrameFormat" BO_ 337 14;
+BA_ "GenMsgCycleTime" BO_ 803 100;
+BA_ "VFrameFormat" BO_ 803 14;
+BA_ "GenMsgCycleTime" BO_ 985 1000;
+BA_ "VFrameFormat" BO_ 985 14;
+BA_ "GenMsgCycleTime" BO_ 1028 1000;
+BA_ "GenMsgSendType" BO_ 1028 2;
+BA_ "GenMsgCycleTimeFast" BO_ 1028 100;
+BA_ "VFrameFormat" BO_ 1028 14;
+BA_ "GenMsgCycleTime" BO_ 536 20;
+BA_ "VFrameFormat" BO_ 536 14;
+BA_ "GenMsgCycleTime" BO_ 724 100;
+BA_ "VFrameFormat" BO_ 724 14;
+BA_ "GenMsgSendType" BO_ 901 1;
+BA_ "GenMsgCycleTime" BO_ 901 100;
+BA_ "VFrameFormat" BO_ 901 14;
+BA_ "GenMsgSendType" BO_ 1263 1;
+BA_ "GenMsgCycleTime" BO_ 1263 100;
+BA_ "VFrameFormat" BO_ 1263 14;
+BA_ "GenMsgCycleTime" BO_ 694 500;
+BA_ "VFrameFormat" BO_ 694 14;
+BA_ "GenMsgSendType" BO_ 995 1;
+BA_ "GenMsgCycleTime" BO_ 995 100;
+BA_ "VFrameFormat" BO_ 995 14;
+BA_ "GenMsgCycleTime" BO_ 307 50;
+BA_ "VFrameFormat" BO_ 307 14;
+BA_ "GenMsgCycleTime" BO_ 322 10;
+BA_ "VFrameFormat" BO_ 322 14;
+BA_ "GenMsgCycleTime" BO_ 944 50;
+BA_ "VFrameFormat" BO_ 944 14;
+BA_ "GenMsgCycleTime" BO_ 269 20;
+BA_ "VFrameFormat" BO_ 269 14;
+BA_ "GenMsgCycleTime" BO_ 833 50;
+BA_ "VFrameFormat" BO_ 833 14;
+BA_ "GenMsgCycleTime" BO_ 576 100;
+BA_ "VFrameFormat" BO_ 576 14;
+BA_ "GenMsgCycleTime" BO_ 834 20;
+BA_ "VFrameFormat" BO_ 834 14;
+BA_ "GenMsgCycleTime" BO_ 578 20;
+BA_ "VFrameFormat" BO_ 578 14;
+BA_ "GenMsgCycleTime" BO_ 836 100;
+BA_ "VFrameFormat" BO_ 836 14;
+BA_ "GenMsgCycleTime" BO_ 530 20;
+BA_ "VFrameFormat" BO_ 530 14;
+BA_ "GenMsgCycleTime" BO_ 289 20;
+BA_ "VFrameFormat" BO_ 289 14;
+BA_ "GenMsgCycleTime" BO_ 291 10;
+BA_ "VFrameFormat" BO_ 291 14;
+BA_ "GenMsgCycleTime" BO_ 546 20;
+BA_ "VFrameFormat" BO_ 546 14;
+BA_ "GenMsgCycleTime" BO_ 547 20;
+BA_ "VFrameFormat" BO_ 547 14;
+BA_ "GenMsgCycleTime" BO_ 801 20;
+BA_ "VFrameFormat" BO_ 801 14;
+BA_ "GenMsgCycleTime" BO_ 544 20;
+BA_ "VFrameFormat" BO_ 544 14;
+BA_ "GenMsgCycleTime" BO_ 1058 20;
+BA_ "VFrameFormat" BO_ 1058 14;
+BA_ "GenMsgCycleTime" BO_ 496 20;
+BA_ "VFrameFormat" BO_ 496 14;
+BA_ "GenMsgCycleTime" BO_ 213 10;
+BA_ "VFrameFormat" BO_ 213 14;
+BA_ "GenMsgCycleTime" BO_ 588 1000;
+BA_ "VFrameFormat" BO_ 588 14;
+BA_ "GenMsgCycleTime" BO_ 287 10;
+BA_ "VFrameFormat" BO_ 287 14;
+BA_ "GenMsgCycleTime" BO_ 508 20;
+BA_ "VFrameFormat" BO_ 508 14;
+BA_ "GenMsgCycleTime" BO_ 792 20;
+BA_ "VFrameFormat" BO_ 792 14;
+BA_ "GenMsgCycleTime" BO_ 813 20;
+BA_ "VFrameFormat" BO_ 813 14;
+BA_ "GenMsgCycleTime" BO_ 790 20;
+BA_ "VFrameFormat" BO_ 790 14;
+BA_ "GenMsgCycleTime" BO_ 482 20;
+BA_ "VFrameFormat" BO_ 482 14;
+BA_ "GenMsgCycleTime" BO_ 1074 1000;
+BA_ "VFrameFormat" BO_ 1074 14;
+BA_ "GenMsgCycleTime" BO_ 311 20;
+BA_ "VFrameFormat" BO_ 311 14;
+BA_ "GenMsgCycleTime" BO_ 312 20;
+BA_ "VFrameFormat" BO_ 312 14;
+BA_ "GenMsgCycleTime" BO_ 814 20;
+BA_ "VFrameFormat" BO_ 814 14;
+BA_ "GenMsgCycleTime" BO_ 815 20;
+BA_ "VFrameFormat" BO_ 815 14;
+BA_ "GenMsgCycleTime" BO_ 714 50;
+BA_ "VFrameFormat" BO_ 714 14;
+BA_ "GenMsgCycleTime" BO_ 668 50;
+BA_ "VFrameFormat" BO_ 668 14;
+BA_ "GenMsgCycleTime" BO_ 319 20;
+BA_ "VFrameFormat" BO_ 319 14;
+BA_ "GenMsgCycleTime" BO_ 308 20;
+BA_ "VFrameFormat" BO_ 308 14;
+BA_ "GenMsgCycleTime" BO_ 884 50;
+BA_ "VFrameFormat" BO_ 884 14;
+BA_ "GenMsgCycleTime" BO_ 843 50;
+BA_ "VFrameFormat" BO_ 843 14;
+BA_ "GenMsgCycleTime" BO_ 692 50;
+BA_ "VFrameFormat" BO_ 692 14;
+BA_ "GenMsgCycleTime" BO_ 1226 1000;
+BA_ "GenMsgSendType" BO_ 1226 2;
+BA_ "GenMsgCycleTimeFast" BO_ 1226 100;
+BA_ "VFrameFormat" BO_ 1226 14;
+BA_ "GenMsgCycleTime" BO_ 1178 1000;
+BA_ "GenMsgSendType" BO_ 1178 2;
+BA_ "GenMsgCycleTimeFast" BO_ 1178 100;
+BA_ "VFrameFormat" BO_ 1178 14;
+BA_ "SystemSignalLongSymbol" SG_ 508 EPSAngleCtrlDlvdTorsionBarTorque "EPSAngleCtrlDlvdTorsionBarTorqueValue_S";
+VAL_ 3221225472 RCR_R_Sys_Status_S 0 "OFF" 1 "ON" 2 "SDA ERROR" 3 "System Error" ;
+VAL_ 3221225472 ELKA_Warning_Left_S 0 "No Warning" 1 "Warning" ;
+VAL_ 3221225472 ELKA_Warn_Right_S 0 "No Warning" 1 "Warning" ;
+VAL_ 3221225472 R_BSD_Warning_Left_S 0 "NoWarning" 1 "WarningLevel1" 2 "WarningLevel2" 3 "Reserved" ;
+VAL_ 3221225472 R_BSD_Warning_Right_S 0 "NoWarning" 1 "WarningLevel1" 2 "WarningLevel2" 3 "Reserved" ;
+VAL_ 3221225472 RRadar_RCTA_Warning_Left_S 0 "WaringOff" 1 "WaringOn" ;
+VAL_ 3221225472 Radar_RCTA_Warn_Right_S 0 "WaringOff" 1 "WaringOn" ;
+VAL_ 3221225472 RCW_Warning_S 0 "Waringoff" 1 "Waringon" ;
+VAL_ 3221225472 R_BSD_Status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "fault" ;
+VAL_ 3221225472 Right_Radar_RCTA_Status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "fault" ;
+VAL_ 3221225472 Right_Radar_RCW_Status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "fault" ;
+VAL_ 3221225472 Right_Radar_DOW_Status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "fault" ;
+VAL_ 3221225472 RRadar_DOW_Warning_Left_S 0 "NoWarning" 1 "WarningLevel1" 2 "WarningLevel2" 3 "Reserved" ;
+VAL_ 3221225472 RRadar_DOW_WarningRight_S 0 "NoWarning" 1 "WarningLevel1" 2 "WarningLevel2" 3 "Reserved" ;
+VAL_ 3221225472 Right_Radar_RCTB_Status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "fault" ;
+VAL_ 3221225472 Right_Radar_RCTB_Braking_Req_S 0 "Invalid" 1 "NoDemand" 2 "Demand" 3 "Reserve" ;
+VAL_ 3221225472 VCU_Vehicle_Run_Mode_S 0 "Reserved" 1 "EconomicMode" 2 "SportsMode" 3 "ѩ��ģʽ" ;
+VAL_ 3221225472 IPB_Simulator_Pressure_Sts_S 0 "Valid" 1 "Invalid" ;
+VAL_ 3221225472 IPB_Plunger_Pres_status_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Left_Front_Door_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 Right_Front_Door_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 Left_Back_Door_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 Right_Back_Door_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 LeftF_Door_Stats_Valid_Bit_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 RightF_Door_Sts_Valid_Bit_294_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 LeftR_Door_Stats_Valid_Bit_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 RightR_Door_Sts_Valid_Bit_294_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Driver_Belt_Stat_Effective_Bit_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Back_Door_Sts_Effectiv_Bit_294_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Frnt_Hatch_Stat_Effective_Bit_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Emergency_Alarm_Effective_Bit_S 0 "Valid" 1 "Invalid" ;
+VAL_ 660 Driver_Belt_Status_S 0 "Invalid" 1 "Unlock" 2 "Buckle" 3 "Reserved" ;
+VAL_ 660 Back_Door_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 Former_Hatch_Status_294_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 660 Emergency_Alarm_Status_S 0 "Invalid" 1 "Close" 2 "Open" 3 "Reserved" ;
+VAL_ 1031 FL_Door_Lock_Sttus407_S 0 "Invalid" 1 "UnlockedState" 2 "LockedState" 3 "Reserved" ;
+VAL_ 1031 FR_Door_Lock_Status_407_S 0 "Invalid" 1 "UnlockedState" 2 "LockedState" 3 "Reserved" ;
+VAL_ 1031 RL_Door_Lock_Status_S 0 "Invalid" 1 "UnlockedState" 2 "LockedState" 3 "Reserved" ;
+VAL_ 1031 RR_Door_Lock_Status_407_S 0 "Invalid" 1 "UnlockedState" 2 "LockedState" 3 "Reserved" ;
+VAL_ 1031 Fldig_Extrr_Mrors_Expand_S 0 "NoAction" 1 "Folded" 2 "Expanded" 3 "Reserved" ;
+VAL_ 948 Sun_Sensor_Hardware_Fault_S 0 "NoFault" 1 "Fault" ;
+VAL_ 948 Humidity_Sensor_Fault_Sign_S 0 "NoFault" 1 "Fault" ;
+VAL_ 973 Tyre_Position_S 0 "LeftFrontTire" 1 "RightFrontTire" 2 "LeftRearTire" 3 "RightRearTire" ;
+VAL_ 973 Single_Tire_Status_Signal_S 0 "Normal" 1 "AbnormalSignal" ;
+VAL_ 973 BSD_Sys_Stat_S 0 "Normal" 1 "SystemSelfCheck" 2 "SystemSignalAbnormal" 3 "SystemFailure" ;
+VAL_ 906 Dipped_Headlight_38A_S 0 "Invalid" 1 "TurnOn" 2 "TurnOff" 3 "Reserved" ;
+VAL_ 906 High_Beam_Light_38A_S 0 "Invalid" 1 "TurnOn" 2 "TurnOff" 3 "Reserved" ;
+VAL_ 906 Back_Fog_Light_38A_S 0 "Invalid" 1 "TurnOn" 2 "TurnOff" 3 "Reserved" ;
+VAL_ 906 All_Weather_Lights_38A_S 0 "Invalid" 1 "Lit" 2 "Off" 3 "Reserved" ;
+VAL_ 301 BCMPower_Gear_12D_S 0 "Invalid" 1 "OFFFile" 2 "ACCFile" 3 "ONFile" ;
+VAL_ 1141 Wiper_Speed_S 0 "Invalid" 1 "Stop" 2 "SlowScraping" 3 "FastScraping" ;
+VAL_ 337 Speed_Unit_Setting_151_S 0 "Invalid" 1 "KmH" 2 "MPH" 3 "Reserved" ;
+VAL_ 803 INS_Show_Fault_323_S 0 "Normal" 1 "Fault" ;
+VAL_ 985 Child_ID_3D9_S 5 "ChildID05" ;
+VAL_ 1028 Temperature_Conversion_S 0 "SetTemperatureInCelsius" 1 "SetTemperatureInFahrenheit" ;
+VAL_ 536 Ele_Park_Brake_Switch_Status_S 0 "NotActive" 1 "Release" 2 "Apply" 3 "Reserved" ;
+VAL_ 536 EPB_Status_S 0 "Releasing" 1 "Released" 2 "Applying" 3 "Applied" 4 "FaultProhibitionOfRemoteDriving" ;
+VAL_ 724 Latitd_Info_Decimal_Part_S 0 "ActualLatitudeValue" 127 "" ;
+VAL_ 724 Latitude_Direction_2D4_S 0 "South" 1 "North" ;
+VAL_ 724 Latitd_Info_Integ_Part_S 0 "ActualLatitudeValue0xB4-" 255 "Invalid" ;
+VAL_ 724 Longitd_Info_Deciml_Part_S 0 "ActualLongitudeValue" 127 "" ;
+VAL_ 724 Longitd_Direction_2D4_S 0 "East" 1 "West" ;
+VAL_ 724 Longitd_Info_Integr_Part_S 0 "ActualLongitudeValue0xB4-" 255 "Invalid" ;
+VAL_ 724 Orientation_Info_2D4_S 0 "ActualBearingValue" 4095 "Invalid" ;
+VAL_ 724 Height_Decimal_Part_2D4_S 0 "ActualHeightValue0xA-" 15 "Invalid" ;
+VAL_ 724 Altitude_2D4_S 0 "BelowSeaLevel" 1 "AboveSeaLevel" ;
+VAL_ 724 GPS_Signal_2D4_S 0 "NoSignal" 1 "Signal" ;
+VAL_ 901 DOW_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 TJA_ICAwitch_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 HMA_funtion_Switch_Signal_S 0 "Invalid" 1 "HMAnotselected" 2 "HMAselected" 3 "Reserved" ;
+VAL_ 901 ISLI_Switch_S 0 "Invalid" 1 "Off" 2 "On" 3 "Reserved" ;
+VAL_ 901 PCW_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 LKS_Enable_S 0 "Invalid" 1 "TurnOffd" 2 "LaneDeparture" 3 "LaneKeeping" 4 "FullFunction" 5 "LaneDeparturePrevention" ;
+VAL_ 901 AEB_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 LDW_Warning_Mode_S 0 "Invalid" 1 "VibrationOnly" 2 "SoundOnly" 3 "VibrationSound" ;
+VAL_ 901 PCWLevelReq 0 "NoAction" 1 "Level1Low" 2 "InLevel2SelectedByDefault" 3 "Level3High" ;
+VAL_ 901 RCTA_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 RCW_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 RCTB_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 SLA_SpdLimOffs_S 0 "0" 1 "-10KPH" 2 "-5KPH" 3 "+5KPH" 4 "+10KPH" 5 "-5MPH" 6 "-3MPH" 7 "+3MPH" 8 "+5MPH" ;
+VAL_ 901 TSR_Switch_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 901 ELKA_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 Medium_0x4EF_ChilD_ID_S 51 "��ID33" ;
+VAL_ 1263 FCTA_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 FCTB_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 ILCA_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 HNP_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 ISLC_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 LTA_Enable_S 0 "Invalid" 1 "Switchoff" 2 "Switchon" 3 "Reserved" ;
+VAL_ 1263 PCW_Level_Req_S 0 "Invalid" 1 "�ر�" 2 "Level 1 ��" 3 "Level 2 ��" 4 "Level 3��" ;
+VAL_ 694 Date_Information_Year_2B6_S 0 "Invalid0x1-" 255 "2001To2255year" ;
+VAL_ 694 Date_Information_Month_2B6_S 0 "Invalid0x1-" 12 "JanuaryToDecember0x0D-" 255 "Invalid" ;
+VAL_ 694 Date_Information_Day_2B6_S 0 "Invalid0x1-" 31 "Number1-310x20-" 255 "Invalid" ;
+VAL_ 694 Date_Information_Hour_2B6_S 0 "0-23h0x18-" 255 "Invalid" ;
+VAL_ 694 Date_Information_Minute_2B6_S 0 "0-59Minutes0x3C-" 255 "Invalid" ;
+VAL_ 694 Date_Information_Second_2B6_S 0 "0-59Seconds0x3C-" 255 "Invalid" ;
+VAL_ 995 Media_Factory_Default_S 0 "Invalid" 1 "Confirm" 2 "Cancel" 3 "Reserved" ;
+VAL_ 995 SfAsist_Restr_Dflt_Log_S 0 "Invalid" 1 "Confirm" ;
+VAL_ 995 Drv_Asis_St_RstrDflt_Flg_S 0 "Invalid" 1 "Confirm" ;
+VAL_ 995 Roa_Asis_St_RstrDflt_Flg_S 0 "Invalid" 1 "Confirm" ;
+VAL_ 307 Front_And_Rear_Fog_Lamp_Gear_S 0 "Invalid" 1 "OFFFile" 2 "AllWeatherLightFile" 3 "RearFogLamp" ;
+VAL_ 307 CS_Front_Wiper_Gear_S 0 "Reserved" 1 "OFFGear" 2 "ShortPress" 3 "ClickAndLongPress" 4 "Gap1Level" 5 "Gap2Level" 6 "Gap3Level" 7 "Gap4Level" 8 "SlowScraping" 9 "QuickScraping" 10 "AUTOGear" ;
+VAL_ 307 Light_Knob_Mechan_Gear_S 0 "Invalid" 1 "OFFFile" 2 "AUTOFile" 3 "SmallLightFile" 4 "LowBeamLightFile" ;
+VAL_ 307 High_Beam_Attendan_Lamp_Stall_S 0 "Invalid" 1 "OFFFile" 2 "HighBeamFile" 3 "OvertakingLamp" ;
+VAL_ 307 Turn_Signal_Switch_S 0 "Invalid" 1 "OFFGear" 2 "LeftSteeringShortLift" 3 "LeftSteeringLongLift" 4 "RightSteeringShortLift" 5 "RightSteeringLongLift" ;
+VAL_ 322 Failure_Stats_OK_142_S 0 "SensorInformationInvalid" 1 "SensorInformationValid" ;
+VAL_ 322 Sensor_Calibration_Stats_142_S 0 "SensorNotCalibrated" 1 "Sensor1Calibrated" ;
+VAL_ 322 TRIM_Trimming_Stats_142_S 0 "SensorNotTrimmed" 1 "SensorTrimmed" ;
+VAL_ 944 SWS_Dist_Set_S 0 "FirstGear1s" 1 "SecondGear15s" 2 "ThirdGear19s" 3 "FourthGear23s" 4 "Invalid" ;
+VAL_ 944 SWS_Speed_Set_S 0 "InitialPosition" 1 "DecelerateFirstGear" 2 "DecelerateSecondGear" 3 "AccelerateFirstGear" 4 "AccelerateSecondGear" ;
+VAL_ 944 Dipilot_Switch_Signal_S 0 "��Ч" 1 "���ذ���" ;
+VAL_ 944 SWS_Cruise_Or_Speed_Limit_Mode_S 0 "SpeedLimitMode" 1 "CruiseMode" ;
+VAL_ 944 SWS_Reset_Signal_S 0 "InitialPosition" 1 "ResetAction" ;
+VAL_ 944 SWS_Cruis_Swch_Fault_Stat_flg_S 0 "Invalid" 1 "Normal" ;
+VAL_ 944 SWS_Set_Signal_S 0 "Invalid" 1 "SETSwitchIsPressed" ;
+VAL_ 944 SWS_Dist_Switch_Signal_Down_S 0 "Invalid" 1 "DistanceSwitchIsPressed" ;
+VAL_ 944 SWS_Dist_Switch_Signal_Up_S 0 "Invalid" 1 "DistanceSwitchPlusPress" ;
+VAL_ 944 Cruise_Switch_Operation_Mode_S 0 "CruiseButtonOnSteeringWheel" 1 "NoCruiseButton" ;
+VAL_ 944 ACC_Switch_Signal_S 0 "Invalid" 1 "SwitchPress" ;
+VAL_ 269 Engine_Rev_Error_S 0 "NoError" 1 "Error" ;
+VAL_ 269 Rev_Drag_Start_Cmd_S 0 "Valid" 1 "Invalid" ;
+VAL_ 269 ECM_Engine_Status_S 0 "EngineStop" 1 "Cranking" 2 "Reserved" 3 "Running" 7 "Fault" ;
+VAL_ 833 VCU_READY_Indicator_Light_S 0 "DoNotDisplay" 1 "Display" 2 "InsertTheGunWithHighVoltageAvailablePseudoREADY" 3 "Reserved" ;
+VAL_ 576 Power_System_Failure_S 0 "PowerSystemStatusIsNormal" 1 "EVFunctionIsRestricted" 2 "PowerSystemStatusIsFaulty" 3 "Reserved" ;
+VAL_ 576 VCU_Goal_Road_Mode_S 0 "Invalid" 1 "NormalMode" 2 "GrassGravelGroundSnow" 3 "MuddyGroundRutGround" 4 "Sand" ;
+VAL_ 576 VCU_Practice_Road_Mode_S 0 "Invalid" 1 "NormalMode" 2 "GrassGravelGroundSnow" 3 "MuddyGroundRutGround" 4 "Sand" ;
+VAL_ 834 VCU_Acelrogra_Dpth_Virtual_Val_S 0 "Invalid" 1 "Valid" ;
+VAL_ 834 VCU_Brake_Depth_Virtual_Value_S 0 "Invalid" 1 "Valid" ;
+VAL_ 834 VCU_Goal_Gear_S 0 "Reserved" 1 "PGear" 2 "RGea" 3 "NGea" 4 "Dgea" ;
+VAL_ 578 VCU_Driver_VLC_Request_Torque_S 0 "NoOverride" 1 "DriverOverride" ;
+VAL_ 578 Acceleration_Pedal_depth_error_S 0 "NoError" 1 "Error" ;
+VAL_ 530 Gear_Shift_Progress_S 0 "NotINprogress" 1 "Inprogress" ;
+VAL_ 530 Gear_Shift_Progress_State_S 0 "Valid" 1 "Invalid" ;
+VAL_ 530 TCU_Mode_Switch_S 0 "Normal" 1 "ECO" 2 "Sport" 3 "Reserved" ;
+VAL_ 530 Actual_Shift_Gear_Mode_S 0 "Invalid" 1 "P" 2 "R" 3 "N" 4 "D" 5 "MFuel" 6 "Sfuel" 7 "MPositiveFuel" 8 "MNegativeFuel" ;
+VAL_ 530 Actual_Gear_S 0 "Invalid" 1 "1stGear" 2 "2ndGear" 3 "3rdGear" 4 "4thGear" 5 "5thGear" 6 "6thGear" 7 "7thGear" ;
+VAL_ 289 Vehicle_Speed_Stats_S 0 "Valid" 1 "Invalid" ;
+VAL_ 289 AWB_Available_S 0 "Notavailable" 1 "Available" ;
+VAL_ 289 AWB_Active_Brake_Warning_S 0 "NoActive" 1 "Active" ;
+VAL_ 289 AEB_Dec_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 289 AEB_not_Available_S 0 "NotAvailable" 1 "Available" ;
+VAL_ 289 Prefill_Available_S 0 "NotAvailable" 1 "Available" ;
+VAL_ 289 Prefill_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 289 ABAavailable_S 0 "NotAvailable" 1 "Available" ;
+VAL_ 289 ABA_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 291 HDC_CtrlStatus_S 0 "HDCOffNolamp" 1 "HDCOnwithoutactivebrakingLampon" 2 "HDCOnwithactivebrakingLampflashing" 3 "IPBwithoutHDC" ;
+VAL_ 291 Brake_Pedal_Status_S 0 "NotPressed" 1 "Pressed" 2 "Reserved" 3 "Error" ;
+VAL_ 291 ESP_OFF_S 0 "ESPON" 1 "ESPOFF" ;
+VAL_ 291 ESP_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 291 TCS_Fault_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 291 VDC_Fault_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 546 EBD_Active_222_S 0 "NoActive" 1 "Active" ;
+VAL_ 546 ABS_Active_222_S 0 "NoActive" 1 "Active" ;
+VAL_ 546 EBD_Fault_222_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 546 ABS_Fault_222_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 546 TCS_Active_222_S 0 "NotActive" 1 "Active" ;
+VAL_ 546 DTC_Active_222_S 0 "NotActive" 1 "Active" ;
+VAL_ 546 VDC_Active_222_S 0 "NotActive" 1 "Active" ;
+VAL_ 546 Yaw_Rate_Status_S 0 "NotValid" 1 "Valid" ;
+VAL_ 547 IPB_AY_Status_S 0 "NotValid" 1 "Valid" ;
+VAL_ 547 IPB_AX_Status_S 0 "NotValid" 1 "Valid" ;
+VAL_ 801 MC_Pressure_Status_S 0 "Valid" 1 "Invalid" ;
+VAL_ 801 MC_Pressure_Offset_Status_S 0 "Valid" 1 "Invalid" ;
+VAL_ 544 RR_Wheel_Drive_Direction_S 0 "Invalid" 1 "Forward" 2 "Backward" 3 "Stop" ;
+VAL_ 544 RL_Wheel_Drive_Direction_S 0 "Invalid" 1 "Forward" 2 "Backward" 3 "Stop" ;
+VAL_ 544 FR_Wheel_Drive_Direction_S 0 "Invalid" 1 "Forward" 2 "Backward" 3 "Stop" ;
+VAL_ 544 FL_Wheel_Drive_Direction_S 0 "Invalid" 1 "Forward" 2 "Backward" 3 "Stop" ;
+VAL_ 544 Active_Vehicle_Hold_S 0 "NotActiveVehicleHold" 1 "ActiveVehicleHold" ;
+VAL_ 544 VLC_Available_S 0 "NotAvailable" 1 "Available" ;
+VAL_ 544 VLC_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 544 VLC_Fail_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 544 No_Brake_Force_S 0 "ExistBrakeForce" 1 "NoBrakeForce" ;
+VAL_ 544 QDC_ACC_S 0 "NoError" 1 "Error" ;
+VAL_ 544 ECD_Temp_Off_S 0 "NotHigh" 1 "TempTooHigh" ;
+VAL_ 544 Vehicle_Stand_Still_S 0 "NotStandstill" 1 "Standstill" 2 "InvalidShortunavailabilityMax3s" 3 "Reserved" ;
+VAL_ 544 FL_Wheel_Drive_Direct_Stat_S 0 "Valid" 1 "Invalid" ;
+VAL_ 544 FR_Wheel_Drive_Direct_Stat_S 0 "Valid" 1 "Invalid" ;
+VAL_ 544 RL_Wheel_Drive_Direct_Stat_S 0 "Valid" 1 "Invalid" ;
+VAL_ 544 RR_Wheel_Drive_Direct_Stat_S 0 "Valid" 1 "Invalid" ;
+VAL_ 544 CDD_Available_S 0 "NoAvailable" 1 "Available" ;
+VAL_ 544 CDD_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 544 CDD_Fail_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 1058 RR_Wheel_Puls_Count_Valid_422_S 0 "Valid" 1 "Invalid" ;
+VAL_ 1058 RL_Wheel_Puls_Count_Valid_422_S 0 "Valid" 1 "Invalid" ;
+VAL_ 1058 FR_Wheel_Puls_Count_Valid_422_S 0 "Valid" 1 "Invalid" ;
+VAL_ 1058 FL_Wheel_Puls_Count_Valid_422_S 0 "Valid" 1 "Invalid" ;
+VAL_ 496 Wheel_Speed_FR_Stats_1F0_S 0 "Valid" 1 "Invalid" ;
+VAL_ 496 Wheel_Speed_FL_Stats_1F0_S 0 "Valid" 1 "Invalid" ;
+VAL_ 496 Wheel_Speed_RR_Stats_1F0_S 0 "Valid" 1 "Invalid" ;
+VAL_ 496 WheelSpeed_RL_Status_1F0_S 0 "Valid" 1 "Invalid" ;
+VAL_ 213 IPB_Input_Rod_Stroke_State_S 0 "Valid" 1 "Invalid" ;
+VAL_ 588 Steering_Mode_Status_S 0 "Invalid" 1 "Comfortable" 2 "ComfortablePlus" 3 "Sports" 4 "SportsPlus" ;
+VAL_ 287 Failure_Stats_OK_S 0 "SensorInformationInvalid" 1 "SensorInformationValid" ;
+VAL_ 287 Sensor_Calibration_Stats_S 0 "SensorNotCalibrated" 1 "Sensor1Calibrated" ;
+VAL_ 287 TRIM_Trimming_Stats_S 0 "SensorNotTrimmed" 1 "SensorTrimmed" ;
+VAL_ 508 EPSAngleCtrlSt_S 0 "NotReady" 1 "Ready" 2 "Active" 3 "Temporary Failed" 4 " PermanentlyFailed" ;
+VAL_ 508 StrngWhlTorqVD_S 0 "invalid" 1 "valid" ;
+VAL_ 508 HandsOffDetSt_S 0 "Hands Off Not Detected" 1 "Hands Of Detected" ;
+VAL_ 508 RequestAngleOverRange_S 0 "normal" 1 "over range" ;
+VAL_ 508 RequestAnglespeedOverRange_S 0 "normal" 1 "over range" ;
+VAL_ 508 EPSAngleCtrlAbortFeedback_S 0 "No interruption" 1 "Driver hands off" 2 "Driver override" 3 "Vehicle Speed Invalid" 4 "ADAS ECU Activation RequestError" 5 "ADAS ECU Signal error" 6 "EPS Temporary error" 7 "RequestAngle Slope over range" 8 "RequestAngle Value over range" 9 "Failed Temp Time Over Limit" 10 " EPS Permanently error" ;
+VAL_ 792 EPS_LKA_Control_State_S 0 "EPSExternalSteeringTorqueRequireControlNotReady" 1 "EPSExternalSteeringTorqueRequireControlReady" 2 "EPSExternalSteeringTorqueRequireControlActive" 3 "ExternalRequireorEPSTemporaryFailed" 4 "ExternalRequireorEPSPermanentlyFailed" ;
+VAL_ 792 LKACtrlDlvdValue_VD_S 0 "Invalid" 1 "Valid" ;
+VAL_ 792 Hnads_Off_Detected_States_S 0 "HandsOffNotDetected" 1 "HandsOfDetected" ;
+VAL_ 792 Hnads_Off_Detected_States_VD_S 0 "Invalid" 1 "Valid" ;
+VAL_ 792 StrngWhlTorqVD_S 0 "Invalid" 1 "Valid" ;
+VAL_ 813 Obj_Valid_S 0 "NoObject" 1 "TargetObjectDetected" ;
+VAL_ 813 Tau_Gap_Set_S 0 "TauGap0" 1 "TauGap1" 2 "TauGap2" 3 "TauGap3" 4 "TauGap4" 5 "TauGap5" 6 "TauGap6" 7 "TauGap7" ;
+VAL_ 813 Dx_Tar_Obj_S 0 "Distance0" 1 "Distance1" 2 "Distance2" 3 "Distance3" 4 "Distance4" 5 "Distance5" 6 "Distance6" 7 "Distance7" ;
+VAL_ 813 PCW_Pre_Warning_S 0 "NoWarning" 1 "Warning" ;
+VAL_ 813 PCW_Latent_Warning_S 0 "NoWarning" 1 "Warning" ;
+VAL_ 813 PCW_State_S 0 "OFF" 1 "ON" ;
+VAL_ 813 ACC_State_S 0 "OFF" 1 "ON" ;
+VAL_ 813 Take_Over_Req_S 0 "NoTakeOverrequest" 1 "ValidTakeOverrequest" ;
+VAL_ 813 Speed_Unit_Set_S 0 "Invalid" 1 "KmH" 2 "MPH" 3 "Reserved" ;
+VAL_ 813 CCR_AEB_Error_S 0 "NoDisplayNodisplay" 1 "PleaseCheckAEBSystem" ;
+VAL_ 813 ACC_Text_Info_For_Driver_S 0 "NoDisplay" 1 "ACCCannotBeActivated" 2 "ACCCanceled" 3 "ACCIsActivated" 4 "OvertakingAcceleration" 5 "DangerPleaseBrake" 6 "ǰ������������ע���ܱ߻���" 7 "ACCIsOpen" 8 "ACCIsClosed" 9 "PleaseCheckAdaptiveCruiseSystem" 10 "PleaseConfirmIfSeatBeltIsFastened" 11 "PleaseConfirmIfTheDoorIsClosed" 12 "PleaseConfirmIfTheGearIsInDGear" 13 "PleaseConfirmIfEPBIsReleased" 14 "PleaseConfirmIfESPIsEnabled" 15 "ACC_StopGo" ;
+VAL_ 813 CCR_FCW_Error_S 0 "NoDisplayNodisplay" 1 "PleaseCheckTheFCWSystem" ;
+VAL_ 813 Pedestrian_FCW_Brak_Error_S 0 "NoDisplayNodisplay" 1 "PleaseCheckTheVRUSystem" ;
+VAL_ 813 Acute_Warning_S 0 "NoWarning" 1 "Warning" ;
+VAL_ 813 AEB_State_S 0 "OFF" 1 "ON" ;
+VAL_ 813 PCWLevelState 0 "OFF" 1 "Level1Low" 2 "InLevel2SelectedByDefault" 3 "Level3High" ;
+VAL_ 813 ACC_Mode_Display1_S 0 "OFFMode" 1 "PassiveMode" 2 "StandByMode" 3 "ActiveControlMode" 4 "BrakeOnlyMode" 5 "Override" 6 "StandStillActiveMode" 7 "StandStillWaitMode" 8 "FailureMode" 9 "permanent failure" ;
+VAL_ 790 Left_Line_Tracking_Status_S 0 "NoDisplay" 1 "LineTracking" 2 "Intervention" 3 "Warning" ;
+VAL_ 790 Lane_Assistant_Mode_Status_S 0 "Disable" 1 "LaneDeparture" 2 "LKS/LDP" 3 "FullFunction" ;
+VAL_ 790 LKS_Sensitivity_S 0 "LowSensitivity" 1 "HighSensitivity" 2 "Reserved" 3 "Reserved" ;
+VAL_ 790 LDP_LDW_Camera_Blocked_S 0 "Normal" 1 "CameraBlocked" ;
+VAL_ 790 LDP_Fault_S 0 "Normal" 1 "LKSFault" ;
+VAL_ 790 LDW_fault1_S 0 "Normal" 1 "LDWFault" ;
+VAL_ 790 ACC_AEB_Camera_Blocked_Infro_S 0 "NoDisplay" 1 "ACCAEBCameraBlock" ;
+VAL_ 790 LKS_torque_request_staus_S 0 "Inhibited" 1 "Ready" 2 "Active" 3 "Reserved" ;
+VAL_ 790 Right_Line_Tracking_Stats_S 0 "NoDisplay" 1 "LineTracking" 2 "Intervention" 3 "Warning" ;
+VAL_ 790 TJA_ICA_function_status_S 0 "OFF" 1 "Passive" 2 "Active1" 3 "Active2" 4 "Fault" 5 "StandBy" ;
+VAL_ 790 ALL_Function_Camera_Bloc_Infro_S 0 "NoDisplay" 1 "ALLFunctionCameraBlock" ;
+VAL_ 790 LDW_Warning_Mode_Stats_S 0 "VibrationOnly" 1 "SoundOnly" 2 "VibrationSound" 3 "Reserved" ;
+VAL_ 790 MPC_Take_Over_Req1_S 0 "Inactive" 1 "WarningLevel1" 2 "WarningLevel2" 3 "WarningLevel3" ;
+VAL_ 482 ADAS_AngleReq_St_S 0 "Inhibited" 1 "Ready" 2 "Active" 3 "Reserved" ;
+VAL_ 1074 ACC_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 AEB_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 FCW_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 HMA_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 LDW_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 LKS_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 TSR_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 TJA_ICA_Assemble_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 Module_Manufacturer_S 0 "Fifteen" 1 "Bosch" 2 "Veoneer" 3 "Conti" 4 "ZF" ;
+VAL_ 1074 LDW_Warning_Conf_Exchange_S 0 "NO" 1 "YES" ;
+VAL_ 1074 TJA_ICA_SoftKey_Status_S 0 "NO" 1 "YES" ;
+VAL_ 1074 LDP_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 ELK_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 FCTA_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 FCTB_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 ISLI_Assemble_Statue_S 0 "YES" 1 "NO" ;
+VAL_ 1074 HNP_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 ILCA_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 TLA_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 ISLC_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 ESA_Assemble_Status_S 0 "YES" 1 "NO" ;
+VAL_ 1074 LDW_UI_Assemble_Status_S 0 "Old" 1 "New" ;
+VAL_ 1074 Meterdisplaymode_S 0 "������" 1 "������" ;
+VAL_ 311 MPC_VLC_Active_S 0 "NoActive" 1 "Active" ;
+VAL_ 311 VLC_Fault_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 311 MPC_Torque_Request_Status_S 0 "NoActive" 1 "Active" ;
+VAL_ 311 FRS_ALOD_ADC_Req_Ena_S 0 "NoRequest" 1 "Request" ;
+VAL_ 311 Energy_Fedbak_Valid_Stats_S 0 "NoFailure" 1 "Failure" ;
+VAL_ 311 Engy_Fdbck_Torq_Req_Valid_S 0 "NoActive" 1 "Active" ;
+VAL_ 312 Indi_FCW_Sensitive_Lv_s 0 "OFF" 1 "Low" 2 "Medium" 3 "High" ;
+VAL_ 814 ACC_Drive_Off_Req_S 0 "Norequest" 1 "Request" ;
+VAL_ 814 ACC_DecTo_Stop_Req_S 0 "Norequest" 1 "Request" ;
+VAL_ 814 ACC_Minimum_Braking_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 814 Brake_Preferred_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 814 ACC_Mode_S 0 "OFF" 1 "Passivemode" 2 "StandBymode" 3 "ActiveControlmode" 4 "BrakeOnlymode" 5 "Override" 6 "Standstill" 7 "Failuremode" ;
+VAL_ 814 ESP_VLC_Shut_Down_Request_S 0 "Softoff" 1 "Fastoff" 2 "Immediateoff" 3 "Initial" ;
+VAL_ 815 Req_EBA_Decel_Ctrl_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 815 ESP_Prefill_Req_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 815 AWB_Request_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 815 ABA_Available_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 815 ABA_Level_S 0 "Level0" 1 "Level1" 2 "Level2" 3 "Level3" ;
+VAL_ 815 AEB_DecCtrl_Request_S 0 "Nodemand" 1 "Demand" ;
+VAL_ 815 AWB_Level_S 0 "Nolevel" 1 "Level1" 2 "Level2" 3 "Level3" 4 "Level4" ;
+VAL_ 815 Req_ESC_Ctrl_Veh_S 0 "hold" 1 "NotHold" ;
+VAL_ 815 ISLC_Sts_S 0 "OFF" 1 "ON" ;
+VAL_ 815 ELK_status_S 0 "OFF" 1 "Passive" 2 "Active" 3 "Failure" ;
+VAL_ 815 ISLC_Warnning_S 0 "NoRequest" 1 "Request����set-������" ;
+VAL_ 815 ELK_Take_Over_Req_S 0 "inactive" 1 "warning-level1" 2 "warning-level2" 3 "warning-level3" ;
+VAL_ 815 ELK_OT_Fault_Status_Flag_S 0 "No Error" 1 " Error" ;
+VAL_ 714 FCR_Sys_Status_S 0 "OFF" 1 "ON" 2 "SDAERROR" 3 "SystemError" ;
+VAL_ 714 Sts_FCTA_S 0 "OFF" 1 "Standby" 2 "Active" 3 "Fault" ;
+VAL_ 714 Sts_FCTB_S 0 "OFF" 1 "Standby" 2 "Active" 3 "Fault" ;
+VAL_ 714 RRadar_FCTA_Warning_Right_S 0 "WaringOff" 1 "WaringOn" ;
+VAL_ 714 RRadar_FCTA_Warning_Left_S 0 "WaringOff" 1 "WaringOn" ;
+VAL_ 714 FCTBBrkReq_S 0 "Norequest" 1 "Request" ;
+VAL_ 668 ILCASysSts_S 0 "OFF" 1 "Standby" 2 "Request" 3 "Active" 4 "Finished" 5 "TOR" 6 "Fualt" ;
+VAL_ 668 ILCALaneSts_S 0 "norequest" 1 "lanechangeinhibit" 2 "lanechangeinprogress-left" 3 "lanechangeinprogress-right" 4 "lanechangesuccess" 5 "lanechangefailed-left" 6 "lanechangefailed-right" 7 "ReturntoegoLane" 8 "lanechangeinhibit-left" 9 "lanechangeinhibit-right" 10 "lanechange_recd_left" 11 "lanechange_recd_right" 12 "lanechange_confirm_left" 13 "lanechange_confirm_right" 14 "lanechange_break" 15 "Reserved" ;
+VAL_ 319 APA_MEB_States_S 0 "OFF" 1 "Inactive" 2 "Ready" 3 "Prefill" 4 "Active" 5 "Standstill" 6 "reserved" 7 "reserved" 8 "reserved" 9 " Error" ;
+VAL_ 308 APA_Auto_Parking_Status_S 0 "PassiveStandby" 1 "Searching" 2 "GuidanceActive" 3 "GuidanceSuspend" 4 "GuidanceTerminated" 5 "GuidanceCompleted" 6 "AutomaticParkingIsNotAvailable" 7 "ParkAssistStandby" ;
+VAL_ 884 Child_ID_374_S 5 "AEBTarget" ;
+VAL_ 884 Target_State_B6_374s1_S 0 "NoTarget" 1 "TargetLockedInSameDirection" 2 "TargetLockedInOppositeDirection" 3 "Reserved" ;
+VAL_ 884 Target_State_B1_374s1_S 0 "NoTarget" 1 "TargetLocked" ;
+VAL_ 884 Target_Type_374s1_S 0 "Unknown" 1 "FourWheeledVehicle" 2 "LargeVehicle" 3 "TwoWheeledVehicle" 4 "Pedestrian" 5 "Animal" ;
+VAL_ 884 Target_State_B6_374s2_S 0 "NoTarget" 1 "TargetLockedInSameDirection" 2 "TargetLockedInOppositeDirection" 3 "Reserved" ;
+VAL_ 884 Target_State_B1_374s2_S 0 "NoTarget" 1 "TargetLocked" ;
+VAL_ 884 Target_Type_374s2_S 0 "Unknown" 1 "FourWheeledVehicle" 2 "LargeVehicle" 3 "TwoWheeledVehicle" 4 "Pedestrian" 5 "Animal" ;
+VAL_ 884 Target_State_B6_374s3_S 0 "NoTarget" 1 "TargetLockedInSameDirection" 2 "TargetLockedInOppositeDirection" 3 "Reserved" ;
+VAL_ 884 Target_State_B1_374s3_S 0 "NoTarget" 1 "TargetLocked" ;
+VAL_ 884 Target_Type_374s3_S 0 "Unknown" 1 "FourWheeledVehicle" 2 "LargeVehicle" 3 "TwoWheeledVehicle" 4 "Pedestrian" 5 "Animal" ;
+VAL_ 884 Target_State_B6_374s4_S 0 "NoTarget" 1 "TargetLockedInSameDirection" 2 "TargetLockedInOppositeDirection" 3 "Reserved" ;
+VAL_ 884 Target_State_B1_374s4_S 0 "NoTarget" 1 "TargetLocked" ;
+VAL_ 884 Target_Type_374s4_S 0 "Unknown" 1 "FourWheeledVehicle" 2 "LargeVehicle" 3 "TwoWheeledVehicle" 4 "Pedestrian" 5 "Animal" ;
+VAL_ 884 Target_State_B6_374s5_S 0 "NoTarget" 1 "TargetLockedInSameDirection" 2 "TargetLockedInOppositeDirection" 3 "Reserved" ;
+VAL_ 884 Target_State_B1_374s5_S 0 "NoTarget" 1 "TargetLocked" ;
+VAL_ 884 Target_Type_374s5_S 0 "Unknown" 1 "FourWheeledVehicle" 2 "LargeVehicle" 3 "TwoWheeledVehicle" 4 "Pedestrian" 5 "Animal" ;
+VAL_ 843 Left_Lane_Line_Type_S 0 "NoDisplay" 1 "SolidLine" 2 "DashedLine" 3 "Roadside" ;
+VAL_ 843 Right_Lane_Line_Type_S 0 "NoDisplay" 1 "SolidLine" 2 "DashedLine" 3 "Roadside" ;
+VAL_ 692 HMA_Stats_S 0 "Off" 1 "Passive" 2 "Tandby" 3 "Active" 4 "Fault" 5 "CameraBlocked" ;
+VAL_ 692 HMA_High_Beam_Request_S 0 "LowBeamRequest" 1 "HighBeamRequest" ;
+VAL_ 692 MPC_ReTrsmReq_S 0 "NoRequest" 1 "Request" ;
+VAL_ 692 TSR_function_status_S 0 "Off" 1 "FusionMode" 2 "VisionMode" 3 "NavigationOnlyMode" 4 "Fault" ;
+VAL_ 692 RSI_SignMisc_S 0 "DefaultNoDisplay" 1 "NoEntrySign" 2 "NoMotorVehiclesAreAllowedToEnterTheSign" 3 "SignsProhibitingTemporaryAndLongTermParking" 4 "NoParkingSign" 5 "NoOvertakingSign" 6 "OvertakingIsForbiddenToRemoveTheSign" 7 "NoLeftTurnSign" 8 "NoRightTurnSign" 9 "UShapedBendMarkIsProhibited" 10 "ParkingSign" 11 "YieldSign" 12 "ChildGivesWay" 13 "PedestriansCrossingTheRoad" 14 "RoadConstructionSign" 15 "VehicleImportFlagOnTheRight" 16 "StartingPointOfTheHighway" 17 "EndOfHighway" 18 "MakeASharpRightTurn" 19 "SharpLeftTurn" 20 "SignProhibitingLongTermParking" 21 "VehicleImportFlagOnTheLeft" ;
+VAL_ 692 SILI_Warning_Status_S 0 "NoWarning" 1 "WarningLevel1" ;
+VAL_ 692 ISLI_Sta_S 0 "OFF" 1 "ON" ;
+VAL_ 692 SLA__Output_Speed_Limit_Unit_S 0 "Invalid" 1 "KMH" 2 "MPH" 3 "Reserved" ;
+VAL_ 692 MPC_SpdLimOffs_SLA_S 0 "0" 1 "-10KPH" 2 "-5KPH" 3 "+5KPH" 4 "+10KPH" 5 "-5MPH" 6 "-3MPH" 7 "+3MPH" 8 "+5MPH" ;
+VAL_ 692 SLA_Output_Speed_Limit_S 0 "NoDisplay" 1 "SPLCancelled" 2 "SPL5" 3 "SPL10" 4 "SPL15" 5 "SPL20" 6 "SPL25" 27 "SPL130" ;
+VAL_ 692 TLA_Sts_S 0 "OFF" 1 "StandBy" 2 "Active" 3 "Fault" ;
+VAL_ 692 MPC_Warn_TLA_left_S 0 "No Display" 1 "Green" 2 "Green to Yellow" 3 "Yellow" 4 "Yellow to Red" 5 "Red" 6 "Red to Green" 7 "Reserved." ;
+VAL_ 692 MPC_Warn_TLA_stright 0 "No Display" 1 "Green" 2 "Green to Yellow" 3 "Yellow" 4 "Yellow to Red" 5 "Red" 6 "Red to Green" 7 "Reserved." ;
+VAL_ 692 MPC_Warn_TLA_right 0 "No Display" 1 "Green" 2 "Green to Yellow" 3 "Yellow" 4 "Yellow to Red" 5 "Red" 6 "Red to Green" 7 "Reserved." ;
+VAL_ 1226 CrossingLaneNumberValid_S 0 "Valid" 1 "Invalid" ;
+VAL_ 1226 TunneStates_S 0 "Invalid" 1 "BeforeEnteringTheTunnelTheGroundIconSetsTheDistance" 2 "InTheTunnel" 3 "BeforeExitingTheTunnelTheGroundIconSetsTheDistance" 4 "OutsideTheTunnel" 5 "WebNavigationIsAbnormal" ;
+VAL_ 1226 Lane_1_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_2_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_3_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_4_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_5_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_6_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_7_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_8_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 NaviCorp_S 0 "Unknown" 1 "GaodeMap" 2 "TescentMap" 3 "BaiduMap" 4 "RuituMap" ;
+VAL_ 1226 MPC_IFC_NaviSt_S 0 "Unknown" 1 "Cruise" 2 "Navigate" 3 "Failure" ;
+VAL_ 1226 MPC_ZoneCode_S 0 "NotUsed" 1 "China" ;
+VAL_ 1226 Roadtype_S 0 "Unknown" 1 "HighWay" 2 "NationalRoad" 3 "ProvincialRoad" 4 "CountyRoad" 5 "VillageRoad" 6 "CityExpressWay" 7 "MajorUrbanRoad" 8 "SecondaryUrbanRoad" 9 "NormalUrbanRoad" 10 "NonNavigationRoad" 11 "Ramp" ;
+VAL_ 1226 Lane_9_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_10_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_11_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1226 Lane_12_States_S 0 "Invalid" 1 "UTurn" 2 "TurnLeft" 3 "TurnLeftAndTurnAround" 4 "TurnLeftAndGoStraight" 5 "GoStraight" 6 "GoStraight+TurnRight" 7 "TurnRight" 8 "TurnLeft+TurnRight" 9 "NoRequirement" 15 "Reserved" ;
+VAL_ 1178 Medium_Enter_OTA_Mode_Req_S 0 "OTAEndNormalMode" 1 "TheVehicleEntersOTAMode" ;
+
