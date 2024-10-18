@@ -43,4 +43,5 @@ public:
   static UiElement getSteeringTorqueEps(float steering_torque_eps);
   static UiElement getBearingDeg(float bearing_accuracy_deg, float bearing_deg);
   static UiElement getAltitude(float gps_accuracy, float altitude);
+  static UiElement getAdasStatus(int adas_status);
 };

@@ -29,6 +29,7 @@ Last updated: July 29, 2024
 #include <cmath>
 
 #include "common/util.h"
+#include "selfdrive/ui/ui.h"
 
 // ********** metrics **********
 
@@ -221,4 +222,16 @@ UiElement DeveloperUi::getAltitude(float gps_accuracy, float altitude) {
   QColor color = QColor(255, 255, 255, 255);
 
   return UiElement(value, "ALT.", "m", color);
+}
+
+// show ADAS status
+UiElement DeveloperUi::getAdasStatus(int adas_status) {
+  if(adas_status > sizeof(adas_status_str) / sizeof(adas_status_str[0]) - 1) {
+    adas_status = STATUS_DISENGAGED;
+  }
+
+  QString adas_st = adas_status_str[adas_status];
+  QColor color = QColor(255, 255, 255, 255);
+
+  return UiElement(adas_st, "", "", color);
 }

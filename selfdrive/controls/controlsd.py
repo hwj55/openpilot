@@ -68,7 +68,7 @@ PERSONALITY_MAPPING = {0: 0, 1: 1, 2: 2, 3: 2}
 
 class Controls:
   def __init__(self, CI=None):
-    if not PC and 0:
+    if not PC:
         # raw sp code
         self.params = Params()
 

@@ -480,6 +480,8 @@ void AnnotatedCameraWidgetSP::drawHud(QPainter &p) {
 
   speedLimitWarning(p, sign_rect, sign_margin);
 
+  // show ADAS status
+
   // US/Canada (MUTCD style) sign
   if (((mapSourcedSpeedLimit && !is_metric && !isNavSpeedLimit) || has_us_speed_limit) && slcShowSign) {
     p.setPen(Qt::NoPen);
@@ -851,7 +853,10 @@ void AnnotatedCameraWidgetSP::drawNewDevUi2(QPainter &p, int x, int y) {
     rw += drawNewDevUi(p, rw, y, bearingDegElement.value, bearingDegElement.label, bearingDegElement.units, bearingDegElement.color);
   }
 
-  UiElement altitudeElement = DeveloperUi::getAltitude(gpsAccuracy, altitude);
+//   UiElement altitudeElement = DeveloperUi::getAltitude(gpsAccuracy, altitude);
+//   rw += drawNewDevUi(p, rw, y, altitudeElement.value, altitudeElement.label, altitudeElement.units, altitudeElement.color);
+
+  UiElement altitudeElement = DeveloperUi::getAdasStatus(status);
   rw += drawNewDevUi(p, rw, y, altitudeElement.value, altitudeElement.label, altitudeElement.units, altitudeElement.color);
 }
 

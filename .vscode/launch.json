@@ -198,7 +198,7 @@
           "type": "python",
           "launch":"python3",
           "request": "launch",
-          "cwd": "${workspaceFolder}/tools/plotjuggler_yj/",
+          "cwd": "${workspaceFolder}/tools/plotjuggler/",
           "program": "./juggle.py",
           "console": "integratedTerminal",
           "justMyCode": true,

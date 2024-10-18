@@ -192,7 +192,26 @@ void UIStateSP::updateStatus() {
     if (status != STATUS_OVERRIDE) {
       status = mads_enabled && car_control.getLongActive() ? STATUS_ENGAGED : mads_enabled ? STATUS_MADS : STATUS_DISENGAGED;
     }
-    
+
+    if(car_control.getLatActive() && car_state.getCruiseState().getEpsActive()){
+      if(car_control.getEnabled()){
+        status = STATUS_ACC_and_LCC;
+      }else{
+        status = STATUS_LCC_ONLY;
+      }
+    }else if (!car_control.getLatActive() && car_state.getCruiseState().getEpsActive() )
+    {
+      status = STATUS_LCC_RAW;
+    }else if(!car_control.getLatActive() && !car_state.getCruiseState().getEpsActive()){
+      if(car_control.getEnabled()){
+        status = STATUS_ACC_ONLY;
+      }else{
+            status = STATUS_DISENGAGED;
+      }
+    }else{
+      status = STATUS_DISENGAGED;
+    }
+
     if (mads_enabled != last_mads_enabled) {
       mads_path_state = true;
     }

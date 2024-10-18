@@ -106,3 +106,5 @@ Pipfile
 # Ignore all local history of files
 .history
 .ionide
+
+tools/plotjuggler_yj/

@@ -54,10 +54,18 @@ struct FeatureStatusColor {
 
 
 const QColor sp_bg_colors [] = {
-  [STATUS_DISENGAGED] = bg_colors[STATUS_DISENGAGED],
-  [STATUS_OVERRIDE] = bg_colors[STATUS_OVERRIDE],
-  [STATUS_ENGAGED] = QColor(0x00, 0xc8, 0x00, 0xf1),
+//   [STATUS_DISENGAGED] = bg_colors[STATUS_DISENGAGED],
+//   [STATUS_OVERRIDE] = bg_colors[STATUS_OVERRIDE],
+//   [STATUS_ENGAGED] = QColor(0x00, 0xc8, 0x00, 0xf1),
   [STATUS_MADS] = QColor(0x00, 0xc8, 0xc8, 0xf1),
+  
+  [STATUS_DISENGAGED] = QColor(0x17, 0x33, 0x49, 0xc8),
+  [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
+  [STATUS_ACC_ONLY] = QColor(130, 150, 230, 0xf1),  // 浅蓝紫
+  [STATUS_LCC_ONLY] = QColor(255, 255, 0, 0x61),  // 黄色
+  [STATUS_ACC_and_LCC] = QColor(0x17, 0xB6, 0x44, 0xf1), // 亮绿色
+  [STATUS_LCC_RAW] = QColor(85, 255, 238, 0xf1), // 浅蓝绿
+
 };
 #define bg_colors sp_bg_colors // Override the bg_colors array with the sp_bg_colors array
 

@@ -56,7 +56,11 @@ typedef enum UIStatus {
   STATUS_DISENGAGED,
   STATUS_OVERRIDE,
   STATUS_ENGAGED,
-  EXTRA_UI_STATES
+  EXTRA_UI_STATES,
+  STATUS_ACC_ONLY,
+  STATUS_LCC_ONLY,
+  STATUS_ACC_and_LCC,
+  STATUS_LCC_RAW,
 } UIStatus;
 
 enum PrimeType {
@@ -75,6 +79,16 @@ const QColor bg_colors [] = {
   [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
 };
+
+const QString adas_status_str [] = {
+  [STATUS_DISENGAGED] = "DISENGAGED",
+  [STATUS_OVERRIDE] = "OVERRIDE",
+  [STATUS_ACC_ONLY] = "ACC_ONLY",
+  [STATUS_LCC_ONLY] = "LCC_ONLY",
+  [STATUS_ACC_and_LCC] = "ACC_and_LCC",
+  [STATUS_LCC_RAW] =  "LCC_RAW",
+};
+
 
 
 typedef struct UIScene {

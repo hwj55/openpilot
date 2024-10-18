@@ -159,9 +159,11 @@ class DriverMonitoring:
     self.hi_stds = 0
     self.threshold_pre = self.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL / self.settings._DISTRACTED_TIME
     self.threshold_prompt = self.settings._DISTRACTED_PROMPT_TIME_TILL_TERMINAL / self.settings._DISTRACTED_TIME
+    # -YJ-
+    self.disable_alert_always = True # disable alert always
 
     self._reset_awareness()
-    self._set_timers(active_monitoring=True)
+    self._set_timers(active_monitoring=self.active_monitoring_mode)
     self._reset_events()
 
     self.hands_on_wheel_status = HandsOnWheelStatus()
@@ -372,7 +374,8 @@ class DriverMonitoring:
       # pre green alert
       alert = EventName.preDriverDistracted if self.active_monitoring_mode else EventName.preDriverUnresponsive
 
-    if alert is not None:
+    # -YJ-
+    if alert is not None and not self.disable_alert_always:
       self.current_events.add(alert)
 
 
