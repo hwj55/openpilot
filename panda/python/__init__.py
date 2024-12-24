@@ -454,7 +454,7 @@ class Panda:
       pass
 
     self.close()
-    time.sleep(0.3)
+    time.sleep(10)
     if not enter_bootloader and reconnect:
       self.reconnect()
 
