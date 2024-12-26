@@ -416,6 +416,7 @@ class Panda:
   @classmethod
   def usb_list(cls):
     ret = []
+    time.sleep(1)
     try:
       with usb1.USBContext() as context:
         for device in context.getDeviceList(skip_on_error=True):
@@ -454,7 +455,7 @@ class Panda:
       pass
 
     self.close()
-    time.sleep(10)
+    time.sleep(1)
     if not enter_bootloader and reconnect:
       self.reconnect()
 
