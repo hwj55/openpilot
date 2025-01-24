@@ -69,7 +69,7 @@ def manager_init() -> None:
     ("EnhancedScc", "0"),
     ("FeatureStatus", "1"),
     ("HandsOnWheelMonitoring", "0"),
-    ("HasAcceptedTermsSP", "0"),
+    ("HasAcceptedTermsSP", "1"),
     ("HideVEgoUi", "0"),
     ("LastSpeedLimitSignTap", "0"),
     ("LkasToggle", "0"),
