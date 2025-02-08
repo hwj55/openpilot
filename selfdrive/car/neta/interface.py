@@ -25,10 +25,10 @@ class CarInterface(CarInterfaceBase):
 
     self.CAN = CanBus(CP)
     if CP.networkLocation == NetworkLocation.fwdCamera:
-      self.ext_bus = self.CAN.pt
+      self.ext_bus = self.CAN._e
       self.cp_ext = self.cp
     else:
-      self.ext_bus = self.CAN.cam
+      self.ext_bus = self.CAN._cam
       self.cp_ext = self.cp_cam
 
   @staticmethod
@@ -110,9 +110,7 @@ class CarInterface(CarInterfaceBase):
       # *create_button_events(self.CS.cruise_setting, self.CS.prev_cruise_setting, {1: ButtonType.altButton1}),
     ]
 
-    events = self.create_common_events(ret, extra_gears=[GearShifter.eco, GearShifter.sport, GearShifter.manumatic],
-                                       pcm_enable=False,
-                                       enable_buttons=(ButtonType.setCruise, ButtonType.resumeCruise))
+    events = self.create_common_events(ret, c)
 
     # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
     # To avoid re-engaging when openpilot cancels, check user engagement intention via buttons

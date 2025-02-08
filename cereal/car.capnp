@@ -682,7 +682,7 @@ struct CarParams {
     hongqi @26;
     body @27;
     hyundaiCanfd @28;
-    volkswagenMqbEvo @29;
+    neta @29;
     chryslerCusw @30;
     psa @31;
     bydcanfd @32;

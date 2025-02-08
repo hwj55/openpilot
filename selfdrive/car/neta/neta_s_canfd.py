@@ -72,7 +72,7 @@ def create_steer_and_accel_command_Fr02_08E(packer, CAN, raw_msg,
       # "ADCS2_MsgCounter0" : counter,
     })
 
-    dat = packer.make_can_msg("ADCS_Fr02_08E", CAN.ECAN, values)[2]
+    dat = packer.make_can_msg("ADCS_Fr02_08E", CAN.ECAN, values)[1]
     checksum_data = get_checksum_data(dat)
     # crc = get_crc8_8h2f(dat)
     crc = cal_crc8(checksum_data)
