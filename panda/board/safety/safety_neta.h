@@ -201,7 +201,7 @@ static void neta_rx_hook(const CANPacket_t *to_push) {
 
     brake_pressed = brake_pressure_detected;
     // TODO 2024.02.14
-    generic_rx_checks((addr == ADCS_Fr02_08E));
+    // generic_rx_checks((addr == ADCS_Fr02_08E));
   }
 }
 

@@ -384,6 +384,7 @@ class Controls:
     if not self.sm.valid['pandaStates']:
       self.events.add(EventName.usbError)
     if CS.canTimeout:
+      print("111111111111111111111111111111111111111111111111111111111111111")
       self.events.add(EventName.canBusMissing)
     elif not CS.canValid:
       self.events.add(EventName.canError)

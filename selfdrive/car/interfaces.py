@@ -231,6 +231,7 @@ class CarInterfaceBase(ABC):
     self.cp_body = self.CS.get_body_can_parser(CP)
     self.cp_loopback = self.CS.get_loopback_can_parser(CP)
     self.can_parsers = [self.cp, self.cp_cam, self.cp_adas, self.cp_body, self.cp_loopback]
+    self.can_parsers_name = ['self.cp', 'self.cp_cam', 'self.cp_adas', 'self.cp_body', 'self.cp_loopback']
 
     dbc_name = "" if self.cp is None else self.cp.dbc_name
     self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
@@ -429,6 +430,14 @@ class CarInterfaceBase(ABC):
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers if cp is not None)
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers if cp is not None)
+       
+    # -YJ- for debug
+    for cp in self.can_parsers:
+      if cp is not None:
+        if cp.bus_timeout:
+          #   cp在self.can_parsers_name中的索引
+          index = self.can_parsers.index(cp)
+          print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11 bus_timeout:", self.can_parsers_name[index])   
 
     if ret.vEgoCluster == 0.0 and not self.v_ego_cluster_seen:
       ret.vEgoCluster = ret.vEgo
