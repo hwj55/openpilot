@@ -64,9 +64,9 @@ class CarInterface(CarInterfaceBase):
         ret.transmissionType = TransmissionType.manual
 
       if any(msg in fingerprint[1] for msg in (0x40, 0x86, 0xB2, 0xFD)):  # Airbag_01, LWI_01, ESP_19, ESP_21
-        ret.networkLocation = NetworkLocation.gateway
+        ret.networkLocation = NetworkLocation.fwdCamera
       else:
-        ret.networkLocation = NetworkLocation.gateway
+        ret.networkLocation = NetworkLocation.fwdCamera
 
       if 0x126 in fingerprint[2]:  # HCA_01
         ret.flags |= VolkswagenFlags.STOCK_HCA_PRESENT.value
