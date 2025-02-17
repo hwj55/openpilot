@@ -275,7 +275,7 @@ class Panda:
       # try USB first, then SPI
       self._context, self._handle, serial, self.bootstub, bcd = self.usb_connect(self._connect_serial, claim=claim)
       if self._handle is None:
-        self._context, self._handle, serial, self.bootstub, bcd = self.usb_connect(self._connect_serial)
+        self._context, self._handle, serial, self.bootstub, bcd = self.spi_connect(self._connect_serial)
       if not wait:
         break
 
