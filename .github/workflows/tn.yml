@@ -6,28 +6,28 @@ on:
   workflow_dispatch:        # 支持手动触发
 
 jobs:
-  clone-and-push:
+  sync-tn-branch:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout empty repo
-      uses: actions/checkout@v4
+    - name: Checkout your repo tn branch
+      uses: actions/checkout@v3
       with:
-        repository: ${{ github.repository }}
-        ref: master  # 或 master，根据你的默认分支名而定
-        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: tn
+        fetch-depth: 0  # 完整拉取历史方便推送
 
-    - name: Set up Git
+    - name: Add upstream remote for sunnypilot
       run: |
-        git config --global user.name "${{ github.actor }}"
-        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-    - name: Clone source branch
+        git remote add upstream https://github.com/sunnypilot/sunnypilot.git
+        git fetch upstream tn
+
+    - name: Reset local tn branch to upstream tn branch
       run: |
-        git clone --single-branch --branch tn https://github.com/sunnypilot/sunnypilot.git fish_source
-        cd fish_source
-        git checkout -b tn
-    - name: Push to your repo
+        git checkout tn
+        git reset --hard upstream/tn
+
+    - name: Push changes to your repo tn branch
+      env:
+        TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       run: |
-        cd fish_source
-        git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
-        git push origin tn
+        git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} tn --force
