@@ -10,23 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout your repo tn branch
+    - name: Checkout your repo default branch
       uses: actions/checkout@v3
       with:
-        ref: tn
-        fetch-depth: 0  # 完整拉取历史方便推送
+        fetch-depth: 0  # 拉取完整历史
 
-    - name: Add upstream remote for sunnypilot
+    - name: Add upstream remote and fetch tn branch
       run: |
         git remote add upstream https://github.com/sunnypilot/sunnypilot.git
         git fetch upstream tn
 
-    - name: Reset local tn branch to upstream tn branch
+    - name: Create or reset tn branch to upstream/tn
       run: |
-        git checkout tn
-        git reset --hard upstream/tn
+        git checkout -B tn upstream/tn
 
-    - name: Push changes to your repo tn branch
+    - name: Push tn branch to your repo
       env:
         TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       run: |
