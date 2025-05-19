@@ -1,0 +1,33 @@
+name: Sync sunnypilot/tn
+
+on:
+  schedule:
+    - cron: '0 10 * * *'  # 每天 UTC 时间 10:00 自动运行
+  workflow_dispatch:        # 支持手动触发
+
+jobs:
+  clone-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout empty repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository }}
+        ref: master  # 或 master，根据你的默认分支名而定
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "${{ github.actor }}"
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+    - name: Clone source branch
+      run: |
+        git clone --single-branch --branch tn https://github.com/sunnypilot/sunnypilot.git fish_source
+        cd fish_source
+        git checkout -b tn
+    - name: Push to your repo
+      run: |
+        cd fish_source
+        git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
+        git push origin tn
