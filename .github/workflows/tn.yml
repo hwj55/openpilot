@@ -14,7 +14,7 @@ jobs:
         with:
           repository: dragonpilot-community/dragonpilot
           ref: pre-build # 克隆 pre-build 分支
-          # fetch-depth: 0 # 如果需要完整历史记录，取消注释此行，但通常对于同步不需要
+          fetch-depth: 0 # 如果需要完整历史记录，取消注释此行，但通常对于同步不需要
 
       - name: Configure Git user
         run: |
