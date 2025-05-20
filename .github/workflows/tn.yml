@@ -6,26 +6,38 @@ on:
   workflow_dispatch:        # 支持手动触发
 
 jobs:
-  sync-tn-branch:
+  sync:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout your repo default branch
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # 拉取完整历史
+      - name: Checkout dragonpilot pre-build branch
+        uses: actions/checkout@v4
+        with:
+          repository: dragonpilot-community/dragonpilot
+          ref: pre-build # 克隆 pre-build 分支
+          # fetch-depth: 0 # 如果需要完整历史记录，取消注释此行，但通常对于同步不需要
 
-    - name: Add upstream remote and fetch tn branch
-      run: |
-        git remote add upstream https://github.com/sunnypilot/sunnypilot.git
-        git fetch upstream tn
+      - name: Configure Git user
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com" # 或者你自己的邮箱
 
-    - name: Create or reset tn branch to upstream/tn
-      run: |
-        git checkout -B tn upstream/tn
+      - name: Add remote for hwj55/openpilot
+        run: |
+          # 使用 PERSONAL_ACCESS_TOKEN 进行认证
+          git remote add destination https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/hwj55/openpilot.git
 
-    - name: Push tn branch to your repo
-      env:
-        TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      run: |
-        git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} tn --force
+      - name: Push to hwj55/openpilot dp branch
+        run: |
+          # 当前检出的分支是 pre-build（来自源仓库）
+          # 我们要将这个本地的 pre-build 分支推送到目标仓库的 dp 分支
+          # --force 是必要的，因为我们希望用源分支完全覆盖目标分支
+          git push destination pre-build:dp --force
+        env:
+          # 确保 PERSONAL_ACCESS_TOKEN 作为环境变量传递给 git 命令（虽然上面已在 URL 中使用）
+          # 通常在 URL 中使用 x-access-token 已经足够，但显式设置环境变量有时有帮助
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Clean up remote
+        if: always() # 确保即使上一步失败也尝试清理
+        run: |
+          git remote remove destination
