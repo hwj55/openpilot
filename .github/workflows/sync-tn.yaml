@@ -18,7 +18,7 @@ jobs:
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # 使用您提供的 PAT
           repository: ${{ github.repository }}
-          ref: tn # 直接从目标分支 'tn' 检出脚本，更直接可靠
+          ref: main
           lfs: false # 不下载 LFS 文件，因为我们稍后会从源头处理
           persist-credentials: false
 
