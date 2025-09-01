@@ -13,20 +13,21 @@ jobs:
       contents: write # 赋予工作流写入仓库内容的权限
 
     steps:
-      - name: Checkout script from target repository (NO LFS download)
+      - name: Checkout 'main' branch to get the modification script
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # 使用您提供的 PAT
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
           ref: main
-          lfs: false # 不下载 LFS 文件，因为我们稍后会从源头处理
+          lfs: false
           persist-credentials: false
 
       - name: Prepare modification script
         run: |
-          # 确保脚本目录存在，然后复制脚本
+          echo "Copying modification script to a temporary location..."
           mkdir -p /tmp/workflow_scripts
           cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
+          echo "Script copied."
 
       - name: Install Git LFS client and initialize
         run: |
@@ -36,22 +37,20 @@ jobs:
       - name: Add sunnypilot remote and fetch its tn branch
         run: |
           git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
-          # Fetch sunnypilot's tn branch，包含 LFS 对象指针
-          git fetch sunnypilot_source tn --depth=1 --no-tags --no-recurse-submodules
+          # --- 关键修改：移除 --depth=1 以获取完整历史 ---
+          echo "Fetching full history for sunnypilot/tn branch..."
+          git fetch sunnypilot_source tn --no-tags --no-recurse-submodules
+          echo "Fetch complete."
 
       - name: Checkout sunnypilot/tn content into temp-sync-branch
         run: |
-          # 切换到一个新的临时分支，包含 sunnypilot/tn 的内容
           git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
-          echo "Checked out sunnypilot/tn content. Checking for .lfsconfig:"
-          ls -l .lfsconfig || echo ".lfsconfig not found initially (will be created by script)."
+          echo "Checked out sunnypilot/tn content."
 
       - name: Download LFS objects for temp-sync-branch from sunnypilot_source
         run: |
-          # 此时 .lfsconfig 来自 sunnypilot，指向 GitLab，这对于拉取是正确的
           echo "Fetching LFS objects from sunnypilot's LFS store (GitLab)..."
           git lfs fetch sunnypilot_source $(git rev-parse HEAD)
-          
           echo "Checking out (smudging) LFS objects..."
           git lfs checkout
           echo "LFS objects downloaded and checked out."
@@ -59,10 +58,8 @@ jobs:
       - name: Apply custom modifications
         run: |
           echo "Running Python script to apply modifications..."
-          # 引用 /tmp 下的脚本
           python /tmp/workflow_scripts/apply_modifications.py
-          echo "Python script finished. Final check on .lfsconfig:"
-          cat .lfsconfig
+          echo "Python script finished."
 
       - name: Commit the changes
         id: commit_changes
@@ -70,13 +67,9 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 移除暂存的旧工作流文件，避免冲突
           git rm --cached -r .github/workflows || true
           
           git add --all .
-          
-          echo "Staged changes:"
-          git status --short
           
           if git diff --staged --quiet; then
              echo "No effective changes to commit."
@@ -95,7 +88,6 @@ jobs:
           ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
           echo "Pushing Git objects and bypassing pre-push hooks..."
-          # 采用成功的 --no-verify 标志，这会跳过 LFS 的上传钩子，操作更简单可靠
           git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn --force
           echo "Push completed."
       
