@@ -1,4 +1,5 @@
-name: Sync sunnypilot tn and modify (Flattening Strategy - No LFS)
+# 文件名: .github/workflows/sync-tn.yaml
+name: Sync sunnypilot tn and modify
 
 on:
   schedule:
@@ -9,76 +10,68 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # 赋予工作流写入仓库内容的权限
 
     steps:
-      # 步骤 1: 检出你自己的仓库，以获取修改脚本
-      - name: Checkout your repository for the modification script
+      - name: Checkout script from target repository (NO LFS download)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # 使用您提供的 PAT
           repository: ${{ github.repository }}
-          ref: main # 假设你的脚本在 main 分支
-          path: main_repo # 检出到特定目录
+          ref: tn # 直接从目标分支 'tn' 检出脚本，更直接可靠
+          lfs: false # 不下载 LFS 文件，因为我们稍后会从源头处理
+          persist-credentials: false
 
-      # 步骤 2: 将 sunnypilot/tn 的内容作为文件快照下载
-      - name: Checkout sunnypilot/tn as a file snapshot
-        uses: actions/checkout@v4
-        with:
-          repository: sunnypilot/sunnypilot
-          ref: tn
-          path: sunnypilot_source
-          lfs: false # 非常重要：只下载指针文件，不激活LFS
-
-      # 步骤 3: 准备一个新的分支用于同步
-      - name: Prepare a clean branch in your repository
+      - name: Prepare modification script
         run: |
-          # 复制修改脚本备用
+          # 确保脚本目录存在，然后复制脚本
           mkdir -p /tmp/workflow_scripts
-          cp main_repo/.github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
-          
-          # 初始化一个新的工作目录，并检出你自己的仓库
-          git clone "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" work_repo
-          cd work_repo
-          git checkout -B temp-sync-branch # 创建或重置一个临时分支
+          cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
 
-      # 步骤 4: "扁平化"同步文件
-      - name: Flatten-sync files from sunnypilot to your branch
+      - name: Install Git LFS client and initialize
         run: |
-          cd work_repo
-          # 清空工作目录，除了 .git 目录
-          git ls-files -z | xargs -0 rm -f
-          
-          # 使用 rsync 将 sunnypilot 的所有文件（除了.git）复制过来
-          # 这会忽略所有 LFS 历史，只复制文件内容（此时是 LFS 指针）
-          rsync -av --delete --exclude='.git/' ../sunnypilot_source/ .
+          sudo apt-get update -q && sudo apt-get install -y git-lfs
+          git lfs install --skip-smudge
 
-      # 步骤 5: 应用你的自定义修改
+      - name: Add sunnypilot remote and fetch its tn branch
+        run: |
+          git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
+          # Fetch sunnypilot's tn branch，包含 LFS 对象指针
+          git fetch sunnypilot_source tn --depth=1 --no-tags --no-recurse-submodules
+
+      - name: Checkout sunnypilot/tn content into temp-sync-branch
+        run: |
+          # 切换到一个新的临时分支，包含 sunnypilot/tn 的内容
+          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
+          echo "Checked out sunnypilot/tn content. Checking for .lfsconfig:"
+          ls -l .lfsconfig || echo ".lfsconfig not found initially (will be created by script)."
+
+      - name: Download LFS objects for temp-sync-branch from sunnypilot_source
+        run: |
+          # 此时 .lfsconfig 来自 sunnypilot，指向 GitLab，这对于拉取是正确的
+          echo "Fetching LFS objects from sunnypilot's LFS store (GitLab)..."
+          git lfs fetch sunnypilot_source $(git rev-parse HEAD)
+          
+          echo "Checking out (smudging) LFS objects..."
+          git lfs checkout
+          echo "LFS objects downloaded and checked out."
+
       - name: Apply custom modifications
         run: |
-          cd work_repo
           echo "Running Python script to apply modifications..."
+          # 引用 /tmp 下的脚本
           python /tmp/workflow_scripts/apply_modifications.py
-          echo "Python script finished."
+          echo "Python script finished. Final check on .lfsconfig:"
+          cat .lfsconfig
 
-      # 步骤 6: 强制删除所有 LFS 相关文件（作为最后的保险）
-      - name: Final cleanup of LFS configuration files
-        run: |
-          cd work_repo
-          # 即使你的脚本下载了它们，我们也要在这里彻底删除，确保它们不会被提交
-          rm -f .lfsconfig .gitattributes
-          echo "Force-removed .lfsconfig and .gitattributes files."
-
-      # 步骤 7: 提交所有更改
       - name: Commit the changes
         id: commit_changes
-        working-directory: ./work_repo # 指定工作目录
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 删除上游的工作流文件，避免冲突
-          rm -rf .github/workflows
+          # 移除暂存的旧工作流文件，避免冲突
+          git rm --cached -r .github/workflows || true
           
           git add --all .
           
@@ -89,21 +82,22 @@ jobs:
              echo "No effective changes to commit."
              echo "changes_made=false" >> $GITHUB_OUTPUT
           else
-             # 注意：提交信息反映了这是一个扁平化的同步
-             git commit -m "Flatten-sync from sunnypilot/tn and apply modifications (LFS removed)"
+             git commit -m "Sync from sunnypilot/tn and apply custom modifications"
              echo "Changes committed."
              echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
 
-      # 步骤 8: 推送纯净的 Git 历史到你的 tn 分支
       - name: Push modified branch to your repository's 'tn' branch
         if: steps.commit_changes.outputs.changes_made == 'true'
-        working-directory: ./work_repo # 指定工作目录
+        env:
+          GIT_TERMINAL_PROMPT: "0"
         run: |
-          echo "Pushing changes to your 'tn' branch..."
-          # 这是一个完全标准的 Git 推送，不包含任何 LFS 痕迹
-          git push origin temp-sync-branch:tn --force
-          echo "Push completed successfully."
+          ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          echo "Pushing Git objects and bypassing pre-push hooks..."
+          # 采用成功的 --no-verify 标志，这会跳过 LFS 的上传钩子，操作更简单可靠
+          git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn --force
+          echo "Push completed."
       
       - name: No changes to push
         if: steps.commit_changes.outputs.changes_made == 'false'
