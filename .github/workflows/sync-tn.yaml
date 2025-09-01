@@ -1,4 +1,4 @@
-name: Sync sunnypilot tn and modify (No LFS)
+name: Sync sunnypilot tn and modify (Flattening Strategy - No LFS)
 
 on:
   schedule:
@@ -9,72 +9,77 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 赋予工作流写入仓库内容的权限
+      contents: write
 
     steps:
-      - name: Checkout *your* repository's 'main' branch for the modification script
+      # 步骤 1: 检出你自己的仓库，以获取修改脚本
+      - name: Checkout your repository for the modification script
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
-          ref: main
-          lfs: false
-          persist-credentials: false
+          ref: main # 假设你的脚本在 main 分支
+          path: main_repo # 检出到特定目录
 
-      - name: Prepare modification script
+      # 步骤 2: 将 sunnypilot/tn 的内容作为文件快照下载
+      - name: Checkout sunnypilot/tn as a file snapshot
+        uses: actions/checkout@v4
+        with:
+          repository: sunnypilot/sunnypilot
+          ref: tn
+          path: sunnypilot_source
+          lfs: false # 非常重要：只下载指针文件，不激活LFS
+
+      # 步骤 3: 准备一个新的分支用于同步
+      - name: Prepare a clean branch in your repository
         run: |
-          if [ -d ".github/scripts" ]; then
-            mkdir -p /tmp/workflow_scripts
-            cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
-            echo "Modification script prepared."
-          else
-            echo "ERROR: .github/scripts/ directory not found." && exit 1
-          fi
+          # 复制修改脚本备用
+          mkdir -p /tmp/workflow_scripts
+          cp main_repo/.github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
+          
+          # 初始化一个新的工作目录，并检出你自己的仓库
+          git clone "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" work_repo
+          cd work_repo
+          git checkout -B temp-sync-branch # 创建或重置一个临时分支
 
-      - name: Add sunnypilot remote and fetch its tn branch
+      # 步骤 4: "扁平化"同步文件
+      - name: Flatten-sync files from sunnypilot to your branch
         run: |
-          git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
-          git fetch sunnypilot_source tn --depth=1 --no-tags --no-recurse-submodules
+          cd work_repo
+          # 清空工作目录，除了 .git 目录
+          git ls-files -z | xargs -0 rm -f
+          
+          # 使用 rsync 将 sunnypilot 的所有文件（除了.git）复制过来
+          # 这会忽略所有 LFS 历史，只复制文件内容（此时是 LFS 指针）
+          rsync -av --delete --exclude='.git/' ../sunnypilot_source/ .
 
-      - name: Checkout sunnypilot/tn content into temp-sync-branch
-        run: |
-          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
-          echo "Checked out sunnypilot/tn content. LFS files are currently pointers."
-
+      # 步骤 5: 应用你的自定义修改
       - name: Apply custom modifications
         run: |
+          cd work_repo
           echo "Running Python script to apply modifications..."
           python /tmp/workflow_scripts/apply_modifications.py
           echo "Python script finished."
 
-      # --- 新增和修改的关键步骤 ---
-      - name: Completely Uninstall LFS and Clean Up Configuration
+      # 步骤 6: 强制删除所有 LFS 相关文件（作为最后的保险）
+      - name: Final cleanup of LFS configuration files
         run: |
-          # 我们需要安装 git-lfs 客户端，只是为了能使用它的 'uninstall' 命令
-          sudo apt-get update -q && sudo apt-get install -y git-lfs
-          
-          # 这是最关键的命令：它会从本地 .git/config 中移除 LFS 过滤器和钩子
-          git lfs uninstall
-          echo "Git LFS hooks have been uninstalled from the local repository configuration."
-          
-          # 作为双重保险，我们同时从工作目录中删除 LFS 配置文件
-          # 这样它们就不会被提交到您的仓库中
+          cd work_repo
+          # 即使你的脚本下载了它们，我们也要在这里彻底删除，确保它们不会被提交
           rm -f .lfsconfig .gitattributes
-          echo "Removed .lfsconfig and .gitattributes files."
-          
-          # (可选) 验证 LFS 配置是否已被移除
-          echo "Verifying LFS config is gone:"
-          git config --list | grep lfs || echo "OK: No LFS config found in git config."
+          echo "Force-removed .lfsconfig and .gitattributes files."
 
+      # 步骤 7: 提交所有更改
       - name: Commit the changes
         id: commit_changes
+        working-directory: ./work_repo # 指定工作目录
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          git rm --cached -r .github/workflows || true
+          # 删除上游的工作流文件，避免冲突
+          rm -rf .github/workflows
           
-          # 添加所有更改，包括被删除的 LFS 配置文件
           git add --all .
           
           echo "Staged changes:"
@@ -84,17 +89,20 @@ jobs:
              echo "No effective changes to commit."
              echo "changes_made=false" >> $GITHUB_OUTPUT
           else
-             git commit -m "Sync from sunnypilot/tn and apply modifications (LFS removed)"
+             # 注意：提交信息反映了这是一个扁平化的同步
+             git commit -m "Flatten-sync from sunnypilot/tn and apply modifications (LFS removed)"
              echo "Changes committed."
              echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Push modified branch to *your* repository's 'tn' branch
+      # 步骤 8: 推送纯净的 Git 历史到你的 tn 分支
+      - name: Push modified branch to your repository's 'tn' branch
         if: steps.commit_changes.outputs.changes_made == 'true'
+        working-directory: ./work_repo # 指定工作目录
         run: |
           echo "Pushing changes to your 'tn' branch..."
-          # 现在这个推送是一个纯粹的 Git 推送，LFS 钩子已被卸载，不会被触发
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git temp-sync-branch:tn --force
+          # 这是一个完全标准的 Git 推送，不包含任何 LFS 痕迹
+          git push origin temp-sync-branch:tn --force
           echo "Push completed successfully."
       
       - name: No changes to push
