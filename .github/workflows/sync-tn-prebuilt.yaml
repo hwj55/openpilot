@@ -1,0 +1,97 @@
+# 文件名: .github/workflows/sync-tn-prebuilt.yaml
+name: Sync sunnypilot tn-prebuilt and modify
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # 每天 UTC 时间 2 点运行 (与另一个错开时间)
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予工作流写入仓库内容的权限
+
+    steps:
+      - name: Checkout 'main' branch to get the modification script
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          ref: main
+          lfs: false
+          persist-credentials: false
+
+      - name: Prepare modification script
+        run: |
+          echo "Copying modification script to a temporary location..."
+          mkdir -p /tmp/workflow_scripts
+          # --- 修改点: 复制 pb_modify.py 脚本 ---
+          cp .github/scripts/pb_modify.py /tmp/workflow_scripts/pb_modify.py
+          echo "Script copied."
+
+      - name: Install Git LFS client and initialize
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y git-lfs
+          git lfs install --skip-smudge
+
+      - name: Add sunnypilot remote and fetch its tn-prebuilt branch
+        run: |
+          git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
+          echo "Fetching full history for sunnypilot/tn-prebuilt branch..."
+          git fetch sunnypilot_source tn-prebuilt --no-tags --no-recurse-submodules
+          echo "Fetch complete."
+
+      - name: Checkout sunnypilot/tn-prebuilt content into temp-sync-branch
+        run: |
+          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn-prebuilt
+          echo "Checked out sunnypilot/tn-prebuilt content."
+
+      - name: Download LFS objects for temp-sync-branch from sunnypilot_source
+        run: |
+          echo "Fetching LFS objects from sunnypilot's LFS store (GitLab)..."
+          git lfs fetch sunnypilot_source $(git rev-parse HEAD)
+          echo "Checking out (smudging) LFS objects..."
+          git lfs checkout
+          echo "LFS objects downloaded and checked out."
+
+      - name: Apply custom modifications
+        run: |
+          echo "Running Python script to apply modifications..."
+          # --- 修改点: 运行 pb_modify.py 脚本 ---
+          python /tmp/workflow_scripts/pb_modify.py
+          echo "Python script finished."
+
+      - name: Commit the changes
+        id: commit_changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git rm --cached -r .github/workflows || true
+          
+          git add --all .
+          
+          if git diff --staged --quiet; then
+             echo "No effective changes to commit."
+             echo "changes_made=false" >> $GITHUB_OUTPUT
+          else
+             git commit -m "Sync from sunnypilot/tn-prebuilt and apply custom modifications"
+             echo "Changes committed."
+             echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push modified branch to your repository's 'tn-prebuilt' branch
+        if: steps.commit_changes.outputs.changes_made == 'true'
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          echo "Pushing Git objects and bypassing pre-push hooks..."
+          git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn-prebuilt --force
+          echo "Push completed."
+      
+      - name: No changes to push
+        if: steps.commit_changes.outputs.changes_made == 'false'
+        run: echo "No changes. Nothing to push."
