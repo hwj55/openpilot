@@ -132,19 +132,31 @@ jobs:
         env:
           GIT_TERMINAL_PROMPT: "0"
         run: |
+          set -x # 启用 shell 调试模式，打印所有执行的命令
+
           ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
-          echo "Current Git LFS configuration before explicit override:"
-          git lfs env # 诊断：查看当前 LFS 环境配置
-          git config --local --list | grep lfs # 诊断：查看本地 Git LFS 配置
+          echo "Current Git LFS configuration before explicit override (diagnostic):"
+          git lfs env
+          git config --local --list | grep lfs
 
-          echo "Configuring Git LFS to push to GitHub LFS for this session (does NOT modify .lfsconfig in repo history)..."
-          # 确保 Git LFS 使用 HTTPS，强制覆盖任何 SSH 配置
+          echo "Configuring Git LFS for push to GitHub LFS for this session (does NOT modify .lfsconfig in repo history)..."
+          
+          # 1. 强制当前 Git 仓库的 LFS URL 指向您的 GitHub LFS 服务
+          # 这是最重要的配置，它应该覆盖 .lfsconfig 中的任何设置
+          git config --local lfs.url "https://github.com/${{ github.repository }}.git/info/lfs"
+          
+          # 2. 明确禁用所有 SSH 相关的 LFS 传输
           git config --local lfs.ssh false
-          # 明确设置 'origin' 远程的 LFS URL 指向您的 GitHub LFS 服务
-          git config --local remote.origin.lfsurl "https://github.com/${{ github.repository }}.git/info/lfs"
-          # LFS 通常会从 URL 中提取凭据，或者通过 Git 的 credential helper 处理
-          # 移除无效的 'lfs.<url>.oauth_token' 配置
+          
+          # 3. 明确为 GitHub LFS 端点配置传输方式，只允许 basic HTTP
+          # 这应该阻止任何 SSH 或其他非基本 HTTP 的传输尝试
+          git config --local lfs.https://github.com/${{ github.repository }}.git/info/lfs.uploadtransfers basic
+          
+          # 4. 再次确认 LFS 配置（诊断）
+          echo "Git LFS configuration AFTER explicit override (diagnostic):"
+          git lfs env
+          git config --local --list | grep lfs
 
           echo "Pushing Git objects and LFS objects to GitHub LFS..."
           # 移除 --no-verify 标志，允许 Git LFS pre-push 钩子运行，上传 LFS 对象
