@@ -366,7 +366,7 @@ if __name__ == "__main__":
         "selfdrived": (modify_selfdrived_py, selfdrived_py),
         "updated": (modify_updated_py, updated_py),
         "hardware_h": (modify_hardware_h, hardware_h),
-        "panda_init": (modify_panda_init_py, panda_init_py),
+        #"panda_init": (modify_panda_init_py, panda_init_py),
     }
 
     results = {}
