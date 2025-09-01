@@ -139,18 +139,16 @@ jobs:
           git config --local --list | grep lfs # 诊断：查看本地 Git LFS 配置
 
           echo "Configuring Git LFS to push to GitHub LFS for this session (does NOT modify .lfsconfig in repo history)..."
-          # 明确为 'origin' 远程设置 LFS URL 为您的 GitHub LFS 服务（HTTPS）
-          # 这会确保 LFS 对象被推送到 GitHub LFS
-          git config --local remote.origin.lfsurl "https://github.com/${{ github.repository }}.git/info/lfs"
-          # 明确告诉 Git LFS 不使用 SSH，强制使用 HTTPS
+          # 确保 Git LFS 使用 HTTPS，强制覆盖任何 SSH 配置
           git config --local lfs.ssh false
-          # 确保 LFS 使用基本认证并提供 token
-          git config --local lfs.https://github.com/${{ github.repository }}.git/info/lfs.access basic
-          git config --local lfs.https://github.com/${{ github.repository }}.git/info/lfs.oauth_token "${{ secrets.PERSONAL_ACCESS_TOKEN }}" # 使用您的 PAT
+          # 明确设置 'origin' 远程的 LFS URL 指向您的 GitHub LFS 服务
+          git config --local remote.origin.lfsurl "https://github.com/${{ github.repository }}.git/info/lfs"
+          # LFS 通常会从 URL 中提取凭据，或者通过 Git 的 credential helper 处理
+          # 移除无效的 'lfs.<url>.oauth_token' 配置
 
           echo "Pushing Git objects and LFS objects to GitHub LFS..."
           # 移除 --no-verify 标志，允许 Git LFS pre-push 钩子运行，上传 LFS 对象
-          # 现在 LFS 会将对象上传到 GitHub LFS 服务
+          # 现在 LFS 会将对象上传到 GitHub LFS 服务，认证信息来自 URL 中的 PAT
           git push "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn --force
           echo "Push completed."
       
