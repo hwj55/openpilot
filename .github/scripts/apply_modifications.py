@@ -19,6 +19,7 @@ selfdrived_py = os.path.join(repo_root, "selfdrive/selfdrived/selfdrived.py")
 updated_py = os.path.join(repo_root, "system/updated/updated.py")
 agnos_json = os.path.join(repo_root, "system/hardware/tici/agnos.json")
 lfs_config = os.path.join(repo_root, ".lfsconfig") # 新增 .lfsconfig 路径
+gitmodules_file = os.path.join(repo_root, ".gitmodules") # 新增 .gitmodules 路径
 
 # --- Helper for status printing ---
 def print_status(filename, modified, message_if_modified, message_if_not_modified="already in desired state"):
@@ -168,6 +169,30 @@ def modify_hardwared_py(filename):
     print_status(filename, modified, "Offroad_StorageMissing alert commented with pass#.")
     return True
 
+def modify_gitmodules(filename):
+    """
+    为 .gitmodules 文件中的 GitHub URL 添加代理前缀。
+    """
+    print(f"Modifying {filename}...")
+    if not os.path.exists(filename):
+        print(f"  File not found: {filename}", file=sys.stderr)
+        return False
+    
+    modified = False
+    old_url_prefix = "https://github.com/"
+    proxy_prefix = "https://gh-proxy.com/"
+    new_url_prefix = proxy_prefix + old_url_prefix
+
+    for line in fileinput.input(filename, inplace=True, encoding="utf-8"):
+        # 确保只修改包含 URL 的行，并且尚未被修改过
+        if old_url_prefix in line and proxy_prefix not in line:
+            print(line.replace(old_url_prefix, new_url_prefix), end='')
+            modified = True
+        else:
+            print(line, end='')
+            
+    print_status(filename, modified, "Submodule URLs prefixed with gh-proxy.com.")
+    return True
 
 # --- 修改函数 (read/write 适用于多行、复杂或上下文相关的修改) ---
 
@@ -419,7 +444,8 @@ if __name__ == "__main__":
     print("Running all modifications...")
 
     modifications = {
-        "lfs_config": (download_lfsconfig, lfs_config), # 新增 .lfsconfig 下载项
+        "lfs_config": (download_lfsconfig, lfs_config),
+        "gitmodules": (modify_gitmodules, gitmodules_file), # 新增 .gitmodules 修改项
         "registration": (modify_registration, registration_file),
         "launch_script": (modify_launch_script, launch_script),
         "process_config": (modify_process_config, process_config),
