@@ -15,43 +15,31 @@ jobs:
       - name: Checkout *your* repository's 'main' branch for the modification script
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # 使用您提供的 PAT
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
-          ref: main # 检出您自己的 'main' 分支，获取您的修改脚本
-          lfs: false # 明确禁用 LFS
+          ref: main
+          lfs: false
           persist-credentials: false
-          sparse-checkout-cone-mode: false
-
-      - name: Verify *your* repository's contents after checkout (for script)
-        run: |
-          echo "--- Listing contents of the root repository directory (${GITHUB_WORKSPACE}): ---"
-          ls -la "${GITHUB_WORKSPACE}/"
-          echo "--- Listing contents of .github/scripts/ (if it exists): ---"
-          ls -la "${GITHUB_WORKSPACE}/.github/scripts/" || echo ".github/scripts/ directory not found."
 
       - name: Prepare modification script
         run: |
-          echo "--- Preparing modification script... ---"
           if [ -d ".github/scripts" ]; then
             mkdir -p /tmp/workflow_scripts
             cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
-            echo "Script prepared."
+            echo "Modification script prepared."
           else
-            echo "ERROR: .github/scripts/ directory not found. Cannot prepare modification script." && exit 1
+            echo "ERROR: .github/scripts/ directory not found." && exit 1
           fi
 
       - name: Add sunnypilot remote and fetch its tn branch
         run: |
           git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
-          # Fetch sunnypilot's tn branch, 但不处理 LFS 对象
           git fetch sunnypilot_source tn --depth=1 --no-tags --no-recurse-submodules
 
       - name: Checkout sunnypilot/tn content into temp-sync-branch
         run: |
-          # 切换到一个新的临时分支，包含 sunnypilot/tn 的内容
-          # 注意：此时 LFS 文件将只是指针
           git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
-          echo "Checked out sunnypilot/tn content into temp-sync-branch."
+          echo "Checked out sunnypilot/tn content. LFS files are currently pointers."
 
       - name: Apply custom modifications
         run: |
@@ -59,12 +47,24 @@ jobs:
           python /tmp/workflow_scripts/apply_modifications.py
           echo "Python script finished."
 
-      - name: Remove Git LFS configuration files
+      # --- 新增和修改的关键步骤 ---
+      - name: Completely Uninstall LFS and Clean Up Configuration
         run: |
-          # 彻底移除 LFS 配置，以防止它们被提交到您的仓库
-          # `|| true` 可防止在文件不存在时出错
+          # 我们需要安装 git-lfs 客户端，只是为了能使用它的 'uninstall' 命令
+          sudo apt-get update -q && sudo apt-get install -y git-lfs
+          
+          # 这是最关键的命令：它会从本地 .git/config 中移除 LFS 过滤器和钩子
+          git lfs uninstall
+          echo "Git LFS hooks have been uninstalled from the local repository configuration."
+          
+          # 作为双重保险，我们同时从工作目录中删除 LFS 配置文件
+          # 这样它们就不会被提交到您的仓库中
           rm -f .lfsconfig .gitattributes
-          echo "Removed .lfsconfig and .gitattributes files to disable LFS."
+          echo "Removed .lfsconfig and .gitattributes files."
+          
+          # (可选) 验证 LFS 配置是否已被移除
+          echo "Verifying LFS config is gone:"
+          git config --list | grep lfs || echo "OK: No LFS config found in git config."
 
       - name: Commit the changes
         id: commit_changes
@@ -72,7 +72,6 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 移除暂存的旧工作流文件，避免冲突
           git rm --cached -r .github/workflows || true
           
           # 添加所有更改，包括被删除的 LFS 配置文件
@@ -85,7 +84,7 @@ jobs:
              echo "No effective changes to commit."
              echo "changes_made=false" >> $GITHUB_OUTPUT
           else
-             git commit -m "Sync from sunnypilot/tn and apply custom modifications (LFS removed)"
+             git commit -m "Sync from sunnypilot/tn and apply modifications (LFS removed)"
              echo "Changes committed."
              echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
@@ -94,10 +93,9 @@ jobs:
         if: steps.commit_changes.outputs.changes_made == 'true'
         run: |
           echo "Pushing changes to your 'tn' branch..."
-          # 使用 PAT (Personal Access Token) 进行认证，强制推送到您的 tn 分支
-          # 这是一个标准的 Git 推送，不涉及 LFS
+          # 现在这个推送是一个纯粹的 Git 推送，LFS 钩子已被卸载，不会被触发
           git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git temp-sync-branch:tn --force
-          echo "Push completed."
+          echo "Push completed successfully."
       
       - name: No changes to push
         if: steps.commit_changes.outputs.changes_made == 'false'
