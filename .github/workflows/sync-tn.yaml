@@ -1,0 +1,99 @@
+# 文件名: .github/workflows/sync-tn-to-tm.yaml
+name: AAA Sync sunnypilot tn to my tm
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout script from target repository (NO LFS download)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          ref: tn
+          lfs: false
+          persist-credentials: false
+
+      - name: Prepare modification script
+        run: |
+          mkdir -p /tmp/workflow_scripts
+          cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
+
+      - name: Install Git LFS client and initialize
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y git-lfs
+          git lfs install --skip-smudge
+
+      - name: Add sunnypilot remote and fetch its tn branch
+        run: |
+          git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
+          git fetch sunnypilot_source tn --depth=1 --no-tags --no-recurse-submodules
+
+      - name: Checkout sunnypilot/tn content into temp-sync-branch
+        run: |
+          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
+          echo "Checked out sunnypilot/tn content. Checking for .lfsconfig:"
+          ls -l .lfsconfig || echo ".lfsconfig not found initially (will be created by script)."
+
+      - name: Download LFS objects for temp-sync-branch from sunnypilot_source
+        run: |
+          # The .lfsconfig from sunnypilot now points to GitLab, which is correct for fetching.
+          echo "Fetching LFS objects from sunnypilot's LFS store (GitLab)..."
+          git lfs fetch sunnypilot_source $(git rev-parse HEAD)
+          
+          echo "Checking out (smudging) LFS objects..."
+          git lfs checkout
+          echo "LFS objects downloaded and checked out."
+
+      - name: Apply custom modifications (including .lfsconfig download)
+        run: |
+          echo "Running Python script to apply modifications..."
+          python /tmp/workflow_scripts/apply_modifications.py
+          echo "Python script finished. Final check on .lfsconfig:"
+          cat .lfsconfig
+
+      - name: Commit the changes
+        id: commit_changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git rm --cached -r .github/workflows || true
+          
+          git add --all .
+          
+          echo "Staged changes:"
+          git status --short
+          
+          if git diff --staged --quiet; then
+             echo "No effective changes to commit."
+             echo "changes_made=false" >> $GITHUB_OUTPUT
+          else
+             git commit -m "Sync from sunnypilot/tn and apply custom modifications"
+             echo "Changes committed."
+             echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+
+      # --- 最终修正的 Push 步骤 ---
+      - name: Push modified branch to your repository's tm branch (Git objects ONLY)
+        if: steps.commit_changes.outputs.changes_made == 'true'
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          echo "Pushing ONLY Git objects and bypassing all pre-push hooks..."
+          # 最终解决方案: 使用 --no-verify 标志
+          # 这个标志会完全跳过 pre-push 钩子，从而阻止 Git LFS 尝试任何上传操作。
+          git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tm --force
+          echo "Push completed."
+      
+      - name: No changes to push
+        if: steps.commit_changes.outputs.changes_made == 'false'
+        run: echo "No changes. Nothing to push."
