@@ -445,7 +445,7 @@ if __name__ == "__main__":
 
     modifications = {
         "lfs_config": (download_lfsconfig, lfs_config),
-        "gitmodules": (modify_gitmodules, gitmodules_file), # 新增 .gitmodules 修改项
+        #"gitmodules": (modify_gitmodules, gitmodules_file), # 新增 .gitmodules 修改项
         "registration": (modify_registration, registration_file),
         "launch_script": (modify_launch_script, launch_script),
         "process_config": (modify_process_config, process_config),
