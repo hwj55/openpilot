@@ -13,7 +13,37 @@ jobs:
       contents: write # 赋予工作流写入仓库内容的权限
 
     steps:
+      # 步骤 1: 检查远程仓库是否有更新，这是整个流程的核心判断
+      - name: Check for updates from sunnypilot/tn
+        id: get_shas
+        run: |
+          # 获取 sunnypilot/tn 最新的 commit SHA
+          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn | awk '{print $1}')
+          echo "Latest remote SHA (sunnypilot/tn): $REMOTE_SHA"
+          echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
+
+          # 从你自己的仓库的 tn 分支获取上次同步时记录的 SHA
+          # 如果文件不存在 (例如首次运行)，curl 会失败，我们通过 `|| echo "none"` 来处理这种情况
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn/.last_sync_sha" || echo "none")
+          echo "Last recorded SHA from your repo: $LOCAL_RECORDED_SHA"
+          echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
+
+      # 步骤 2: 根据 SHA 比较结果，决定是否继续执行后续步骤
+      - name: Decide whether to continue
+        id: decision
+        run: |
+          if [[ "${{ steps.get_shas.outputs.remote_sha }}" == "${{ steps.get_shas.outputs.local_recorded_sha }}" ]]; then
+            echo "Repository is up to date. No sync needed."
+            echo "continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "Remote repository has updates. Starting sync process..."
+            echo "continue=true" >> $GITHUB_OUTPUT
+          fi
+
+      # ===== 从这里开始，所有步骤都只在需要更新时运行 =====
+
       - name: Checkout 'main' branch to get the modification script
+        if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -23,31 +53,38 @@ jobs:
           persist-credentials: false
 
       - name: Prepare modification script
+        if: steps.decision.outputs.continue == 'true'
         run: |
           echo "Copying modification script to a temporary location..."
           mkdir -p /tmp/workflow_scripts
           cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
           echo "Script copied."
 
+      # LFS 操作步骤 1: 严格按照您提供的代码
       - name: Install Git LFS client and initialize
+        if: steps.decision.outputs.continue == 'true'
         run: |
           sudo apt-get update -q && sudo apt-get install -y git-lfs
           git lfs install --skip-smudge
 
       - name: Add sunnypilot remote and fetch its tn branch
+        if: steps.decision.outputs.continue == 'true'
         run: |
           git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
-          # --- 关键修改：移除 --depth=1 以获取完整历史 ---
+          # --- 获取完整历史，与您原版逻辑一致 ---
           echo "Fetching full history for sunnypilot/tn branch..."
           git fetch sunnypilot_source tn --no-tags --no-recurse-submodules
           echo "Fetch complete."
 
       - name: Checkout sunnypilot/tn content into temp-sync-branch
+        if: steps.decision.outputs.continue == 'true'
         run: |
           git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn
           echo "Checked out sunnypilot/tn content."
 
+      # LFS 操作步骤 2: 严格按照您提供的代码
       - name: Download LFS objects for temp-sync-branch from sunnypilot_source
+        if: steps.decision.outputs.continue == 'true'
         run: |
           echo "Fetching LFS objects from sunnypilot's LFS store (GitLab)..."
           git lfs fetch sunnypilot_source $(git rev-parse HEAD)
@@ -56,16 +93,22 @@ jobs:
           echo "LFS objects downloaded and checked out."
 
       - name: Apply custom modifications
+        if: steps.decision.outputs.continue == 'true'
         run: |
           echo "Running Python script to apply modifications..."
           python /tmp/workflow_scripts/apply_modifications.py
           echo "Python script finished."
 
       - name: Commit the changes
+        if: steps.decision.outputs.continue == 'true'
         id: commit_changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 关键: 将新的远程 SHA 写入记录文件，为下一次检查做准备
+          echo "Updating .last_sync_sha file with new SHA: ${{ steps.get_shas.outputs.remote_sha }}"
+          echo "${{ steps.get_shas.outputs.remote_sha }}" > .last_sync_sha
           
           git rm --cached -r .github/workflows || true
           
@@ -75,13 +118,13 @@ jobs:
              echo "No effective changes to commit."
              echo "changes_made=false" >> $GITHUB_OUTPUT
           else
-             git commit -m "Sync from sunnypilot/tn and apply custom modifications"
+             git commit -m "Sync from sunnypilot/tn and apply custom modifications" -m "Based on sunnypilot commit: ${{ steps.get_shas.outputs.remote_sha }}"
              echo "Changes committed."
              echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Push modified branch to your repository's 'tn' branch
-        if: steps.commit_changes.outputs.changes_made == 'true'
+        if: steps.decision.outputs.continue == 'true' && steps.commit_changes.outputs.changes_made == 'true'
         env:
           GIT_TERMINAL_PROMPT: "0"
         run: |
@@ -92,5 +135,5 @@ jobs:
           echo "Push completed."
       
       - name: No changes to push
-        if: steps.commit_changes.outputs.changes_made == 'false'
-        run: echo "No changes. Nothing to push."
+        if: steps.decision.outputs.continue == 'true' && steps.commit_changes.outputs.changes_made == 'false'
+        run: echo "Source was updated, but modifications resulted in no net changes. Nothing to push."
