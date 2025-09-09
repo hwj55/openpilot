@@ -1,0 +1,62 @@
+# 文件名: .github/workflows/sync-dp.yaml
+name: Sync mooo758/momo-dp to local dp branch
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # 每天 UTC 时间 3 点运行
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予工作流写入仓库内容的权限
+
+    steps:
+      # 步骤 1: 比较上游分支和自己分支的 commit SHA
+      - name: Check for updates
+        id: check_shas
+        run: |
+          # 获取上游仓库 (mooo758/openpilot) 的 momo-dp 分支的最新 SHA
+          UPSTREAM_SHA=$(git ls-remote https://github.com/mooo758/openpilot.git momo-dp | awk '{print $1}')
+          if [ -z "$UPSTREAM_SHA" ]; then
+            echo "::error::Could not get SHA from upstream repo mooo758/openpilot. Exiting."
+            exit 1
+          fi
+          echo "Upstream (mooo758/momo-dp) SHA: $UPSTREAM_SHA"
+          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
+
+          # 获取你自己仓库的 dp 分支的当前 SHA
+          # --- 修改点: 这里的 momo-dp 已改为 dp ---
+          OWN_REPO_SHA=$(git ls-remote https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git dp | awk '{print $1}')
+          echo "Own repo (dp branch) SHA: ${OWN_REPO_SHA:-Not Found}"
+          echo "own_repo_sha=$OWN_REPO_SHA" >> $GITHUB_OUTPUT
+
+      # 步骤 2: 根据 SHA 的比较结果，决定是否需要同步
+      - name: Decide whether to sync
+        id: decision
+        run: |
+          if [[ "${{ steps.check_shas.outputs.upstream_sha }}" == "${{ steps.check_shas.outputs.own_repo_sha }}" ]]; then
+            echo "Repository branch is already up to date. No sync needed."
+            echo "continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "Upstream has new commits or local branch does not exist. Starting sync."
+            echo "continue=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 步骤 3: 如果需要，则执行高效的远程同步操作
+      - name: Sync branch if updated
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          echo "Fetching from upstream and force-pushing to own repo's dp branch..."
+          
+          TARGET_REPO_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          # 从上游 fetch momo-dp 分支
+          git fetch https://github.com/mooo758/openpilot.git momo-dp
+          
+          # 将刚刚 fetch 下来的内容强制推送到你仓库的 dp 分支
+          # --- 修改点: 这里的 refs/heads/momo-dp 已改为 refs/heads/dp ---
+          git push "$TARGET_REPO_URL" FETCH_HEAD:refs/heads/dp --force
+          
+          echo "Sync completed successfully."
