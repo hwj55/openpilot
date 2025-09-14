@@ -19,7 +19,8 @@ selfdrived_py = os.path.join(repo_root, "selfdrive/selfdrived/selfdrived.py")
 updated_py = os.path.join(repo_root, "system/updated/updated.py")
 agnos_json = os.path.join(repo_root, "system/hardware/tici/agnos.json")
 software_panel_cc = os.path.join(repo_root, "selfdrive/ui/sunnypilot/qt/offroad/settings/software_panel.cc")
-ui_cc = os.path.join(repo_root, "selfdrive/ui/ui.cc") # 新增 ui.cc 路径
+ui_cc = os.path.join(repo_root, "selfdrive/ui/ui.cc")
+alerts_h = os.path.join(repo_root, "selfdrive/ui/qt/onroad/alerts.h") # 新增 alerts.h 路径
 lfs_config = os.path.join(repo_root, ".lfsconfig")
 gitmodules_file = os.path.join(repo_root, ".gitmodules")
 
@@ -196,6 +197,29 @@ def modify_ui_cc(filename):
     print_status(filename, modified, "Screen timeout values increased.")
     return True
 
+def modify_alerts_h(filename):
+    print(f"Modifying {filename}...")
+    if not os.path.exists(filename):
+        print(f"  File not found: {filename}", file=sys.stderr)
+        return False
+    modified = False
+    for line in fileinput.input(filename, inplace=True, encoding="utf-8"):
+        original_line = line
+        if "{cereal::SelfdriveState::AlertStatus::NORMAL, QColor(0x15, 0x15, 0x15, 0xf1)}" in line:
+            line = line.replace("0xf1", "0x80")
+        elif "{cereal::SelfdriveState::AlertStatus::USER_PROMPT, QColor(0xDA, 0x6F, 0x25, 0xf1)}" in line:
+            line = line.replace("0xf1", "0x99")
+        elif "{cereal::SelfdriveState::AlertStatus::CRITICAL, QColor(0xC9, 0x22, 0x31, 0xf1)}" in line:
+            line = line.replace("0xf1", "0x99")
+        
+        if original_line != line:
+            modified = True
+        
+        print(line, end='')
+        
+    print_status(filename, modified, "Alert color alpha values modified.")
+    return True
+
 # --- 修改函数 (read/write 适用于多行、复杂或上下文相关的修改) ---
 
 def modify_hardwared_py(filename):
@@ -226,7 +250,6 @@ def modify_hardwared_py(filename):
 
             # 修改点 2: 删除不支持的设备组合检测块
             if stripped_line == "# if an unsupported device and branch is detected, going onroad is blocked":
-                # 确认这是一个 9 行的代码块
                 if (i + 8 < len(lines) and
                     'set_offroad_alert("Offroad_TiciSupport"' in lines[i+8]):
                     i += 9 # 跳过这 9 行
@@ -246,7 +269,7 @@ def modify_hardwared_py(filename):
                     new_lines.append(lines[i+2])
                     new_lines.append(f'{indent4}set_offroad_alert_if_changed("Offroad_StorageMissing", False)\n')
                     modified = True
-                    i += 4 # 跳过原始的 4 行
+                    i += 4
                     continue
             
             new_lines.append(line)
@@ -572,7 +595,8 @@ if __name__ == "__main__":
         "updated": (modify_updated_py, updated_py),
         "hardware_h": (modify_hardware_h, hardware_h),
         "software_panel_cc": (modify_software_panel_cc, software_panel_cc),
-        "ui_cc": (modify_ui_cc, ui_cc), # 新增修改项
+        "ui_cc": (modify_ui_cc, ui_cc),
+        "alerts_h": (modify_alerts_h, alerts_h), # 新增修改项
         #"agnos_json": (modify_agnos_json, agnos_json), 
     }
 
