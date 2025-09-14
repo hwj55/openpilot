@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "Copying modification script to a temporary location..."
           mkdir -p /tmp/workflow_scripts
-          cp .github/scripts/apply_modifications.py /tmp/workflow_scripts/apply_modifications.py
+          cp .github/scripts/apply_modifications_tici.py /tmp/workflow_scripts/apply_modifications.py
           echo "Script copied."
 
       # LFS 操作步骤 1: 严格按照您提供的代码
