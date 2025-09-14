@@ -18,7 +18,7 @@ hardware_h = os.path.join(repo_root, "system/hardware/tici/hardware.h")
 selfdrived_py = os.path.join(repo_root, "selfdrive/selfdrived/selfdrived.py")
 updated_py = os.path.join(repo_root, "system/updated/updated.py")
 agnos_json = os.path.join(repo_root, "system/hardware/tici/agnos.json")
-software_panel_cc = os.path.join(repo_root, "selfdrive/ui/sunnypilot/qt/offroad/settings/software_panel.cc") # 新增 software_panel.cc 路径
+software_panel_cc = os.path.join(repo_root, "selfdrive/ui/sunnypilot/qt/offroad/settings/software_panel.cc")
 lfs_config = os.path.join(repo_root, ".lfsconfig")
 gitmodules_file = os.path.join(repo_root, ".gitmodules")
 
@@ -204,11 +204,12 @@ def modify_hardwared_py(filename):
                 i += 1
                 continue
 
-            # 修改点 2: 删除不支持的设备组合检测块
+            # 修改点 2: 删除不支持的设备组合检测块 (修正版)
             if stripped_line == "# if an unsupported device and branch is detected, going onroad is blocked":
-                if (i + 7 < len(lines) and
-                    'set_offroad_alert("Offroad_TiciSupport"' in lines[i+7]):
-                    i += 8 # 跳过这8行
+                # 确认这是一个 9 行的代码块
+                if (i + 8 < len(lines) and
+                    'set_offroad_alert("Offroad_TiciSupport"' in lines[i+8]):
+                    i += 9 # 跳过这 9 行
                     modified = True
                     continue
 
@@ -225,7 +226,7 @@ def modify_hardwared_py(filename):
                     new_lines.append(lines[i+2])
                     new_lines.append(f'{indent4}set_offroad_alert_if_changed("Offroad_StorageMissing", False)\n')
                     modified = True
-                    i += 4 # 跳过原始的4行
+                    i += 4 # 跳过原始的 4 行
                     continue
             
             new_lines.append(line)
@@ -484,7 +485,6 @@ def modify_software_panel_cc(filename):
         with open(filename, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        # 幂等性检查：如果文件中已经不包含 TICI 设备检查逻辑，则认为已修改
         content_str = "".join(lines)
         if 'Hardware::get_device_type() == cereal::InitData::DeviceType::TICI' not in content_str:
              print_status(filename, False, "already in desired state")
@@ -500,9 +500,8 @@ def modify_software_panel_cc(filename):
 
             if not block_replaced and stripped_line == 'connect(targetBranchBtn, &ButtonControlSP::clicked, [=]() {':
                 in_block_to_replace = True
-                new_lines.append(line)  # 保留 'connect' 这一行
+                new_lines.append(line)
 
-                # 添加新的、简化的代码块
                 indent1 = "    "
                 indent2 = "      "
                 new_lines.append(f'{indent1}InputDialog d(tr("Search Branch"), this, tr("Enter search keywords, or leave blank to list all branches."), false);\n')
@@ -516,11 +515,9 @@ def modify_software_panel_cc(filename):
                 block_replaced = True
                 continue
 
-            # 检测被替换代码块的结束
             if in_block_to_replace and stripped_line == '});':
                 in_block_to_replace = False
 
-            # 如果在被替换的代码块中，则跳过原始行
             if in_block_to_replace:
                 continue
 
@@ -554,7 +551,7 @@ if __name__ == "__main__":
         "selfdrived": (modify_selfdrived_py, selfdrived_py),
         "updated": (modify_updated_py, updated_py),
         "hardware_h": (modify_hardware_h, hardware_h),
-        "software_panel_cc": (modify_software_panel_cc, software_panel_cc), # 新增修改项
+        "software_panel_cc": (modify_software_panel_cc, software_panel_cc),
         #"agnos_json": (modify_agnos_json, agnos_json), 
     }
 
