@@ -19,6 +19,7 @@ selfdrived_py = os.path.join(repo_root, "selfdrive/selfdrived/selfdrived.py")
 updated_py = os.path.join(repo_root, "system/updated/updated.py")
 agnos_json = os.path.join(repo_root, "system/hardware/tici/agnos.json")
 software_panel_cc = os.path.join(repo_root, "selfdrive/ui/sunnypilot/qt/offroad/settings/software_panel.cc")
+ui_cc = os.path.join(repo_root, "selfdrive/ui/ui.cc") # 新增 ui.cc 路径
 lfs_config = os.path.join(repo_root, ".lfsconfig")
 gitmodules_file = os.path.join(repo_root, ".gitmodules")
 
@@ -176,6 +177,25 @@ def modify_gitmodules(filename):
     print_status(filename, modified, "Submodule URLs prefixed with gh-proxy.com.")
     return True
 
+def modify_ui_cc(filename):
+    print(f"Modifying {filename}...")
+    if not os.path.exists(filename):
+        print(f"  File not found: {filename}", file=sys.stderr)
+        return False
+    modified = False
+    original_line = 'timeout = customTimeout == 0 ? (ignition_on ? 10 : 30) : customTimeout;'
+    new_line = 'timeout = customTimeout == 0 ? (ignition_on ? 120 : 360) : customTimeout;'
+
+    for line in fileinput.input(filename, inplace=True, encoding="utf-8"):
+        if original_line in line:
+            print(line.replace(original_line, new_line), end='')
+            modified = True
+        else:
+            print(line, end='')
+            
+    print_status(filename, modified, "Screen timeout values increased.")
+    return True
+
 # --- 修改函数 (read/write 适用于多行、复杂或上下文相关的修改) ---
 
 def modify_hardwared_py(filename):
@@ -204,7 +224,7 @@ def modify_hardwared_py(filename):
                 i += 1
                 continue
 
-            # 修改点 2: 删除不支持的设备组合检测块 (修正版)
+            # 修改点 2: 删除不支持的设备组合检测块
             if stripped_line == "# if an unsupported device and branch is detected, going onroad is blocked":
                 # 确认这是一个 9 行的代码块
                 if (i + 8 < len(lines) and
@@ -552,6 +572,7 @@ if __name__ == "__main__":
         "updated": (modify_updated_py, updated_py),
         "hardware_h": (modify_hardware_h, hardware_h),
         "software_panel_cc": (modify_software_panel_cc, software_panel_cc),
+        "ui_cc": (modify_ui_cc, ui_cc), # 新增修改项
         #"agnos_json": (modify_agnos_json, agnos_json), 
     }
 
