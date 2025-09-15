@@ -1,4 +1,4 @@
-# 文件名: .github/workflows/sync-tn-prebuilt.yaml
+# 文件名: .github/workflows/sync-tn-tici-prebuilt.yaml
 name: Sync sunnypilot tn-tici-prebuilt and modify
 
 on:
@@ -13,18 +13,18 @@ jobs:
       contents: write # 赋予工作流写入仓库内容的权限
 
     steps:
-      # 步骤 1: 检查远程仓库 tn-prebuilt 分支是否有更新
+      # 步骤 1: 检查远程仓库 tn-tici-prebuilt 分支是否有更新
       - name: Check for updates from sunnypilot/tn-tici-prebuilt
         id: get_shas
         run: |
-          # 获取 sunnypilot/tn-prebuilt 最新的 commit SHA
+          # 获取 sunnypilot/tn-tici-prebuilt 最新的 commit SHA
           REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn-tici-prebuilt | awk '{print $1}')
-          echo "Latest remote SHA (sunnypilot/tn-prebuilt): $REMOTE_SHA"
+          echo "Latest remote SHA (sunnypilot/tn-tici-prebuilt): $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
-          # 从你自己的仓库的 tn-prebuilt 分支获取上次同步时记录的 SHA
-          # 注意 URL 中的分支名已改为 tn-prebuilt
-          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-prebuilt/.last_sync_sha" || echo "none")
+          # 从你自己的仓库的 tn-tici-prebuilt 分支获取上次同步时记录的 SHA
+          # 注意 URL 中的分支名已改为 tn-tici-prebuilt
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-tici-prebuilt/.last_sync_sha" || echo "none")
           echo "Last recorded SHA from your repo: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
@@ -67,19 +67,19 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y git-lfs
           git lfs install --skip-smudge
 
-      - name: Add sunnypilot remote and fetch its tn-prebuilt branch
+      - name: Add sunnypilot remote and fetch its tn-tici-prebuilt branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
-          echo "Fetching full history for sunnypilot/tn-prebuilt branch..."
+          echo "Fetching full history for sunnypilot/tn-tici-prebuilt branch..."
           git fetch sunnypilot_source tn-tici-prebuilt --no-tags --no-recurse-submodules
           echo "Fetch complete."
 
-      - name: Checkout sunnypilot/tn-prebuilt content into temp-sync-branch
+      - name: Checkout sunnypilot/tn-tici-prebuilt content into temp-sync-branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn-tici-prebuilt
-          echo "Checked out sunnypilot/tn-prebuilt content."
+          echo "Checked out sunnypilot/tn-tici-prebuilt content."
 
       - name: Download LFS objects for temp-sync-branch from sunnypilot_source
         if: steps.decision.outputs.continue == 'true'
@@ -117,12 +117,12 @@ jobs:
              echo "No effective changes to commit."
              echo "changes_made=false" >> $GITHUB_OUTPUT
           else
-             git commit -m "Sync from sunnypilot/tn-prebuilt and apply custom modifications" -m "Based on sunnypilot commit: ${{ steps.get_shas.outputs.remote_sha }}"
+             git commit -m "Sync from sunnypilot/tn-tici-prebuilt and apply custom modifications" -m "Based on sunnypilot commit: ${{ steps.get_shas.outputs.remote_sha }}"
              echo "Changes committed."
              echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Push modified branch to your repository's 'tn-prebuilt' branch
+      - name: Push modified branch to your repository's 'tn-tici-prebuilt' branch
         if: steps.decision.outputs.continue == 'true' && steps.commit_changes.outputs.changes_made == 'true'
         env:
           GIT_TERMINAL_PROMPT: "0"
@@ -130,7 +130,7 @@ jobs:
           ORIGIN_REPO_URL_WITH_TOKEN="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
           echo "Pushing Git objects and bypassing pre-push hooks..."
-          git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn-prebuilt --force
+          git push --no-verify "$ORIGIN_REPO_URL_WITH_TOKEN" temp-sync-branch:tn-tici-prebuilt --force
           echo "Push completed."
       
       - name: No changes to push
