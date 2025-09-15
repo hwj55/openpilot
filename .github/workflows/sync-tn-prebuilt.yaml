@@ -1,5 +1,5 @@
 # 文件名: .github/workflows/sync-tn-prebuilt.yaml
-name: Sync sunnypilot tn-prebuilt and modify
+name: Sync sunnypilot tn-tici-prebuilt and modify
 
 on:
   schedule:
@@ -14,11 +14,11 @@ jobs:
 
     steps:
       # 步骤 1: 检查远程仓库 tn-prebuilt 分支是否有更新
-      - name: Check for updates from sunnypilot/tn-prebuilt
+      - name: Check for updates from sunnypilot/tn-tici-prebuilt
         id: get_shas
         run: |
           # 获取 sunnypilot/tn-prebuilt 最新的 commit SHA
-          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn-prebuilt | awk '{print $1}')
+          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn-tici-prebuilt | awk '{print $1}')
           echo "Latest remote SHA (sunnypilot/tn-prebuilt): $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
@@ -72,13 +72,13 @@ jobs:
         run: |
           git remote add sunnypilot_source https://github.com/sunnypilot/sunnypilot.git
           echo "Fetching full history for sunnypilot/tn-prebuilt branch..."
-          git fetch sunnypilot_source tn-prebuilt --no-tags --no-recurse-submodules
+          git fetch sunnypilot_source tn-tici-prebuilt --no-tags --no-recurse-submodules
           echo "Fetch complete."
 
       - name: Checkout sunnypilot/tn-prebuilt content into temp-sync-branch
         if: steps.decision.outputs.continue == 'true'
         run: |
-          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn-prebuilt
+          git checkout -B temp-sync-branch refs/remotes/sunnypilot_source/tn-tici-prebuilt
           echo "Checked out sunnypilot/tn-prebuilt content."
 
       - name: Download LFS objects for temp-sync-branch from sunnypilot_source
