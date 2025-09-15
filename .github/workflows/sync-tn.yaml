@@ -2,8 +2,7 @@
 name: Sync sunnypilot tn and modify
 
 on:
-  schedule:
-    - cron: '0 1 * * *' # 每天 UTC 时间 1 点运行
+  
   workflow_dispatch: # 允许手动触发
 
 jobs:
