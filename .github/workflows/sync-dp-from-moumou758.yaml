@@ -1,5 +1,5 @@
 # 文件名: .github/workflows/sync-dp.yaml
-name: Sync mooo758/momo-dp to local dp branch
+name: Sync mooo758/modp0916 to local dp branch
 
 on:
   schedule:
@@ -17,16 +17,16 @@ jobs:
       - name: Check for updates
         id: check_shas
         run: |
-          UPSTREAM_SHA=$(git ls-remote https://github.com/mooo758/openpilot.git momo-dp | awk '{print $1}')
+          UPSTREAM_SHA=$(git ls-remote https://github.com/mooo758/openpilot.git modp0916 | awk '{print $1}')
           if [ -z "$UPSTREAM_SHA" ]; then
             echo "::error::Could not get SHA from upstream repo mooo758/openpilot. Exiting."
             exit 1
           fi
-          echo "Upstream (mooo758/momo-dp) SHA: $UPSTREAM_SHA"
+          echo "Upstream (mooo758/modp0916) SHA: $UPSTREAM_SHA"
           echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
 
-          OWN_REPO_SHA=$(git ls-remote https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git dp | awk '{print $1}')
-          echo "Own repo (dp branch) SHA: ${OWN_REPO_SHA:-Not Found}"
+          OWN_REPO_SHA=$(git ls-remote https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git dp0916 | awk '{print $1}')
+          echo "Own repo (dp0916 branch) SHA: ${OWN_REPO_SHA:-Not Found}"
           echo "own_repo_sha=$OWN_REPO_SHA" >> $GITHUB_OUTPUT
 
       # 步骤 2: 根据 SHA 的比较结果，决定是否需要同步
@@ -49,13 +49,13 @@ jobs:
           # --- 关键修复: 初始化一个空的 git 仓库来提供执行环境 ---
           git init -b main
 
-          echo "Fetching from upstream and force-pushing to own repo's dp branch..."
+          echo "Fetching from upstream and force-pushing to own repo's dp0916 branch..."
           TARGET_REPO_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
-          # 从上游 fetch momo-dp 分支
-          git fetch https://github.com/mooo758/openpilot.git momo-dp
+          # 从上游 fetch modp0916 分支
+          git fetch https://github.com/mooo758/openpilot.git modp0916
           
           # 将刚刚 fetch 下来的内容 (FETCH_HEAD) 强制推送到你仓库的 dp 分支
-          git push "$TARGET_REPO_URL" FETCH_HEAD:refs/heads/dp --force
+          git push "$TARGET_REPO_URL" FETCH_HEAD:refs/heads/dp0916 --force
           
           echo "Sync completed successfully."
