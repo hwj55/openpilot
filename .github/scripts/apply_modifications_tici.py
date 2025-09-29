@@ -241,15 +241,7 @@ def modify_hardwared_py(filename):
             line = lines[i]
             stripped_line = line.strip()
 
-            # 修改点 1: 修改 import 语句
-            if stripped_line == "from openpilot.system.version import terms_version, training_version, get_build_metadata":
-                if ", get_build_metadata" in line:
-                    new_lines.append(line.replace(", get_build_metadata", ""))
-                    modified = True
-                else:
-                    new_lines.append(line)
-                i += 1
-                continue
+            
             
             # 修改点 2: 禁用不支持的设备组合检测 (来自截图的更简洁方法)
             if 'is_unsupported_combo = TICI and HARDWARE.get_device_type()' in line:
