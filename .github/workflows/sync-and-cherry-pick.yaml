@@ -1,5 +1,5 @@
 # 文件名: .github/workflows/sync-and-cherry-pick.yaml
-name: Sync sunnypilot and Cherry-pick Modifications
+name: Sync sunnypilot tn-prebuilt and Cherry-pick Modifications
 
 on:
   schedule:
@@ -13,13 +13,13 @@ jobs:
       contents: write # 赋予工作流写入仓库内容的权限
 
     steps:
-      # 步骤 1: 检查远程仓库 tn-tici-prebuilt 分支是否有更新
-      - name: Check for updates from sunnypilot/tn-tici-prebuilt
+      # 步骤 1: 检查远程仓库 tn-prebuilt 分支是否有更新
+      - name: Check for updates from sunnypilot/tn-prebuilt
         id: get_shas
         run: |
-          # 获取 sunnypilot/tn-tici-prebuilt 最新的 commit SHA
-          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn-tici-prebuilt | awk '{print $1}')
-          echo "Latest remote SHA (sunnypilot/tn-tici-prebuilt): $REMOTE_SHA"
+          # 获取 sunnypilot/tn-prebuilt 最新的 commit SHA
+          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn-prebuilt | awk '{print $1}')
+          echo "Latest remote SHA (sunnypilot/tn-prebuilt): $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
           # 从你自己的仓库的 tn-pb-history 分支获取上次同步时记录的 SHA
@@ -46,13 +46,13 @@ jobs:
         id: get_date
         run: echo "date=$(date +'%m%d')" >> $GITHUB_OUTPUT
         
-      # 步骤 3: 检出 sunnypilot 的 tn-tici-prebuilt 分支作为基础 (禁用 LFS)
-      - name: Checkout sunnypilot/tn-tici-prebuilt
+      # 步骤 3: 检出 sunnypilot 的 tn-prebuilt 分支作为基础 (禁用 LFS)
+      - name: Checkout sunnypilot/tn-prebuilt
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
         with:
           repository: sunnypilot/sunnypilot
-          ref: tn-tici-prebuilt
+          ref: tn-prebuilt
           lfs: false # 明确禁用 LFS
 
       # 步骤 4: 执行 Cherry-pick
@@ -64,7 +64,9 @@ jobs:
           
           echo "Adding remote for cherry-pick source..."
           git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
-          git fetch cherry_pick_source --no-tags
+          
+          echo "Fetching only the 'tn-tici-prebuilt' branch from source..."
+          git fetch cherry_pick_source tn-tici-prebuilt --no-tags
           
           echo "Performing cherry-pick..."
           # 使用 -X theirs 策略，在冲突时自动选择被 cherry-pick 的 commit 的更改
@@ -75,7 +77,8 @@ jobs:
       - name: Push to new dated branch
         if: steps.decision.outputs.continue == 'true'
         run: |
-          BRANCH_NAME="tn-tici-pb-${{ steps.get_date.outputs.date }}"
+          # 新的分支名称格式，以反映基础是 tn-prebuilt
+          BRANCH_NAME="tn-pb-${{ steps.get_date.outputs.date }}"
           echo "Pushing changes to new branch: $BRANCH_NAME"
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force
 
@@ -92,10 +95,10 @@ jobs:
           if git ls-remote --exit-code --heads "$ORIGIN_URL" tn-pb-history; then
             echo "Branch 'tn-pb-history' exists. Checking it out."
             git fetch "$ORIGIN_URL" tn-pb-history
-            # 使用 -B 确保本地分支与远程同步
+            # 使用 -B 确保本地分支与远程同步，避免冲突
             git checkout -B tn-pb-history FETCH_HEAD
           else
-            echo "Branch 'tn-pb-history' does not exist. Creating it."
+            echo "Branch 'tn-pb-history' does not exist. Creating it as an orphan."
             # 创建一个没有历史记录的孤立分支
             git checkout --orphan tn-pb-history
             # 清理工作区，防止旧文件被带入
@@ -108,7 +111,7 @@ jobs:
           
           # 提交并推送至 tn-pb-history 分支
           git add .last_sync_sha
-          git commit -m "chore(sync): Update last sync SHA for tn-tici-prebuilt" -m "Based on sunnypilot commit: ${{ steps.get_shas.outputs.remote_sha }}"
+          git commit -m "chore(sync): Update last sync SHA for tn-prebuilt" -m "Based on sunnypilot commit: ${{ steps.get_shas.outputs.remote_sha }}"
           git push "$ORIGIN_URL" tn-pb-history
           
           echo "Successfully updated sync SHA record on tn-pb-history branch."
