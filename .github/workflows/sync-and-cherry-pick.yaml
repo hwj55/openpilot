@@ -71,7 +71,7 @@ jobs:
           echo "Performing cherry-pick..."
           # 使用 -X theirs 策略，在冲突时自动选择被 cherry-pick 的 commit 的更改
           # fcd2f96^..4d304e 表示从 fcd2f96 (包含) 到 4d304e (包含) 的所有 commit
-          git cherry-pick fcd2f96287cd6826b3d9a695870c7203e0a674a5^..4d304e15403f1847ef4b7be94aacc430f1a54b98 -X theirs
+          git cherry-pick 0b732579dc93df3ff7f82866f217248d49322dfd^..595c9c069c7b2c505e01ffdb9bb11794585a6ed7 -X theirs
 
       # 步骤 5: 将修改后的代码推送到一个新的日期分支
       - name: Push to new dated branch
