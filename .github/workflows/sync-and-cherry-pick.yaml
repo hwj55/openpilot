@@ -66,7 +66,7 @@ jobs:
           git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
           
           echo "Fetching only the 'tn-tici-prebuilt' branch from source..."
-          git fetch cherry_pick_source tn-tici-prebuilt --no-tags
+          git fetch cherry_pick_source --no-tags
           
           echo "Performing cherry-pick..."
           # 使用 -X theirs 策略，在冲突时自动选择被 cherry-pick 的 commit 的更改
