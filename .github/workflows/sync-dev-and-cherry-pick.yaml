@@ -65,7 +65,7 @@ jobs:
           
           echo "Performing cherry-pick..."
           # 使用 -X theirs 策略，在冲突时自动选择被 cherry-pick 的 commit 的更改
-          git cherry-pick 3d0000da122d8aa7f92b58cf21838db389e56a59^..07adc81ee771760c031375fe948b40d5715046eb -X theirs
+          git cherry-pick 1d512d04d8be163bf09bb4acd077d160670993c8^..e81d8d8e4f6e6017890250cd80f65b24e627852a -X theirs
 
       # 步骤 5: 将修改后的代码强制推送到 dev 分支
       - name: Force push changes to dev branch
