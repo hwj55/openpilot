@@ -60,8 +60,7 @@ BASE_CONFIG = [
   AmpConfig("Zero-crossing detection disabled", 0b0, 0x49, 5, 0b00100000),
 ]
 
-CONFIGS = {
-  "tizi": [
+CONFIGS = { "tici": [
     AmpConfig("Left speaker output from left DAC", 0b1, 0x2B, 0, 0b11111111),
     AmpConfig("Right speaker output from right DAC", 0b1, 0x2C, 0, 0b11111111),
     AmpConfig("Left Speaker Mixer Gain", 0b00, 0x2D, 0, 0b00000011),
@@ -112,7 +111,7 @@ class Amplifier:
 
   def set_configs(self, configs: list[AmpConfig]) -> bool:
     # retry in case panda is using the amp
-    tries = 15
+    tries = 1
     backoff = 0.
     for i in range(tries):
       try:
