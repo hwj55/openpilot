@@ -8,14 +8,14 @@ env:
   PUBLIC_REPO_URL: "https://github.com/sunnypilot/sunnypilot"
   
   # Branch configurations
-  STAGING_SOURCE_BRANCH: 'master'
+  STAGING_SOURCE_BRANCH: 'tn'
   
   # Runtime configuration
   SOURCE_BRANCH: "${{ github.head_ref || github.ref_name }}"
 
 on:
   push:
-    branches: [ master, master-dev ]
+    branches: [ tn, master-dev ]
     tags: [ 'release/*' ]
   pull_request_target:
     types: [ labeled ]
