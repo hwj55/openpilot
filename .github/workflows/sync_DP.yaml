@@ -56,7 +56,14 @@ jobs:
           repository: dragonpilot/dragonpilot
           ref: pre-build # 这里已修正为 'pre-build'
           lfs: false
-          fetch-depth: 0 
+          fetch-depth: 1
+          
+      - name: Unshallow pre-build history only
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          # --unshallow 表示把当前的浅克隆变成完整克隆
+          # 指定 origin pre-build 表示只针对这一个分支操作
+          git fetch origin pre-build --unshallow
 
       # 步骤 4: 执行 Cherry-pick
       - name: Apply modifications via cherry-pick
@@ -71,7 +78,7 @@ jobs:
           git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
           
           echo "Fetching commits from source..."
-          git fetch cherry_pick_source
+          git fetch cherry_pick_source dp251128 --no-tags
           
           echo "Performing cherry-pick..."
           # 范围：86ce61c... 到 f5db0ae...
