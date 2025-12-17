@@ -1,3 +1,26 @@
+"""
+openpilot 驾驶模型下载器
+
+本脚本旨在简化 openpilot 自动驾驶系统模型的下载、安装和管理过程。
+它能够动态地从 sunnypilot 的 GitHub 仓库获取最新的驾驶模型配置，
+允许用户选择并安装特定的驾驶模型（包括新旧版本），
+并自动处理文件的下载、清理和安装，并最终通过git 添加到暂存区。
+
+主要功能：
+- 检查运行环境，确保在 Dragonpilot/Openpilot 根目录下。
+- 动态解析 sunnypilot 源码，获取最新模型列表的下载地址。
+- 提供交互式命令行界面，供用户搜索、选择和确认要安装的模型。
+- 支持下载 .onnx, .pkl, .thneed 等格式的模型文件及其元数据。
+- 在安装前自动删除目标目录下已存在的模型文件，确保干净安装。
+- 下载时显示进度条并检查磁盘空间。
+- 将下载的模型文件自动添加到 Git 暂存区，以确保 Openpilot/Sunnypilot 能够正确识别。
+- 兼容处理新旧版本的模型结构 (policy/vision 分离模型和 supercombo 一体化模型)。
+
+使用方法：
+1. 将此脚本放置在你的 Dragonpilot/Openpilot 仓库的根目录下。
+2. 运行 'python3 Model_downloads.py'。
+3. 按照提示搜索选择并安装你需要的模型。
+"""
 import os
 import sys
 import json
