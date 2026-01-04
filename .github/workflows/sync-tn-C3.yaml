@@ -1,0 +1,104 @@
+# 文件名: .github/workflows/sync-tn-c3-newest.yaml
+name: Sync sunnypilot tn to tn-C3-newest
+
+on:
+  schedule:
+    - cron: '30 4 * * *' # 每天 UTC 4:30 运行
+  workflow_dispatch: # 支持手动触发
+
+jobs:
+  sync-tn-c3:
+    runs-on: ubuntu-latest
+    env:
+      GIT_LFS_SKIP_SMUDGE: 1 # 全局禁用 LFS 下载
+    permissions:
+      contents: write
+
+    steps:
+      # 1. 检查 sunnypilot/tn 分支的最新 commit SHA
+      - name: Check for updates from sunnypilot/tn
+        id: get_shas
+        run: |
+          # 获取 sunnypilot/tn 最新的 commit SHA
+          REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn | awk '{print $1}')
+          echo "Latest sunnypilot tn SHA: $REMOTE_SHA"
+          echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
+
+          # 从你的仓库的 tn-C3-history 分支读取记录
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-C3-history/.last_sync_sha" || echo "none")
+          echo "Last recorded SHA: $LOCAL_RECORDED_SHA"
+          echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
+
+      # 2. 判断是否需要继续
+      - name: Decide whether to continue
+        id: decision
+        run: |
+          if [[ "${{ steps.get_shas.outputs.remote_sha }}" == "${{ steps.get_shas.outputs.local_recorded_sha }}" ]]; then
+            echo "Repository is up to date. No sync needed."
+            echo "continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "New updates found on 'tn' branch. Starting sync..."
+            echo "continue=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 3. 检出 sunnypilot/tn (获取完整历史)
+      - name: Checkout sunnypilot/tn
+        if: steps.decision.outputs.continue == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: sunnypilot/sunnypilot
+          ref: tn
+          fetch-depth: 0 
+          lfs: false
+
+      # 4. 执行 Cherry-pick 你的修改
+      - name: Apply modifications via cherry-pick
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          # 禁用 LFS 过滤器防止报错
+          git lfs uninstall
+          git config --global filter.lfs.smudge "cat"
+          git config --global filter.lfs.clean "cat"
+          git config --global filter.lfs.required false
+
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 添加来源
+          git remote add mod_source https://github.com/hwj55/openpilot.git
+          git fetch mod_source --no-tags
+          
+          echo "Performing cherry-pick range..."
+          # 包含 2a640b 到 66786b
+          git cherry-pick 2a640b46e93a4cbdf42c93f7f17b3d7cd4eb857f^..66786bdab22824cac34d7bd56002e537cfbd34ab -X theirs
+
+      # 5. 推送到你的 tn-C3-newest 分支
+      - name: Force push to tn-C3-newest
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          git lfs uninstall
+          echo "Force pushing to tn-C3-newest..."
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
+            HEAD:refs/heads/tn-C3-newest --force --no-thin
+
+      # 6. 更新同步记录到 tn-C3-history
+      - name: Update sync record on 'tn-C3-history' branch
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          git lfs uninstall
+          ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          if git ls-remote --exit-code --heads "$ORIGIN_URL" tn-C3-history; then
+            git fetch "$ORIGIN_URL" tn-C3-history
+            git checkout -B tn-C3-history FETCH_HEAD
+          else
+            git checkout --orphan tn-C3-history
+            git rm -rf .
+          fi
+          
+          echo "${{ steps.get_shas.outputs.remote_sha }}" > .last_sync_sha
+          git add .last_sync_sha
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "chore(sync): update tn-C3 sync record to ${{ steps.get_shas.outputs.remote_sha }}"
+          git push "$ORIGIN_URL" tn-C3-history --force
