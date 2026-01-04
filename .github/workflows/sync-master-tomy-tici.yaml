@@ -51,6 +51,8 @@ jobs:
       # 步骤 4: 执行 Cherry-pick 你的修改
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
+        env:
+          GIT_LFS_SKIP_SMUDGE: 1 # 关键：强制跳过 LFS 文件的实际下载，只处理指针
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
