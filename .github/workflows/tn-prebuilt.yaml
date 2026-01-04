@@ -7,9 +7,12 @@ on:
   workflow_dispatch:
 
 env:
+  # --- 解决根分区爆满问题 ---
   TMPDIR: "/data/github-runner/tmp"
   RUNNER_TEMP: "/data/github-runner/tmp"
   RUNNER_TOOL_CACHE: "/data/github-runner/_work/_tool"
+  
+  # --- 编译路径配置 ---
   SCONS_CACHE_DIR: "/data/scons_cache"
   OUTPUT_DIR: "/data/openpilot_output"
 
@@ -32,39 +35,41 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 1
-          lfs: false # 依然保持全局关闭，手动精确拉取
+          lfs: false # 全局关闭以节省空间
 
-      - name: 3. 精确拉取 LFS 必需资源 (解决编译报错)
+      - name: 3. 精确拉取 LFS 必需二进制资源 (关键修复)
         run: |
-          echo "Fetching essential LFS files..."
-          # A. 拉取 acados 渲染器 (解决横向控制编译报错)
+          echo "Fetching essential LFS binaries..."
+          
+          # A. 拉取编译工具和静态库 (解决 libyuv.a 报错)
+          # 包括 acados 渲染器、libyuv 库以及 Snpe 等可能用到的二进制
           git lfs pull --include="third_party/acados/larch64/*"
-          chmod +x third_party/acados/larch64/t_renderer
+          git lfs pull --include="third_party/libyuv/larch64/lib/libyuv.a"
+          git lfs pull --include="third_party/snpe/larch64/*"
           
           # B. 拉取 ONNX 模型文件 (解决 get_model_metadata 报错)
-          # 仅拉取当前分支需要的模型文件，约数百 MB
           git lfs pull --include="selfdrive/modeld/models/*.onnx"
           
+          # 给予执行权限
+          chmod +x third_party/acados/larch64/t_renderer
+          
           echo "LFS fetch completed."
-          ls -lh selfdrive/modeld/models/*.onnx | head -n 5
+          ls -lh third_party/libyuv/larch64/lib/libyuv.a
 
       - name: 4. 强制绕过字体处理 (解决 raylib 报错)
         run: |
           echo "Neutralizing font processing script..."
-          # 直接重写脚本，让它执行时什么都不做并直接返回 0
           cat <<EOF > selfdrive/assets/fonts/process.py
           import sys
           import os
           if __name__ == "__main__":
-              print("Bypassing raylib font processing")
-              # 为 SCons 创建它所期待的所有输出文件（占位符）
+              print("Bypassed raylib font processing")
               font_dir = "selfdrive/assets/fonts"
               for f in ["Audiowide-Regular", "Inter-SemiBold", "JetBrainsMono-Medium"]:
                   open(f"{font_dir}/{f}.fnt", 'a').close()
                   open(f"{font_dir}/{f}.png", 'a').close()
               sys.exit(0)
           EOF
-          chmod +x selfdrive/assets/fonts/process.py
 
       - name: 5. 编译预处理
         run: |
@@ -79,7 +84,7 @@ jobs:
           export PYTHONPATH=$GITHUB_WORKSPACE
           
           echo "Starting SCons build with 6 cores..."
-          # 如果之前有部分编译残留导致冲突，可以尝试添加 --cleandump
+          # 使用 --minimal 编译核心组件
           scons -j6 cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
 
           touch prebuilt
@@ -87,6 +92,7 @@ jobs:
       - name: 7. 提取二进制文件 (生成 Prebuilt)
         run: |
           echo "Filtering files via rsync..."
+          # 包含运行必须的 .so, .pkl, .fnt, .png 等
           rsync -am \
             --include='**/panda/board/' \
             --include='**/panda/board/obj' \
@@ -95,6 +101,7 @@ jobs:
             --include='**/*.fnt' \
             --include='**/*.png' \
             --include='**/*.pkl' \
+            --include='**/*.so' \
             --exclude='.sconsign.dblite' \
             --exclude='*.a' \
             --exclude='*.o' \
@@ -117,14 +124,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 推送到 prebuilt 目标分支
           git checkout -b prebuilt-tn-C3-newest
           git add .
           git commit -m "chore: C3 build prebuilt [$(date +'%Y-%m-%d %H:%M')]"
           
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" prebuilt-tn-C3-newest --force
 
-      - name: 9. 恢复省电模式
+      - name: 9. 善后处理
         if: always()
         run: |
           if [ -f "scripts/manage-powersave.py" ]; then
