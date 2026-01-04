@@ -1,0 +1,92 @@
+name: build-tici-prebuilt
+
+env:
+  # C3 上的编译临时目录
+  BUILD_DIR: "/data/openpilot_build"
+  # 输出目录
+  OUTPUT_DIR: ${{ github.workspace }}/output
+  # SCons 缓存
+  SCONS_CACHE_DIR: "/data/scons_cache"
+  
+on:
+  push:
+    branches: [ master-tici ] # 当 master-tici 分支更新时触发
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    runs-on: [self-hosted, tici] # 必须在你的 C3 Runner 上运行
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Setup build environment
+        run: |
+          # 确保目录存在
+          mkdir -p "${BUILD_DIR}"
+          mkdir -p "${SCONS_CACHE_DIR}"
+          # 清理之前的旧文件
+          sudo rm -rf ${BUILD_DIR}/*
+          
+          # 尝试禁用 C3 省电模式（如果脚本存在）
+          if [ -f "scripts/manage-powersave.py" ]; then
+            python3 scripts/manage-powersave.py --disable || true
+          fi
+
+      - name: Build with SCons
+        run: |
+          # 1. 使用 rsync 把源码同步到编译目录，排除不必要的文件
+          # 这里直接参考你提供的官方过滤逻辑
+          ./release/release_files.py | sort | uniq | rsync -rRl --files-from=- . $BUILD_DIR/
+          
+          # 2. 开始编译
+          cd $BUILD_DIR
+          # 适配 C3 的编译参数
+          scons -j$(nproc) cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
+          
+          # 3. 标记为 prebuilt
+          touch ${BUILD_DIR}/prebuilt
+
+      - name: Prepare Clean Output
+        run: |
+          sudo rm -rf ${OUTPUT_DIR}
+          mkdir -p ${OUTPUT_DIR}
+          # 使用你提供的官方 Rsync 排除规则，只保留二进制和必要文件
+          rsync -am \
+            --include='**/panda/board/' \
+            --include='**/panda/board/obj' \
+            --include='**/panda/board/obj/panda.bin.signed' \
+            --include='**/panda/board/obj/panda_h7.bin.signed' \
+            --exclude='.sconsign.dblite' \
+            --exclude='*.a' \
+            --exclude='*.o' \
+            --exclude='*.os' \
+            --exclude='*.pyc' \
+            --exclude='*.cc' \
+            --exclude='**/.git/' \
+            --exclude='**/__pycache__/' \
+            --delete-excluded \
+            ${BUILD_DIR}/ ${OUTPUT_DIR}/
+
+      - name: Publish Prebuilt Branch
+        run: |
+          cd ${OUTPUT_DIR}
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b master-tici-prebuilt
+          git add .
+          git commit -m "build: prebuilt for tn-tici @ $(date +'%Y-%m-%d %H:%M')"
+          
+          # 推送到你的仓库
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" tn-tici-pb --force
+
+      - name: Re-enable powersave
+        if: always()
+        run: |
+          if [ -f "scripts/manage-powersave.py" ]; then
+            python3 scripts/manage-powersave.py --enable || true
+          fi
