@@ -1,60 +1,79 @@
 name: build-tici-prebuilt
 
-env:
-  # C3 上的编译临时目录
-  BUILD_DIR: "/data/openpilot_build"
-  # 输出目录
-  OUTPUT_DIR: ${{ github.workspace }}/output
-  # SCons 缓存
-  SCONS_CACHE_DIR: "/data/scons_cache"
-  
 on:
   push:
-    branches: [ master-tici ] # 当 master-tici 分支更新时触发
-  workflow_dispatch: # 允许手动触发
+    branches: [ master-tici, tn-C3 ] # 只有这些分支更新时才触发
+  workflow_dispatch: # 支持手动触发
+
+env:
+  # --- 磁盘空间与临时目录修复 (核心步骤) ---
+  TMPDIR: "/data/github-runner/tmp"
+  RUNNER_TEMP: "/data/github-runner/tmp"
+  RUNNER_TOOL_CACHE: "/data/github-runner/_work/_tool"
+  
+  # --- 编译路径设置 ---
+  BUILD_DIR: "/data/openpilot_build"
+  OUTPUT_DIR: "/data/openpilot_output"
+  SCONS_CACHE_DIR: "/data/scons_cache"
 
 jobs:
   build:
-    runs-on: [self-hosted, tici] # 必须在你的 C3 Runner 上运行
+    # 必须匹配你在 C3 上看到的标签
+    runs-on: [self-hosted, Linux, ARM64]
+    
     steps:
-      - name: Checkout code
+      - name: 1. 环境初始化与空间清理
+        run: |
+          echo "Checking disk space..."
+          df -h /data
+          
+          # 创建所有必需的目录
+          mkdir -p ${{ env.TMPDIR }}
+          mkdir -p ${{ env.BUILD_DIR }}
+          mkdir -p ${{ env.OUTPUT_DIR }}
+          mkdir -p ${{ env.SCONS_CACHE_DIR }}
+          
+          # 彻底清理上次编译的残余，释放 5.5G 的空间
+          sudo rm -rf ${{ env.BUILD_DIR }}/*
+          sudo rm -rf ${{ env.OUTPUT_DIR }}/*
+          # 只有空间极度不足时才清理 SCons 缓存（可选）
+          # sudo rm -rf ${{ env.SCONS_CACHE_DIR }}/*
+
+      - name: 2. 检出源代码 (浅克隆以节省空间)
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          lfs: true
+          submodules: false   # 如果不需要子模块，设为 false 节省空间
+          fetch-depth: 1      # 只拉取最新一次提交
+          lfs: false           # 严禁拉取 LFS 文件，空间不足会崩溃
 
-      - name: Setup build environment
+      - name: 3. 准备编译环境
         run: |
-          # 确保目录存在
-          mkdir -p "${BUILD_DIR}"
-          mkdir -p "${SCONS_CACHE_DIR}"
-          # 清理之前的旧文件
-          sudo rm -rf ${BUILD_DIR}/*
-          
-          # 尝试禁用 C3 省电模式（如果脚本存在）
+          # 禁用省电模式以加快编译速度
           if [ -f "scripts/manage-powersave.py" ]; then
             python3 scripts/manage-powersave.py --disable || true
           fi
-
-      - name: Build with SCons
-        run: |
-          # 1. 使用 rsync 把源码同步到编译目录，排除不必要的文件
-          # 这里直接参考你提供的官方过滤逻辑
-          ./release/release_files.py | sort | uniq | rsync -rRl --files-from=- . $BUILD_DIR/
           
-          # 2. 开始编译
-          cd $BUILD_DIR
-          # 适配 C3 的编译参数
-          scons -j$(nproc) cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
-          
-          # 3. 标记为 prebuilt
-          touch ${BUILD_DIR}/prebuilt
+          # 将源码同步到编译目录，减少对根目录的依赖
+          echo "Syncing source to build directory..."
+          rsync -a --delete ./ ${{ env.BUILD_DIR }}/
 
-      - name: Prepare Clean Output
+      - name: 4. 执行 SCons 编译 (轻量化模式)
         run: |
-          sudo rm -rf ${OUTPUT_DIR}
-          mkdir -p ${OUTPUT_DIR}
-          # 使用你提供的官方 Rsync 排除规则，只保留二进制和必要文件
+          cd ${{ env.BUILD_DIR }}
+          export TMPDIR=${{ env.TMPDIR }}
+          
+          echo "Starting SCons build..."
+          # -j2: 限制为 2 核编译防止 C3 过热关机 (如果稳定可改为 -j3)
+          # --minimal: 官方推荐，只编译运行必须的组件
+          scons -j6 cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
+          
+          # 创建 prebuilt 标识文件
+          touch prebuilt
+
+      - name: 5. 提取 Prebuilt 二进制包 (过滤掉源码)
+        run: |
+          echo "Filtering files via rsync..."
+          # 使用官方推荐的过滤规则，剔除 .cc, .o, .a 等源码文件
           rsync -am \
             --include='**/panda/board/' \
             --include='**/panda/board/obj' \
@@ -69,24 +88,29 @@ jobs:
             --exclude='**/.git/' \
             --exclude='**/__pycache__/' \
             --delete-excluded \
-            ${BUILD_DIR}/ ${OUTPUT_DIR}/
+            ${{ env.BUILD_DIR }}/ ${{ env.OUTPUT_DIR }}/
 
-      - name: Publish Prebuilt Branch
+      - name: 6. 推送 Prebuilt 分支到 GitHub
         run: |
-          cd ${OUTPUT_DIR}
+          cd ${{ env.OUTPUT_DIR }}
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b master-tici-prebuilt
+          
+          # 强制创建一个名为 prebuilt-master-tici 的分支
+          git checkout -b prebuilt-master-tici
           git add .
-          git commit -m "build: prebuilt for tn-tici @ $(date +'%Y-%m-%d %H:%M')"
+          git commit -m "chore: auto-build prebuilt for C3 [$(date +'%Y-%m-%d %H:%M')]"
           
           # 推送到你的仓库
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" tn-tici-pb --force
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" prebuilt-master-tici --force
 
-      - name: Re-enable powersave
+      - name: 7. 恢复 C3 状态
         if: always()
         run: |
+          # 重新开启省电模式
           if [ -f "scripts/manage-powersave.py" ]; then
             python3 scripts/manage-powersave.py --enable || true
           fi
+          # 编译完成后删除编译目录以释放 5.5G 空间
+          sudo rm -rf ${{ env.BUILD_DIR }}
