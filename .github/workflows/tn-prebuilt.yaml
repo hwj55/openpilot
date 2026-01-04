@@ -1,4 +1,3 @@
-# 文件名: .github/workflows/build-tici-prebuilt.yaml
 name: Build Prebuilt on C3 (J6)
 
 on:
@@ -7,12 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  # --- 解决根分区爆满问题 ---
   TMPDIR: "/data/github-runner/tmp"
   RUNNER_TEMP: "/data/github-runner/tmp"
   RUNNER_TOOL_CACHE: "/data/github-runner/_work/_tool"
-  
-  # --- 编译路径配置 ---
   SCONS_CACHE_DIR: "/data/scons_cache"
   OUTPUT_DIR: "/data/openpilot_output"
 
@@ -21,49 +17,39 @@ jobs:
     runs-on: [self-hosted, Linux, ARM64]
     
     steps:
+      - name: 0. 协议预处理 (防止 GitLab SSH 验证)
+        run: |
+          git config --global url."https://gitlab.com/".insteadOf git@gitlab.com:
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
       - name: 1. 清理环境
         run: |
-          echo "Preparing environment..."
           sudo rm -rf ${{ env.OUTPUT_DIR }}
           mkdir -p ${{ env.OUTPUT_DIR }}
           mkdir -p ${{ env.TMPDIR }}
           mkdir -p ${{ env.SCONS_CACHE_DIR }}
-          df -h /data
 
       - name: 2. 检出代码 (包含子模块)
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 1
-          lfs: false # 全局关闭以节省空间
+          lfs: false 
 
-      - name: 3. 精确拉取 LFS 必需二进制资源 (关键修复)
+      - name: 3. 精确拉取 LFS 资源 (acados + 模型)
         run: |
-          echo "Fetching essential LFS binaries..."
-          
-          # A. 拉取编译工具和静态库 (解决 libyuv.a 报错)
-          # 包括 acados 渲染器、libyuv 库以及 Snpe 等可能用到的二进制
+          echo "Fetching essential LFS files..."
           git lfs pull --include="third_party/acados/larch64/*"
           git lfs pull --include="third_party/libyuv/larch64/lib/libyuv.a"
-          git lfs pull --include="third_party/snpe/larch64/*"
-          
-          # B. 拉取 ONNX 模型文件 (解决 get_model_metadata 报错)
           git lfs pull --include="selfdrive/modeld/models/*.onnx"
-          
-          # 给予执行权限
           chmod +x third_party/acados/larch64/t_renderer
-          
-          echo "LFS fetch completed."
-          ls -lh third_party/libyuv/larch64/lib/libyuv.a
 
-      - name: 4. 强制绕过字体处理 (解决 raylib 报错)
+      - name: 4. 强制绕过字体处理
         run: |
-          echo "Neutralizing font processing script..."
           cat <<EOF > selfdrive/assets/fonts/process.py
           import sys
           import os
           if __name__ == "__main__":
-              print("Bypassed raylib font processing")
               font_dir = "selfdrive/assets/fonts"
               for f in ["Audiowide-Regular", "Inter-SemiBold", "JetBrainsMono-Medium"]:
                   open(f"{font_dir}/{f}.fnt", 'a').close()
@@ -78,21 +64,17 @@ jobs:
             python3 scripts/manage-powersave.py --disable || true
           fi
 
-      - name: 6. 执行 SCons 编译 (使用 -j6 核心)
+      - name: 6. 执行 SCons 编译 (J6)
         run: |
           export TMPDIR=${{ env.TMPDIR }}
           export PYTHONPATH=$GITHUB_WORKSPACE
-          
-          echo "Starting SCons build with 6 cores..."
-          # 使用 --minimal 编译核心组件
           scons -j6 cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
-
           touch prebuilt
 
       - name: 7. 提取二进制文件 (生成 Prebuilt)
         run: |
           echo "Filtering files via rsync..."
-          # 包含运行必须的 .so, .pkl, .fnt, .png 等
+          # 提取时排除所有源代码，保留 .so, .onnx, .pkl, .fnt, .png
           rsync -am \
             --include='**/panda/board/' \
             --include='**/panda/board/obj' \
@@ -102,6 +84,7 @@ jobs:
             --include='**/*.png' \
             --include='**/*.pkl' \
             --include='**/*.so' \
+            --include='**/*.onnx' \
             --exclude='.sconsign.dblite' \
             --exclude='*.a' \
             --exclude='*.o' \
@@ -117,10 +100,17 @@ jobs:
             --delete-excluded \
             ./ ${{ env.OUTPUT_DIR }}/
 
-      - name: 8. 推送 Prebuilt 分支
+      - name: 8. 推送 Prebuilt 分支 (解决 Push 报错)
         run: |
           cd ${{ env.OUTPUT_DIR }}
+          
+          # 关键点 1: 删除所有 .gitattributes 文件，防止 GitHub 强制要求 LFS 对象
+          find . -name ".gitattributes" -delete
+          
+          # 关键点 2: 重新初始化并彻底禁用 LFS 钩子
           git init
+          git lfs uninstall
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
@@ -128,12 +118,14 @@ jobs:
           git add .
           git commit -m "chore: C3 build prebuilt [$(date +'%Y-%m-%d %H:%M')]"
           
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" prebuilt-tn-C3-newest --force
+          echo "Pushing to GitHub..."
+          # 关键点 3: 使用 --force 和 --no-thin 推送
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
+            prebuilt-tn-C3-newest --force --no-thin
 
-      - name: 9. 善后处理
+      - name: 9. 善后
         if: always()
         run: |
           if [ -f "scripts/manage-powersave.py" ]; then
             python3 scripts/manage-powersave.py --enable || true
           fi
-          df -h /data
