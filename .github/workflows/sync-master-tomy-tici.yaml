@@ -3,31 +3,33 @@ name: Sync sunnypilot master to master-tici
 
 on:
   schedule:
-    - cron: '0 4 * * *' # 每天 UTC 时间 4 点运行（比 dev 同步晚一小时，避开高峰）
-  workflow_dispatch: # 允许手动触发
+    - cron: '0 4 * * *' # 每天 UTC 4:00 运行
+  workflow_dispatch: # 支持手动触发
 
 jobs:
   sync-master-tici:
     runs-on: ubuntu-latest
+    env:
+      # 全局环境变量：强制跳过 LFS 文件的实际下载
+      GIT_LFS_SKIP_SMUDGE: 1
     permissions:
-      contents: write
+      contents: write # 赋予写入权限
 
     steps:
-      # 步骤 1: 检查 sunnypilot/master 是否有更新
+      # 1. 检查 sunnypilot/master 分支的最新 commit SHA
       - name: Check for updates from sunnypilot/master
         id: get_shas
         run: |
-          # 获取 sunnypilot/master 最新的 commit SHA
           REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git master | awk '{print $1}')
-          echo "Latest remote SHA (sunnypilot/master): $REMOTE_SHA"
+          echo "Latest sunnypilot SHA: $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
-          # 从 master-tici-history 分支获取上次记录的 SHA
+          # 从你的仓库的 master-tici-history 分支读取上一次同步的 SHA
           LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/master-tici-history/.last_sync_sha" || echo "none")
           echo "Last recorded SHA: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
-      # 步骤 2: 判断是否需要同步
+      # 2. 判断是否需要继续同步
       - name: Decide whether to continue
         id: decision
         run: |
@@ -35,50 +37,64 @@ jobs:
             echo "Repository is up to date. No sync needed."
             echo "continue=false" >> $GITHUB_OUTPUT
           else
-            echo "Remote repository has updates. Starting sync..."
+            echo "New updates found. Starting sync..."
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
-      # 步骤 3: 检出 sunnypilot/master (作为基础)
+      # 3. 检出 sunnypilot/master (必须使用 fetch-depth: 0 以获取完整历史)
       - name: Checkout sunnypilot/master
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
         with:
           repository: sunnypilot/sunnypilot
           ref: master
+          fetch-depth: 0 
           lfs: false
 
-      # 步骤 4: 执行 Cherry-pick 你的修改
+      # 4. 应用你的修改 (Cherry-pick)
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
-        env:
-          GIT_LFS_SKIP_SMUDGE: 1 # 关键：强制跳过 LFS 文件的实际下载，只处理指针
         run: |
+          # 彻底禁用 LFS 过滤器，防止触发 SSH 或下载报错
+          git lfs uninstall
+          git config --global filter.lfs.smudge "cat"
+          git config --global filter.lfs.clean "cat"
+          git config --global filter.lfs.required false
+
+          # 配置 Git 用户身份
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          echo "Adding remote source for modifications..."
+          # 添加你自己的仓库作为 cherry-pick 来源
+          echo "Fetching source commits from hwj55/openpilot..."
           git remote add mod_source https://github.com/hwj55/openpilot.git
           git fetch mod_source --no-tags
           
+          # 执行 cherry-pick。使用 -X theirs 在代码冲突时以你的修改为主
+          # 范围：2a640b...^ 到 66786b... (包含 2a640b)
           echo "Performing cherry-pick range..."
-          # 2a640b...^ 表示包含 2a640b 这个 commit 本身
           git cherry-pick 2a640b46e93a4cbdf42c93f7f17b3d7cd4eb857f^..66786bdab22824cac34d7bd56002e537cfbd34ab -X theirs
 
-      # 步骤 5: 强制推送到你的 master-tici 分支
+      # 5. 将结果强制推送到 master-tici 分支
       - name: Force push to master-tici
         if: steps.decision.outputs.continue == 'true'
         run: |
+          # 推送前再次确保 LFS 钩子已被移除
           git lfs uninstall
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:refs/heads/master-tici --force
+          
+          echo "Force pushing to master-tici branch..."
+          # 使用 --no-thin 确保所有对象被完整发送，解决 "remote unpack failed"
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
+            HEAD:refs/heads/master-tici --force --no-thin
 
-      # 步骤 6: 更新历史记录分支 master-tici-history
+      # 6. 更新同步记录分支
       - name: Update sync record on 'master-tici-history' branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           git lfs uninstall
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
+          # 切换或创建历史记录分支
           if git ls-remote --exit-code --heads "$ORIGIN_URL" master-tici-history; then
             git fetch "$ORIGIN_URL" master-tici-history
             git checkout -B master-tici-history FETCH_HEAD
@@ -87,7 +103,8 @@ jobs:
             git rm -rf .
           fi
           
+          # 写入新的 SHA 并推送
           echo "${{ steps.get_shas.outputs.remote_sha }}" > .last_sync_sha
           git add .last_sync_sha
-          git commit -m "chore(sync): update master-tici sync record" -m "Base: sunnypilot/master @ ${{ steps.get_shas.outputs.remote_sha }}"
-          git push "$ORIGIN_URL" master-tici-history
+          git commit -m "chore(sync): update master-tici sync record to ${{ steps.get_shas.outputs.remote_sha }}"
+          git push "$ORIGIN_URL" master-tici-history --force
