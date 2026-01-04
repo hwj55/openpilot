@@ -69,12 +69,14 @@ jobs:
       - name: Force push to master-tici
         if: steps.decision.outputs.continue == 'true'
         run: |
+          git lfs uninstall
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:refs/heads/master-tici --force
 
       # 步骤 6: 更新历史记录分支 master-tici-history
       - name: Update sync record on 'master-tici-history' branch
         if: steps.decision.outputs.continue == 'true'
         run: |
+          git lfs uninstall
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
           if git ls-remote --exit-code --heads "$ORIGIN_URL" master-tici-history; then
