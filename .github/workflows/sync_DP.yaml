@@ -2,8 +2,8 @@
 name: Sync Dragonpilot pre-build and Cherry-pick Modifications
 
 on:
-  schedule:
-    - cron: '0 2 * * *' # 每天 UTC 时间 2 点 (北京时间上午 10 点) 运行
+  #schedule:
+  #  - cron: '0 2 * * *' # 每天 UTC 时间 2 点 (北京时间上午 10 点) 运行
   workflow_dispatch: # 允许手动触发
 
 jobs:
