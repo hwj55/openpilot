@@ -74,7 +74,8 @@ jobs:
           # 范围：2a640b...^ 到 66786b... (包含 2a640b)
           echo "Performing cherry-pick range..."
           git cherry-pick 2a640b46e93a4cbdf42c93f7f17b3d7cd4eb857f^..66786bdab22824cac34d7bd56002e537cfbd34ab -X theirs
-
+          git cherry-pick 8876b9d1934d1a9eab7d9885ba6aecf149ed0d30^..0be2eca8830b00cf2e35880b669c5d120ba708eb -X theirs
+          
       # 5. 将结果强制推送到 master-tici 分支
       - name: Force push to master-tici
         if: steps.decision.outputs.continue == 'true'
