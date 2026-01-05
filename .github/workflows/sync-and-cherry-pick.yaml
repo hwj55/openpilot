@@ -2,8 +2,8 @@
 name: Sync sunnypilot tn-prebuilt and Cherry-pick Modifications
 
 on:
-  schedule:
-    - cron: '0 2 * * *' # 每天 UTC 时间 2 点运行
+  #schedule:
+  #  - cron: '0 2 * * *' # 每天 UTC 时间 2 点运行
   workflow_dispatch: # 允许手动触发
 
 jobs:
