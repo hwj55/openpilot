@@ -1,8 +1,8 @@
 name: Build Prebuilt on C3 (J6)
 
 on:
-  push:
-    branches: [ tn-C3-newest, master-tici ]
+  #push:
+  #  branches: [ tn-C3-newest, master-tici ]
   workflow_dispatch:
 
 env:
