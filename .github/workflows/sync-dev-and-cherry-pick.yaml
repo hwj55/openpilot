@@ -2,8 +2,8 @@
 name: Sync sunnypilot dev to local dev branch
 
 on:
-  schedule:
-    - cron: '0 3 * * *' # 每天 UTC 时间 3 点运行
+  #schedule:
+  #  - cron: '0 3 * * *' # 每天 UTC 时间 3 点运行
   workflow_dispatch: # 允许手动触发
 
 jobs:
