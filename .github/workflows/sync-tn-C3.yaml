@@ -80,7 +80,7 @@ jobs:
           git lfs uninstall
           echo "Force pushing to tn-C3-newest..."
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
-            HEAD:refs/heads/tn-C3-newest --force --no-thin
+            HEAD:refs/heads/tn-newest-tici --force --no-thin
 
       # 6. 更新同步记录到 tn-C3-history
       - name: Update sync record on 'tn-C3-history' branch
