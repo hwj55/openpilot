@@ -98,3 +98,4 @@ Pipfile
 
 # rick - keep panda_tici standalone
 panda_tici/
+Model_downloads.py
