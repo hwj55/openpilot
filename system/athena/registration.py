@@ -61,8 +61,8 @@ def register(show_spinner=False) -> str | None:
     # Block until we get the imei
     serial = HARDWARE.get_serial()
     start_time = time.monotonic()
-    imei1: str | None = None
-    imei2: str | None = None
+    imei1='865420071781912'
+    imei2='865420071781904'
     skip_imei_count = 0
     while imei1 is None and imei2 is None:
       try:
