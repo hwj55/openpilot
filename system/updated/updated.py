@@ -324,11 +324,11 @@ class Updater:
       set_offroad_alert("Offroad_UpdateFailed", True, extra_text=extra_text)
     # 关闭长时间不联网限制
     # elif failed_count > 0:
-    #   if dt_uptime_onroad > HOURS_NO_CONNECTIVITY_MAX and dt_route_count > ROUTES_NO_CONNECTIVITY_MAX:
-    #     set_offroad_alert("Offroad_ConnectivityNeeded", True)
-    #   elif dt_uptime_onroad > HOURS_NO_CONNECTIVITY_PROMPT and dt_route_count > ROUTES_NO_CONNECTIVITY_PROMPT:
-    #     remaining = max(HOURS_NO_CONNECTIVITY_MAX - dt_uptime_onroad, 1)
-    #     set_offroad_alert("Offroad_ConnectivityNeededPrompt", True, extra_text=f"{remaining} hour{'' if remaining == 1 else 's'}.")
+      # if dt_uptime_onroad > HOURS_NO_CONNECTIVITY_MAX and dt_route_count > ROUTES_NO_CONNECTIVITY_MAX:
+        # set_offroad_alert("Offroad_ConnectivityNeeded", True)
+      # elif dt_uptime_onroad > HOURS_NO_CONNECTIVITY_PROMPT and dt_route_count > ROUTES_NO_CONNECTIVITY_PROMPT:
+        # remaining = max(HOURS_NO_CONNECTIVITY_MAX - dt_uptime_onroad, 1)
+        # set_offroad_alert("Offroad_ConnectivityNeededPrompt", True, extra_text=f"{remaining} hour{'' if remaining == 1 else 's'}.")
 
   def check_for_update(self) -> None:
     cloudlog.info("checking for updates")

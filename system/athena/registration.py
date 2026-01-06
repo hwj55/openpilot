@@ -56,6 +56,7 @@ def register(show_spinner=False) -> str | None:
     start_time = time.monotonic()
     imei1='865420071781912'
     imei2='865420071781904'
+    skip_imei_count = 0
     while imei1 is None and imei2 is None:
       try:
         imei1, imei2 = HARDWARE.get_imei(0), HARDWARE.get_imei(1)
