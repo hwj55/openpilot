@@ -1,17 +1,50 @@
 # -*- coding: utf-8 -*-
 """
-Dragonpilot 模型选择器 (适配 Sunnypilot JSON v10)
-针对 Comma 3/3X 设备优化
-
+Dragonpilot 模型选择器
+注意：替换模型后有可能因版本问题无法正常使用（如无法显示车道线等），请恢复默认模型或下载与默认模型日期相近模型
 功能:
-1. 解析 SP 格式 JSON (支持 supercombo 和 policy/vision 分离架构)。
-2. 下载并以【原文件名】存入 /data/media/0/models/。
-3. 安装时将文件【重命名】为 DP 标准名称 (driving_policy.pkl 等)。
+1. 从 sunnypilot 仓库获取最新模型列表
+2. 下载模型文件到 /data/media/0/models/ 目录
+3. 安装时将文件重命名为 DP 标准名称 (driving_policy_tinygrad.pkl 等)
+4. 第一次更换模型时自动备份原模型到 /data/media/0/models/ 目录（保持与sunnypilot兼容）
+5. 支持查看、切换已下载的模型
+6. 支持删除已下载的模型（保留默认模型）
+7. 支持恢复默认模型
+
+使用方法:
+1. 直接运行脚本: python3 model_selector.py
+2. 选择功能:
+   - 1: 下载并安装最新模型
+   - 2: 查看并切换已下载的模型（输入'r'可恢复默认模型）
+   - 3: 删除已下载的模型
+   - q: 退出
+3. 下载模型时:
+   - 可以搜索模型名称
+   - 可以直接输入序号下载
+   - 下载完成后可选择立即安装
+4. 切换模型时:
+   - 输入模型序号切换
+   - 输入'r'恢复默认模型
+5. 任何情况下按q返回上一级
+
+特性说明:
+- 第一次更换模型时，会自动备份原模型到 /data/media/0/models/ 目录
+- 下载模型时，会自动下载对应的 ONNX 模型，并命名为 driving_policy_{modelname}.onnx 格式
+- 更换模型时，会同时更换 ONNX 文件
+- 删除模型时，不会删除备份的默认模型文件
+- 恢复默认模型时，会恢复所有备份的模型文件（包括 metadata 和 ONNX 文件）
+- 支持在没有网络的情况下使用本地缓存的模型列表
+
+注意事项:
+- 确保 /data/media/0/models/ 目录有读写权限
+- 下载模型可能需要较长时间，取决于网络速度
+- 安装模型后需要重启 Dragonpilot 才能生效
+- 模型文件较大，请确保有足够的存储空间
 """
 import os
 import sys
 import json
-import requests
+import urllib.request
 import shutil
 import re
 import time
@@ -47,13 +80,32 @@ class ModelSelector:
 
         # 检查并创建模型仓库目录，处理权限错误
         global LIBRARY_DIR, GLOBAL_INFO_FILE, LOCAL_MODEL_LIST_FILE
+
+        # 尝试使用 /data/media/0/models 目录
+        data_models_dir = "/data/media/0/models"
         try:
-            if not os.path.exists(LIBRARY_DIR):
-                os.makedirs(LIBRARY_DIR, exist_ok=True)
+            if not os.path.exists(data_models_dir):
+                os.makedirs(data_models_dir, exist_ok=True)
+            # 测试写入权限
+            test_file = os.path.join(data_models_dir, ".test_write")
+            with open(test_file, 'w') as f:
+                f.write("test")
+            os.remove(test_file)
+            # 如果成功，使用 /data/media/0/models 目录
+            LIBRARY_DIR = data_models_dir
+            logger.info(f"📁 使用模型目录: {LIBRARY_DIR}")
         except PermissionError:
-            # 如果没有权限创建 /data/media/0/models，使用本地目录
+            # 检查是否使用 sudo 运行
+            if os.geteuid() != 0:
+                logger.warning(f"⚠️  没有权限访问 {data_models_dir}，请使用 sudo 运行脚本")
+            # 使用本地目录作为备选
             LIBRARY_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
-            logger.warning(f"⚠️  没有权限创建 /data/media/0/models，将使用本地目录: {LIBRARY_DIR}")
+            logger.warning(f"⚠️  将使用本地目录: {LIBRARY_DIR}")
+            os.makedirs(LIBRARY_DIR, exist_ok=True)
+        except Exception as e:
+            # 其他错误，使用本地目录
+            logger.warning(f"⚠️  无法访问 {data_models_dir}: {e}，将使用本地目录")
+            LIBRARY_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
             os.makedirs(LIBRARY_DIR, exist_ok=True)
 
         # 更新全局路径
@@ -62,9 +114,19 @@ class ModelSelector:
 
     def get_with_retry(self, url):
         try:
-            r = requests.get(url, timeout=15)
-            r.raise_for_status()
-            return r
+            req = urllib.request.Request(url)
+            with urllib.request.urlopen(req, timeout=15) as response:
+                # 模拟requests.Response对象
+                class MockResponse:
+                    def __init__(self, response):
+                        self.text = response.read().decode('utf-8')
+                        self.status_code = response.status
+                    def raise_for_status(self):
+                        pass
+                    def json(self):
+                        import json
+                        return json.loads(self.text)
+                return MockResponse(response)
         except: return None
 
     def fetch_model_list(self):
@@ -202,12 +264,14 @@ class ModelSelector:
 
     def download_file(self, url, local_path):
         try:
-            with requests.get(url, stream=True, timeout=30) as r:
-                r.raise_for_status()
-                total = int(r.headers.get('content-length', 0))
+            with urllib.request.urlopen(url, timeout=30) as response:
+                total = int(response.headers.get('Content-Length', 0))
                 with open(local_path, 'wb') as f:
                     dl = 0
-                    for chunk in r.iter_content(chunk_size=8192):
+                    while True:
+                        chunk = response.read(8192)
+                        if not chunk:
+                            break
                         dl += len(chunk)
                         f.write(chunk)
                         if total:
@@ -227,8 +291,13 @@ class ModelSelector:
         """
         # 建立映射关系： DP需要的类型 -> 实际下载的文件名
         file_mapping = {}
+        model_name = model_info.get('short_name', 'unknown')
 
         models = model_info.get('models', [])
+        # 存储下载的模型类型，用于后续下载对应的onnx文件
+        downloaded_types = set()
+
+        # 1. 首先下载所有模型文件（pkl等）
         for m in models:
             m_type = m['type'] # policy, vision, supercombo
             artifact = m['artifact']
@@ -238,6 +307,7 @@ class ModelSelector:
             # 下载主文件，直接按原名称保存到模型根目录
             if self.download_file(url, os.path.join(LIBRARY_DIR, original_fname)):
                 file_mapping[m_type] = original_fname
+                downloaded_types.add(m_type)
 
             # 下载 Metadata (如果有)
             if 'metadata' in m:
@@ -247,6 +317,72 @@ class ModelSelector:
                 # 直接按原名称保存到模型根目录
                 if self.download_file(meta_url, os.path.join(LIBRARY_DIR, meta_fname)):
                     file_mapping[f"{m_type}_metadata"] = meta_fname
+
+            # 处理 onnx 文件下载
+            # 1. 首先检查当前模型的 artifact 是否是 onnx 文件
+            if original_fname.endswith('.onnx'):
+                # 如果主文件就是 onnx，按规则重命名
+                if m_type == 'policy':
+                    renamed_fname = f"driving_policy_{model_name}.onnx"
+                elif m_type == 'vision':
+                    renamed_fname = f"driving_vision_{model_name}.onnx"
+                elif m_type == 'supercombo':
+                    renamed_fname = f"supercombo_{model_name}.onnx"
+                else:
+                    renamed_fname = f"{m_type}_{model_name}.onnx"
+
+                # 如果已经下载了，重命名
+                src = os.path.join(LIBRARY_DIR, original_fname)
+                dst = os.path.join(LIBRARY_DIR, renamed_fname)
+                if os.path.exists(src):
+                    os.rename(src, dst)
+                    file_mapping[m_type] = renamed_fname
+                    logger.info(f"   🔄 重命名: {original_fname} -> {renamed_fname}")
+            # 2. 检查是否有 additional_files 中的 onnx 文件
+            elif 'additional_files' in m:
+                for add_file in m['additional_files']:
+                    if add_file.get('file_name', '').endswith('.onnx') or add_file.get('download_uri', {}).get('url', '').endswith('.onnx'):
+                        onnx_url = add_file['download_uri']['url']
+                        onnx_fname = add_file.get('file_name', os.path.basename(onnx_url))
+
+                        # 根据 m_type 重命名 onnx 文件
+                        if m_type == 'policy':
+                            renamed_fname = f"driving_policy_{model_name}.onnx"
+                        elif m_type == 'vision':
+                            renamed_fname = f"driving_vision_{model_name}.onnx"
+                        elif m_type == 'supercombo':
+                            renamed_fname = f"supercombo_{model_name}.onnx"
+                        else:
+                            renamed_fname = f"{m_type}_{model_name}.onnx"
+
+                        # 下载并重命名
+                        if self.download_file(onnx_url, os.path.join(LIBRARY_DIR, renamed_fname)):
+                            file_mapping[f"{m_type}_onnx"] = renamed_fname
+                            logger.info(f"   📄 下载: {onnx_fname} -> {renamed_fname}")
+
+        # 3. 自动下载对应的onnx文件（根据pkl文件的URL构建onnx文件的URL）
+        logger.info("   📥 尝试自动下载对应的ONNX模型...")
+        for m in models:
+            m_type = m['type']
+            if m_type in ['policy', 'vision']:
+                artifact = m['artifact']
+                pkl_url = artifact['download_uri']['url']
+
+                # 构建onnx文件的URL
+                # 例如：pkl_url = https://gitlab.com/.../driving_policy_wmiv9_tinygrad.pkl
+                # onnx_url = https://gitlab.com/.../driving_policy.onnx
+                onnx_url = pkl_url.rsplit('/', 1)[0] + f"/driving_{m_type}.onnx"
+
+                # 构建重命名后的onnx文件名
+                renamed_onnx_fname = f"driving_{m_type}_{model_name}.onnx"
+                onnx_path = os.path.join(LIBRARY_DIR, renamed_onnx_fname)
+
+                # 下载onnx文件
+                if self.download_file(onnx_url, onnx_path):
+                    # 添加到file_mapping
+                    if f"{m_type}_onnx" not in file_mapping:
+                        file_mapping[f"{m_type}_onnx"] = renamed_onnx_fname
+                    logger.info(f"   📄 自动下载: driving_{m_type}.onnx -> {renamed_onnx_fname}")
 
         # 读取当前全局info.json
         global_info = {
@@ -365,21 +501,130 @@ class ModelSelector:
             "supercombo_metadata": "supercombo_metadata.pkl"
         }
 
-        # 5. 清理环境 (Reset git 防止校验失败)
+        # 5. 只有当默认模型文件不存在时，才备份原模型到 data 目录
+        data_dir = "/data/media/0/models"
+        # 检查默认模型文件是否已经存在
+        default_files_exist = False
+        for default_file in [
+            "driving_policy_default.pkl",
+            "driving_vision_default.pkl",
+            "driving_policy_metadata_default.pkl",
+            "driving_vision_metadata_default.pkl",
+            "driving_policy_default.onnx",
+            "driving_vision_default.onnx"
+        ]:
+            if os.path.exists(os.path.join(data_dir, default_file)):
+                default_files_exist = True
+                break
+
+        # 只有当没有current_model且默认模型文件不存在时，才执行备份
+        if not global_info.get('current_model') and not default_files_exist:
+            logger.info("📦 第一次更换模型，备份原模型到 data 目录")
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir, exist_ok=True)
+
+            # 备份模型文件 - 包括主模型、metadata 和 onnx 文件
+            for f in os.listdir(INSTALL_DIR):
+                if f == "driving_policy_tinygrad.pkl":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_policy_default.pkl")
+                    if os.path.exists(src):
+                        # 使用copy2，自动处理权限
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+                elif f == "driving_vision_tinygrad.pkl":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_vision_default.pkl")
+                    if os.path.exists(src):
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+                # 备份 metadata 文件
+                elif f == "driving_policy_metadata.pkl":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_policy_metadata_default.pkl")
+                    if os.path.exists(src):
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+                elif f == "driving_vision_metadata.pkl":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_vision_metadata_default.pkl")
+                    if os.path.exists(src):
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+                # 备份 onnx 文件 - 只备份标准 onnx 文件
+                elif f == "driving_policy.onnx":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_policy_default.onnx")
+                    if os.path.exists(src):
+                        # 强制替换，先删除目标文件
+                        if os.path.exists(dst):
+                            os.remove(dst)
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+                elif f == "driving_vision.onnx":
+                    src = os.path.join(INSTALL_DIR, f)
+                    dst = os.path.join(data_dir, "driving_vision_default.onnx")
+                    if os.path.exists(src):
+                        # 强制替换，先删除目标文件
+                        if os.path.exists(dst):
+                            os.remove(dst)
+                        shutil.copy2(src, dst)
+                        logger.info(f"   📄 备份: {f} -> {os.path.basename(dst)}")
+
+        # 6. 清理环境 (Reset git 防止校验失败)
         subprocess.run(f'git reset HEAD "{INSTALL_DIR}/*"', shell=True, stderr=subprocess.DEVNULL)
-        # 删除旧文件，但保留 ONNX 文件
+        # 删除旧文件，包括 pkl、thneed 和 onnx 文件
         for f in os.listdir(INSTALL_DIR):
-            if f.startswith(("driving_", "supercombo")) and f.endswith((".pkl", ".thneed")):
+            if f.startswith(("driving_", "supercombo")) and f.endswith((".pkl", ".thneed", ".onnx")):
                 try: os.remove(os.path.join(INSTALL_DIR, f))
                 except: pass
 
-        # 6. 复制并重命名
+        # 7. 复制并重命名
         count = 0
         for m_type, original_fname in file_mapping.items():
-            # 特殊处理：如果 JSON 说它是 supercombo，但后缀是 .onnx，我们要改成 supercombo.onnx
+            # 处理不同类型的文件
             target = target_names.get(m_type)
-            if m_type == "supercombo" and original_fname.endswith(".onnx"):
-                target = "supercombo.onnx"
+
+            # 特殊处理：supercombo 模型
+            if m_type == "supercombo":
+                if original_fname.endswith(".onnx"):
+                    target = "supercombo.onnx"
+                elif original_fname.endswith(".thneed"):
+                    target = "supercombo.thneed"
+            # 处理 policy 模型
+            elif m_type == "policy":
+                if original_fname.endswith(".onnx"):
+                    target = "driving_policy.onnx"
+                elif original_fname.endswith(".pkl"):
+                    target = "driving_policy_tinygrad.pkl"
+            # 处理 vision 模型
+            elif m_type == "vision":
+                if original_fname.endswith(".onnx"):
+                    target = "driving_vision.onnx"
+                elif original_fname.endswith(".pkl"):
+                    target = "driving_vision_tinygrad.pkl"
+            # 处理 metadata 文件
+            elif m_type.endswith("_metadata"):
+                # metadata 文件保持原来的命名逻辑
+                pass
+            # 处理单独的 onnx 文件映射
+            elif m_type.endswith("_onnx"):
+                base_type = m_type[:-5]  # 去掉 _onnx 后缀
+                if base_type == "policy":
+                    target = "driving_policy.onnx"
+                elif base_type == "vision":
+                    target = "driving_vision.onnx"
+                elif base_type == "supercombo":
+                    target = "supercombo.onnx"
+            # 处理主文件是 onnx 的情况（兜底逻辑）
+            elif original_fname.endswith(".onnx"):
+                # 从文件名中提取类型信息
+                if "policy" in original_fname.lower():
+                    target = "driving_policy.onnx"
+                elif "vision" in original_fname.lower():
+                    target = "driving_vision.onnx"
+                elif "supercombo" in original_fname.lower():
+                    target = "supercombo.onnx"
 
             if not target: continue # 未知的类型跳过
 
@@ -394,6 +639,23 @@ class ModelSelector:
                 count += 1
             else:
                 logger.warning(f"   ⚠️ 缺失源文件: {original_fname}")
+
+        # 8. 额外检查：如果模型包含 onnx 文件但未被复制，尝试手动复制
+        if count > 0:
+            # 检查模型目录中是否有对应的 onnx 文件
+            model_name = target_model.get('short_name', 'unknown')
+            for onnx_type in ['policy', 'vision']:
+                # 检查是否存在命名为 driving_{onnx_type}_{model_name}.onnx 的文件
+                expected_onnx = f"driving_{onnx_type}_{model_name}.onnx"
+                expected_onnx_path = os.path.join(LIBRARY_DIR, expected_onnx)
+                target_onnx = f"driving_{onnx_type}.onnx"
+                target_onnx_path = os.path.join(INSTALL_DIR, target_onnx)
+
+                if os.path.exists(expected_onnx_path) and not os.path.exists(target_onnx_path):
+                    shutil.copy2(expected_onnx_path, target_onnx_path)
+                    subprocess.run(['git', 'add', '-f', target_onnx_path], stderr=subprocess.DEVNULL)
+                    logger.info(f"   📄 {expected_onnx} -> {target_onnx}")
+                    count += 1
 
         # 7. 更新当前模型信息
         global_info['current_model'] = target_model.get('short_name')
@@ -421,9 +683,23 @@ class ModelSelector:
         model_name = model.get('name')
         file_mapping = model.get('files', {})
 
-        # 删除文件系统中的模型文件
+        # 删除文件系统中的模型文件，但保留默认模型文件
         deleted_files = 0
+        # 定义需要保留的默认模型文件名
+        default_files = {
+            "driving_policy_default.pkl",
+            "driving_vision_default.pkl",
+            "driving_policy_metadata_default.pkl",
+            "driving_vision_metadata_default.pkl",
+            "driving_policy_default.onnx",
+            "driving_vision_default.onnx"
+        }
+
         for filename in file_mapping.values():
+            # 跳过默认模型文件
+            if filename in default_files:
+                continue
+
             file_path = os.path.join(LIBRARY_DIR, filename)
             if os.path.exists(file_path):
                 try:
@@ -456,17 +732,31 @@ class ModelSelector:
 
     def delete_all_models(self, global_info):
         """
-        删除所有模型
+        删除所有模型，但保留默认模型文件
         """
         downloaded_models = global_info.get('downloaded_models', [])
         total_files = 0
         deleted_files = 0
 
-        # 删除所有模型文件
+        # 定义需要保留的默认模型文件名
+        default_files = {
+            "driving_policy_default.pkl",
+            "driving_vision_default.pkl",
+            "driving_policy_metadata_default.pkl",
+            "driving_vision_metadata_default.pkl",
+            "driving_policy_default.onnx",
+            "driving_vision_default.onnx"
+        }
+
+        # 删除所有模型文件，但保留默认模型文件
         for model in downloaded_models:
             file_mapping = model.get('files', {})
             total_files += len(file_mapping)
             for filename in file_mapping.values():
+                # 跳过默认模型文件
+                if filename in default_files:
+                    continue
+
                 file_path = os.path.join(LIBRARY_DIR, filename)
                 if os.path.exists(file_path):
                     try:
@@ -476,7 +766,7 @@ class ModelSelector:
                     except Exception as e:
                         logger.warning(f"   ⚠️ 无法删除文件 {filename}: {e}")
 
-        # 清空 info.json
+        # 清空 info.json 中的模型列表
         global_info['downloaded_models'] = []
         global_info['current_model'] = None
         global_info['current_files'] = {}
@@ -488,6 +778,7 @@ class ModelSelector:
                 json.dump(global_info, f, indent=2)
             logger.info(f"✅ 成功删除所有 {len(downloaded_models)} 个模型")
             logger.info(f"   总共 {total_files} 个文件，成功删除 {deleted_files} 个")
+            logger.info(f"   已保留默认模型文件")
         except Exception as e:
             logger.error(f"❌ 无法保存 info.json: {e}")
 
@@ -642,9 +933,6 @@ class ModelSelector:
                     continue
 
                 downloaded_models = global_info.get('downloaded_models', [])
-                if not downloaded_models:
-                    logger.error("❌ 还没有下载任何模型")
-                    continue
 
                 print("\n📋 已下载的模型:")
                 current_model_id = global_info.get('current_model')
@@ -655,8 +943,59 @@ class ModelSelector:
                     is_current = " * " if model_id == current_model_id else "   "
                     print(f"{is_current}{i}. {model_name} ({model_id})")
 
-                idx = input("👉 输入序号切换模型: ").strip()
-                if idx.isdigit():
+                # 添加恢复默认模型选项
+                print("  r. 恢复默认模型")
+
+                idx = input("👉 输入序号切换模型或输入'r'恢复默认模型: ").strip().lower()
+                if idx == 'r':
+                    # 恢复默认模型
+                    logger.info("🚀 正在恢复默认模型")
+                    data_dir = "/data/media/0/models"
+
+                    # 清理环境
+                    subprocess.run(f'git reset HEAD "{INSTALL_DIR}/*"', shell=True, stderr=subprocess.DEVNULL)
+                    for f in os.listdir(INSTALL_DIR):
+                        if f.startswith(("driving_", "supercombo")) and f.endswith((".pkl", ".thneed", ".onnx")):
+                            try: os.remove(os.path.join(INSTALL_DIR, f))
+                            except: pass
+
+                    # 复制默认模型文件
+                    count = 0
+                    # 复制模型文件 - 包括主模型、metadata 和 onnx 文件
+                    for src_fname, dst_fname in [
+                        ("driving_policy_default.pkl", "driving_policy_tinygrad.pkl"),
+                        ("driving_vision_default.pkl", "driving_vision_tinygrad.pkl"),
+                        ("driving_policy_metadata_default.pkl", "driving_policy_metadata.pkl"),
+                        ("driving_vision_metadata_default.pkl", "driving_vision_metadata.pkl"),
+                        ("driving_policy_default.onnx", "driving_policy.onnx"),
+                        ("driving_vision_default.onnx", "driving_vision.onnx")
+                    ]:
+                        src = os.path.join(data_dir, src_fname)
+                        dst = os.path.join(INSTALL_DIR, dst_fname)
+                        if os.path.exists(src):
+                            shutil.copy2(src, dst)
+                            subprocess.run(['git', 'add', '-f', dst], stderr=subprocess.DEVNULL)
+                            logger.info(f"   📄 {src_fname} -> {dst_fname}")
+                            count += 1
+                        else:
+                            logger.warning(f"   ⚠️ 缺失默认文件: {src_fname}")
+
+                    # 更新全局 info.json
+                    global_info['current_model'] = None
+                    global_info['current_files'] = {}
+                    global_info['last_updated'] = datetime.now().isoformat()
+
+                    try:
+                        with open(GLOBAL_INFO_FILE, 'w') as f:
+                            json.dump(global_info, f, indent=2)
+                    except Exception as e:
+                        logger.error(f"❌ 无法保存 info.json: {e}")
+
+                    if count > 0:
+                        logger.info("✅ 默认模型恢复成功！请重启 Dragonpilot (tmux kill-server)。")
+                    else:
+                        logger.error("❌ 默认模型恢复失败，未找到默认模型文件。")
+                elif idx.isdigit():
                     idx = int(idx)
                     if 0 <= idx < len(downloaded_models):
                         selected_model = downloaded_models[idx]
