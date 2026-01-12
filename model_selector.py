@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Dragonpilot 模型选择器
-注意：替换模型后有可能因版本问题无法正常使用（如无法显示车道线等），请恢复默认模型或下载与默认模型日期相近模型
+注意：替换模型后必须清除scons cache；请执行scons -c ;并sudo reboot重启重新编译
 功能:
 1. 从 sunnypilot 仓库获取最新模型列表
 2. 下载模型文件到 /data/media/0/models/ 目录
@@ -38,7 +38,7 @@ Dragonpilot 模型选择器
 注意事项:
 - 确保 /data/media/0/models/ 目录有读写权限
 - 下载模型可能需要较长时间，取决于网络速度
-- 安装模型后需要重启 Dragonpilot 才能生效
+- 安装模型后需要执行scons -c 清除缓存并重启 Dragonpilot 才能生效
 - 模型文件较大，请确保有足够的存储空间
 """
 import os
@@ -665,7 +665,7 @@ class ModelSelector:
             json.dump(global_info, f, indent=2)
 
         if count > 0:
-            logger.info("✅ 安装成功！请重启 Dragonpilot (tmux kill-server)。")
+            logger.info("✅ 安装成功！请执行scons -c 并 Dragonpilot (sudo reboot)。")
         else:
             logger.error("❌ 安装失败，未复制任何文件。")
 
@@ -992,7 +992,7 @@ class ModelSelector:
                         logger.error(f"❌ 无法保存 info.json: {e}")
 
                     if count > 0:
-                        logger.info("✅ 默认模型恢复成功！请重启 Dragonpilot (tmux kill-server)。")
+                        logger.info("✅ 默认模型恢复成功！请执行scons -c 并 Dragonpilot (sudo reboot)。")
                     else:
                         logger.error("❌ 默认模型恢复失败，未找到默认模型文件。")
                 elif idx.isdigit():
