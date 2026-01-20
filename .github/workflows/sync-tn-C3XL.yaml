@@ -1,5 +1,5 @@
 # 文件名: .github/workflows/sync-tn-c3-newest.yaml
-name: Sync sunnypilot tn to tn-C3-newest
+name: Sync sunnypilot tn to tn-C3XL-newest
 
 on:
   schedule:
@@ -24,8 +24,8 @@ jobs:
           echo "Latest sunnypilot tn SHA: $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
-          # 从你的仓库的 tn-C3-history 分支读取记录
-          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-C3-history/.last_sync_sha" || echo "none")
+          # 从你的仓库的 tn-C3XL-history 分支读取记录
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-C3XL-history/.last_sync_sha" || echo "none")
           echo "Last recorded SHA: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
@@ -70,8 +70,8 @@ jobs:
           
           echo "Performing cherry-pick range..."
           # 包含 2a640b 到 66786b
-          git cherry-pick 2a640b46e93a4cbdf42c93f7f17b3d7cd4eb857f^..66786bdab22824cac34d7bd56002e537cfbd34ab -X theirs
-          git cherry-pick 8876b9d1934d1a9eab7d9885ba6aecf149ed0d30^..0be2eca8830b00cf2e35880b669c5d120ba708eb -X theirs
+          git cherry-pick 3c1c37f550c0db5658adce65ef51281a0d4a521d^..d8b8e6ec499fed50278dbdd04a834fb72a3e5b01 -X theirs
+
           
       # 5. 推送到你的 tn-C3-newest 分支
       - name: Force push to tn-C3-newest
@@ -80,20 +80,20 @@ jobs:
           git lfs uninstall
           echo "Force pushing to tn-C3-newest..."
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
-            HEAD:refs/heads/tn-tici --force --no-thin
+            HEAD:refs/heads/tn --force --no-thin
 
-      # 6. 更新同步记录到 tn-C3-history
-      - name: Update sync record on 'tn-C3-history' branch
+      # 6. 更新同步记录到 tn-C3XL-history
+      - name: Update sync record on 'tn-C3XL-history' branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           git lfs uninstall
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
-          if git ls-remote --exit-code --heads "$ORIGIN_URL" tn-C3-history; then
-            git fetch "$ORIGIN_URL" tn-C3-history
-            git checkout -B tn-C3-history FETCH_HEAD
+          if git ls-remote --exit-code --heads "$ORIGIN_URL" tn-C3XL-history; then
+            git fetch "$ORIGIN_URL" tn-C3XL-history
+            git checkout -B tn-C3XL-history FETCH_HEAD
           else
-            git checkout --orphan tn-C3-history
+            git checkout --orphan tn-C3XL-history
             git rm -rf .
           fi
           
@@ -102,4 +102,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git commit -m "chore(sync): update tn-C3 sync record to ${{ steps.get_shas.outputs.remote_sha }}"
-          git push "$ORIGIN_URL" tn-C3-history --force
+          git push "$ORIGIN_URL" tn-C3XL-history --force
