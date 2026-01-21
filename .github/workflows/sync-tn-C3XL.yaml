@@ -6,40 +6,32 @@ on:
     - cron: '30 4 * * *'
   workflow_dispatch:
 
-# 定义环境变量，方便后续分支复用
 env:
   UPSTREAM_REPO: "sunnypilot/sunnypilot"
   UPSTREAM_BRANCH: "tn"
   MY_REPO: "${{ github.repository }}"
-  TARGET_BRANCH: "tn"               # 你要推送到自己仓库的目标分支
-  MOD_SOURCE_BRANCH: "tn-3xl"      # 包含你修改的分支
-  HISTORY_BRANCH: "sync-history"    # 统一的记录分支名
-  HISTORY_FILE: ".last_sync_sha_tn_c3" # 针对当前同步任务的记录文件名
+  TARGET_BRANCH: "tn"
+  MOD_SOURCE_BRANCH: "tn-3xl"
+  HISTORY_BRANCH: "sync-history"
+  HISTORY_FILE: ".last_sync_sha_tn_c3"
 
 jobs:
   sync-job:
     runs-on: ubuntu-latest
     env:
-      GIT_LFS_SKIP_SMUDGE: 1
+      GIT_LFS_SKIP_SMUDGE: 1 # 全局禁用 LFS 内容下载
     permissions:
       contents: write
 
     steps:
-      # 1. 检查 upstream 的最新 SHA
       - name: Check for updates from upstream
         id: get_shas
         run: |
           REMOTE_SHA=$(git ls-remote https://github.com/${{ env.UPSTREAM_REPO }}.git ${{ env.UPSTREAM_BRANCH }} | awk '{print $1}')
-          echo "Latest upstream SHA: $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
-
-          # 从统一的 sync-history 分支读取对应的记录文件
-          # 如果文件不存在，则返回 none
           LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/${{ env.HISTORY_BRANCH }}/${{ env.HISTORY_FILE }}" || echo "none")
-          echo "Last recorded SHA: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
-      # 2. 判断是否需要继续
       - name: Decide whether to continue
         id: decision
         run: |
@@ -49,7 +41,6 @@ jobs:
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
-      # 3. 检出 Upstream 源码
       - name: Checkout upstream
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
@@ -57,16 +48,18 @@ jobs:
           repository: ${{ env.UPSTREAM_REPO }}
           ref: ${{ env.UPSTREAM_BRANCH }}
           fetch-depth: 0
-          lfs: false
+          lfs: false # 明确关闭 LFS
 
-      # 4. 执行 Cherry-pick 逻辑
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
         run: |
-          git lfs uninstall || true
+          # 1. 彻底禁用 LFS 钩子，防止其在 git 操作时介入
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
           git config --global filter.lfs.required false
+          git lfs uninstall --local || true
+          git lfs uninstall --system || true
+
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
@@ -74,8 +67,6 @@ jobs:
           git fetch mod_source --no-tags
           
           echo "Performing robust cherry-pick loop..."
-          # 自动获取 mod_source 分支相对于官方分支多出的提交
-          # 如果你依然想用固定 Hash，可以将这里换成具体的范围
           COMMITS=$(git rev-list --reverse ${{ env.UPSTREAM_BRANCH }}..mod_source/${{ env.MOD_SOURCE_BRANCH }})
           
           for commit in $COMMITS; do
@@ -91,39 +82,31 @@ jobs:
             }
           done
 
-      # 5. 推送到目标分支
       - name: Force push to target branch
         if: steps.decision.outputs.continue == 'true'
         run: |
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
+          # 关键点：在推送时设置 lfs.hooksonly=false 彻底绕过 LFS 的 SSH 验证
+          echo "Force pushing to target branch..."
+          git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin
 
-      # 6. 更新同步记录到统一的 history 分支 (核心改进)
       - name: Update record in shared history branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
-          
-          # 建立一个干净的临时目录来处理 history 分支，防止污染当前源码
-          mkdir history_repo
-          cd history_repo
+          mkdir history_repo && cd history_repo
           git init
           git remote add origin "$ORIGIN_URL"
-          
-          # 尝试拉取 history 分支
           if git fetch origin ${{ env.HISTORY_BRANCH }}; then
             git checkout ${{ env.HISTORY_BRANCH }}
           else
-            # 如果分支不存在，创建一个孤立分支（无历史）
             git checkout --orphan ${{ env.HISTORY_BRANCH }}
             git rm -rf .
           fi
-          
-          # 更新特定的记录文件，不影响其他文件
           echo "${{ steps.get_shas.outputs.remote_sha }}" > ${{ env.HISTORY_FILE }}
-          
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add ${{ env.HISTORY_FILE }}
           git commit -m "chore: sync record for ${{ env.TARGET_BRANCH }} to ${{ steps.get_shas.outputs.remote_sha }}"
-          git push origin ${{ env.HISTORY_BRANCH }}
+          # 记录分支推送同样禁用 LFS 钩子
+          git -c lfs.hooksonly=false push origin ${{ env.HISTORY_BRANCH }}
