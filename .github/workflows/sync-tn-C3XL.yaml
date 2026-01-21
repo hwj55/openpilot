@@ -84,14 +84,18 @@ jobs:
 
       - name: Force push to target branch
         if: steps.decision.outputs.continue == 'true'
+        env:
+          GIT_LFS_SKIP_PUSH: 1 # 核心：强制 Git LFS 跳过上传/验证 LFS 对象
         run: |
           # 关键点：在推送时设置 lfs.hooksonly=false 彻底绕过 LFS 的 SSH 验证
           echo "Force pushing to target branch..."
           git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
-            HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin
+            HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin --no-verify
 
       - name: Update record in shared history branch
         if: steps.decision.outputs.continue == 'true'
+        env:
+          GIT_LFS_SKIP_PUSH: 1 # 同样跳过推送验证
         run: |
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           mkdir history_repo && cd history_repo
@@ -109,4 +113,4 @@ jobs:
           git add ${{ env.HISTORY_FILE }}
           git commit -m "chore: sync record for ${{ env.TARGET_BRANCH }} to ${{ steps.get_shas.outputs.remote_sha }}"
           # 记录分支推送同样禁用 LFS 钩子
-          git -c lfs.hooksonly=false push origin ${{ env.HISTORY_BRANCH }}
+          git -c lfs.hooksonly=false push origin ${{ env.HISTORY_BRANCH }} --no-verify
