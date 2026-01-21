@@ -95,22 +95,37 @@ jobs:
       - name: Update record in shared history branch
         if: steps.decision.outputs.continue == 'true'
         env:
-          GIT_LFS_SKIP_PUSH: 1 # 同样跳过推送验证
+          GIT_LFS_SKIP_PUSH: 1
         run: |
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
-          mkdir history_repo && cd history_repo
+          
+          # 创建临时目录
+          mkdir history_temp && cd history_temp
           git init
           git remote add origin "$ORIGIN_URL"
-          if git fetch origin ${{ env.HISTORY_BRANCH }}; then
+          
+          # 检查远程是否存在 history 分支
+          if git ls-remote --exit-code --heads origin ${{ env.HISTORY_BRANCH }}; then
+            echo "Branch ${{ env.HISTORY_BRANCH }} exists. Fetching..."
+            git fetch origin ${{ env.HISTORY_BRANCH }}
             git checkout ${{ env.HISTORY_BRANCH }}
           else
+            echo "Branch ${{ env.HISTORY_BRANCH }} does not exist. Creating orphan..."
             git checkout --orphan ${{ env.HISTORY_BRANCH }}
-            git rm -rf .
+            # 只有当目录不为空时才运行 rm
+            [ "$(ls -A)" ] && git rm -rf . || echo "Directory is already empty."
           fi
+          
+          # 写入新的 SHA 记录文件
           echo "${{ steps.get_shas.outputs.remote_sha }}" > ${{ env.HISTORY_FILE }}
+          
+          # 配置用户并提交
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add ${{ env.HISTORY_FILE }}
-          git commit -m "chore: sync record for ${{ env.TARGET_BRANCH }} to ${{ steps.get_shas.outputs.remote_sha }}"
-          # 记录分支推送同样禁用 LFS 钩子
-          git -c lfs.hooksonly=false push origin ${{ env.HISTORY_BRANCH }} --no-verify
+          
+          # 只有在有变动时才提交，防止空提交报错
+          git commit -m "chore: update sync record for ${{ env.TARGET_BRANCH }}" || echo "No changes to commit"
+          
+          # 推送（禁用 LFS 验证）
+          git push origin ${{ env.HISTORY_BRANCH }} --no-verify
