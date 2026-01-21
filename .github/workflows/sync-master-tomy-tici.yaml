@@ -2,8 +2,8 @@
 name: Sync sunnypilot master to master-tici
 
 on:
-  schedule:
-    - cron: '0 4 * * *' # 每天 UTC 4:00 运行
+  #schedule:
+  #  - cron: '0 4 * * *' # 每天 UTC 4:00 运行
   workflow_dispatch: # 支持手动触发
 
 jobs:
