@@ -47,7 +47,7 @@ jobs:
         with:
           repository: ${{ env.UPSTREAM_REPO }}
           ref: ${{ env.UPSTREAM_BRANCH }}
-          fetch-depth: 0
+          fetch-depth: 100
           lfs: false # 明确关闭 LFS
 
       - name: Apply modifications via cherry-pick
