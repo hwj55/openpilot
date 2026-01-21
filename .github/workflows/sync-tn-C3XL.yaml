@@ -10,7 +10,7 @@ jobs:
   sync-tn-c3:
     runs-on: ubuntu-latest
     env:
-      GIT_LFS_SKIP_SMUDGE: 1 # 全局禁用 LFS 下载
+      GIT_LFS_SKIP_SMUDGE: 1 
     permissions:
       contents: write
 
@@ -19,12 +19,10 @@ jobs:
       - name: Check for updates from sunnypilot/tn
         id: get_shas
         run: |
-          # 获取 sunnypilot/tn 最新的 commit SHA
           REMOTE_SHA=$(git ls-remote https://github.com/sunnypilot/sunnypilot.git tn | awk '{print $1}')
           echo "Latest sunnypilot tn SHA: $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
-          # 从你的仓库的 tn-C3XL-history 分支读取记录
           LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/tn-C3XL-history/.last_sync_sha" || echo "none")
           echo "Last recorded SHA: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
@@ -41,7 +39,7 @@ jobs:
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
-      # 3. 检出 sunnypilot/tn (获取完整历史)
+      # 3. 检出 sunnypilot/tn
       - name: Checkout sunnypilot/tn
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
@@ -51,12 +49,12 @@ jobs:
           fetch-depth: 0 
           lfs: false
 
-      # 4. 执行 Cherry-pick 你的修改
+      # 4. 执行 Cherry-pick 你的修改 (优化后的鲁棒脚本)
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
         run: |
-          # 禁用 LFS 过滤器防止报错
-          git lfs uninstall
+          # 彻底禁用 LFS 过滤器，避免警告报错
+          git lfs uninstall || true
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
           git config --global filter.lfs.required false
@@ -68,17 +66,29 @@ jobs:
           git remote add mod_source https://github.com/hwj55/openpilot.git
           git fetch mod_source --no-tags
           
-          echo "Performing cherry-pick range..."
-          # 包含 2a640b 到 66786b
-          git cherry-pick 3c1c37f550c0db5658adce65ef51281a0d4a521d^..d8b8e6ec499fed50278dbdd04a834fb72a3e5b01 -X theirs
-
+          echo "Performing robust cherry-pick loop..."
+          # 获取要 cherry-pick 的 commit 列表（按时间顺序从旧到新）
+          COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..d8b8e6ec499fed50278dbdd04a834fb72a3e5b01)
           
-      # 5. 推送到你的 tn-C3-newest 分支
-      - name: Force push to tn-C3-newest
+          for commit in $COMMITS; do
+            echo "Applying commit: $commit"
+            # 使用 -X theirs 自动解决冲突，如果 commit 为空则自动跳过
+            git cherry-pick $commit -X theirs || {
+              if git status | grep -q "nothing to commit, working tree clean"; then
+                echo "Commit $commit is redundant or already applied, skipping..."
+                git cherry-pick --skip
+              else
+                echo "Fatal error: Conflict in $commit could not be resolved automatically."
+                exit 1
+              fi
+            }
+          done
+
+      # 5. 推送到你的 tn 分支
+      - name: Force push to tn
         if: steps.decision.outputs.continue == 'true'
         run: |
-          git lfs uninstall
-          echo "Force pushing to tn-C3-newest..."
+          echo "Force pushing to tn..."
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:refs/heads/tn --force --no-thin
 
@@ -86,7 +96,6 @@ jobs:
       - name: Update sync record on 'tn-C3XL-history' branch
         if: steps.decision.outputs.continue == 'true'
         run: |
-          git lfs uninstall
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
           if git ls-remote --exit-code --heads "$ORIGIN_URL" tn-C3XL-history; then
