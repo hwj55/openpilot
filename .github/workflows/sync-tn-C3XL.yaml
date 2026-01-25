@@ -19,12 +19,12 @@ jobs:
   sync-job:
     runs-on: ubuntu-latest
     env:
-      GIT_LFS_SKIP_SMUDGE: 1 # 全局禁用 LFS 内容下载
+      GIT_LFS_SKIP_SMUDGE: 1
     permissions:
       contents: write
 
     steps:
-      # 1. 检查 upstream 的最新 SHA
+      # 1. 获取最新 SHA
       - name: Check for updates from upstream
         id: get_shas
         run: |
@@ -43,24 +43,21 @@ jobs:
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
-      # 3. 检出 Upstream 源码
+      # 3. 检出 Upstream 源码 (使用部分克隆提速)
       - name: Checkout upstream
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.UPSTREAM_REPO }}
           ref: ${{ env.UPSTREAM_BRANCH }}
-          fetch-depth: 0 # 获取完整历史以确保能找到 cherry-pick 的 commit
+          fetch-depth: 0 
+          filter: blob:none
           lfs: false 
 
-      # 4. 执行 Cherry-pick 逻辑并排除工作流文件修改
+      # 4. 执行 Cherry-pick 并强制锁定工作流目录
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
         run: |
-          # 记录 cherry-pick 开始前的状态 SHA
-          PRE_CHERRY_PICK_SHA=$(git rev-parse HEAD)
-          echo "Base SHA before cherry-pick: $PRE_CHERRY_PICK_SHA"
-
           # 彻底禁用 LFS 钩子
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
@@ -71,39 +68,38 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          git remote add mod_source https://github.com/hwj55/openpilot.git
+          # 添加你的仓库作为 mod_source
+          git remote add mod_source "https://github.com/${{ github.repository }}.git"
           git fetch mod_source --no-tags
           
           echo "Performing fixed range cherry-pick loop..."
-          # 指定你需要的 Commit 范围
+          # --- 你的固定 Commit 范围 ---
           COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..f619f782f8d28457ba3370147a4ded96b4a74255)
           
           for commit in $COMMITS; do
             echo "Applying: $commit"
             if ! git cherry-pick $commit -X theirs; then
               if git status | grep -q "nothing to commit"; then
-                echo "Skipping redundant commit $commit"
                 git cherry-pick --skip
               else
-                echo "Conflict detected on $commit. Attempting auto-resolve..."
                 git add . 
-                if ! git -c core.editor=true cherry-pick --continue; then
-                  echo "Fatal error: Could not resolve conflict on $commit"
-                  git status
-                  exit 1
-                fi
+                git -c core.editor=true cherry-pick --continue || (git status && exit 1)
               fi
             fi
           done
 
-          # --- 核心改进：排除掉工作流文件的修改 ---
-          echo "Reverting any changes to .github/workflows to prevent push rejection..."
-          # 从 cherry-pick 之前的 SHA 中恢复 workflows 目录
-          git checkout $PRE_CHERRY_PICK_SHA -- .github/workflows || true
+          # --- 彻底解决 workflow 权限问题的关键步骤 ---
+          echo "Bypassing workflow permission check..."
+          # 1. 拉取你远程仓库目标分支目前的工作流状态
+          git fetch mod_source ${{ env.TARGET_BRANCH }} --depth=1 || echo "Branch not found"
           
-          # 检查是否有需要提交的“恢复”操作
-          if ! git diff --cached --quiet .github/workflows; then
-            git commit -m "chore: revert workflow changes to comply with token permissions" || echo "No workflow changes to revert"
+          # 2. 强行将本地工作区的 .github/workflows 恢复成远程已有的样子
+          # 如果远程分支还不存在，这一步会跳过
+          if git ls-remote --exit-code --heads mod_source ${{ env.TARGET_BRANCH }}; then
+            echo "Resetting workflows to match remote ${{ env.TARGET_BRANCH }}..."
+            git checkout mod_source/${{ env.TARGET_BRANCH }} -- .github/workflows
+            git add .github/workflows
+            git commit -m "chore: force-revert workflow changes to bypass GitHub permission check" || echo "No workflow changes to revert."
           fi
 
       # 5. 推送到目标分支
@@ -116,18 +112,16 @@ jobs:
           git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin --no-verify
 
-      # 6. 更新同步记录到统一的 history 分支
+      # 6. 更新记录到统一的 history 分支
       - name: Update record in shared history branch
         if: steps.decision.outputs.continue == 'true'
         env:
           GIT_LFS_SKIP_PUSH: 1
         run: |
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
-          
           mkdir history_temp && cd history_temp
           git init
           git remote add origin "$ORIGIN_URL"
-          
           if git ls-remote --exit-code --heads origin ${{ env.HISTORY_BRANCH }}; then
             git fetch origin ${{ env.HISTORY_BRANCH }}
             git checkout ${{ env.HISTORY_BRANCH }}
@@ -135,9 +129,7 @@ jobs:
             git checkout --orphan ${{ env.HISTORY_BRANCH }}
             git rm -rf . || true
           fi
-          
           echo "${{ steps.get_shas.outputs.remote_sha }}" > ${{ env.HISTORY_FILE }}
-          
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add ${{ env.HISTORY_FILE }}
