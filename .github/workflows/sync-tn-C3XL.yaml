@@ -11,7 +11,6 @@ env:
   UPSTREAM_BRANCH: "tn"
   MY_REPO: "${{ github.repository }}"
   TARGET_BRANCH: "tn"
-  MOD_SOURCE_BRANCH: "tn-3xl"
   HISTORY_BRANCH: "sync-history"
   HISTORY_FILE: ".last_sync_sha_tn_c3"
 
@@ -22,6 +21,7 @@ jobs:
       GIT_LFS_SKIP_SMUDGE: 1
     permissions:
       contents: write
+      actions: write # 显式声明权限
 
     steps:
       # 1. 获取最新 SHA
@@ -43,7 +43,7 @@ jobs:
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
-      # 3. 检出 Upstream 源码 (使用部分克隆提速)
+      # 3. 检出 Upstream 源码
       - name: Checkout upstream
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
@@ -54,26 +54,24 @@ jobs:
           filter: blob:none
           lfs: false 
 
-      # 4. 执行 Cherry-pick 并强制锁定工作流目录
-      - name: Apply modifications via cherry-pick
+      # 4. 执行 Cherry-pick 并彻底删除工作流文件
+      - name: Apply modifications and remove workflows
         if: steps.decision.outputs.continue == 'true'
         run: |
-          # 彻底禁用 LFS 钩子
+          # 禁用 LFS 钩子
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
           git config --global filter.lfs.required false
-          git config --global advice.submoduleMergeConflict false
           git lfs uninstall --local || true
 
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 添加你的仓库作为 mod_source
+          # 添加修改源（你的仓库）
           git remote add mod_source "https://github.com/${{ github.repository }}.git"
           git fetch mod_source --no-tags
           
-          echo "Performing fixed range cherry-pick loop..."
-          # --- 你的固定 Commit 范围 ---
+          echo "Performing fixed range cherry-pick..."
           COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..f619f782f8d28457ba3370147a4ded96b4a74255)
           
           for commit in $COMMITS; do
@@ -83,32 +81,25 @@ jobs:
                 git cherry-pick --skip
               else
                 git add . 
-                git -c core.editor=true cherry-pick --continue || (git status && exit 1)
+                git -c core.editor=true cherry-pick --continue || exit 1
               fi
             fi
           done
 
-          # --- 彻底解决 workflow 权限问题的关键步骤 ---
-          echo "Bypassing workflow permission check..."
-          # 1. 拉取你远程仓库目标分支目前的工作流状态
-          git fetch mod_source ${{ env.TARGET_BRANCH }} --depth=1 || echo "Branch not found"
-          
-          # 2. 强行将本地工作区的 .github/workflows 恢复成远程已有的样子
-          # 如果远程分支还不存在，这一步会跳过
-          if git ls-remote --exit-code --heads mod_source ${{ env.TARGET_BRANCH }}; then
-            echo "Resetting workflows to match remote ${{ env.TARGET_BRANCH }}..."
-            git checkout mod_source/${{ env.TARGET_BRANCH }} -- .github/workflows
-            git add .github/workflows
-            git commit -m "chore: force-revert workflow changes to bypass GitHub permission check" || echo "No workflow changes to revert."
-          fi
+          # --- 彻底解决权限问题的操作：删除所有工作流文件 ---
+          echo "Removing .github/workflows to bypass GitHub Action restrictions..."
+          rm -rf .github/workflows
+          git add .github/workflows
+          git commit -m "chore: remove workflows to allow push and clean up" || echo "Workflows already gone"
 
-      # 5. 推送到目标分支
+      # 5. 推送到目标分支 (由于你删除了远程分支，这次推送会直接创建它)
       - name: Force push to target branch
         if: steps.decision.outputs.continue == 'true'
         env:
           GIT_LFS_SKIP_PUSH: 1
         run: |
           echo "Force pushing to target branch..."
+          # 使用 HEAD:refs/heads/tn 确保无论本地叫什么都推送到 tn
           git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin --no-verify
 
@@ -133,5 +124,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add ${{ env.HISTORY_FILE }}
-          git commit -m "chore: update sync record for ${{ env.TARGET_BRANCH }}" || echo "No changes to commit"
+          git commit -m "chore: update sync record for ${{ env.TARGET_BRANCH }}" || echo "No changes"
           git push origin ${{ env.HISTORY_BRANCH }} --no-verify
