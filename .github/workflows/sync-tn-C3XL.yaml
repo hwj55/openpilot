@@ -53,12 +53,12 @@ jobs:
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
         run: |
-          # 1. 彻底禁用 LFS 钩子，防止其在 git 操作时介入
+          # 彻底禁用 LFS 钩子
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
           git config --global filter.lfs.required false
+          git config --global advice.submoduleMergeConflict false # 禁用子模块冲突建议
           git lfs uninstall --local || true
-          git lfs uninstall --system || true
 
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -71,15 +71,25 @@ jobs:
           
           for commit in $COMMITS; do
             echo "Applying: $commit"
-            git cherry-pick $commit -X theirs || {
-              if git status | grep -q "nothing to commit, working tree clean"; then
+            # 尝试 cherry-pick
+            if ! git cherry-pick $commit -X theirs; then
+              # 1. 检查是否是由于空提交（已存在）引起的失败
+              if git status | grep -q "nothing to commit"; then
                 echo "Skipping redundant commit $commit"
                 git cherry-pick --skip
+              # 2. 处理子模块或其它遗留冲突
               else
-                echo "Conflict error on $commit"
-                exit 1
+                echo "Conflict detected on $commit. Attempting auto-resolve (favoring theirs)..."
+                # 强制添加所有冲突文件，这会解决子模块指针冲突
+                git add . 
+                # 继续 cherry-pick。使用 -c core.editor=true 避免进入编辑器
+                if ! git -c core.editor=true cherry-pick --continue; then
+                  echo "Fatal error: Could not resolve conflict on $commit"
+                  git status
+                  exit 1
+                fi
               fi
-            }
+            fi
           done
 
       - name: Force push to target branch
