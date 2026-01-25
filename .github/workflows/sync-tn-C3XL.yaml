@@ -67,7 +67,7 @@ jobs:
           git fetch mod_source --no-tags
           
           echo "Performing robust cherry-pick loop..."
-          COMMITS=$(git rev-list --reverse ${{ env.UPSTREAM_BRANCH }}..mod_source/${{ env.MOD_SOURCE_BRANCH }})
+          COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..f619f782f8d28457ba3370147a4ded96b4a74255)
           
           for commit in $COMMITS; do
             echo "Applying: $commit"
