@@ -24,6 +24,7 @@ jobs:
       contents: write
 
     steps:
+      # 1. 检查 upstream 的最新 SHA
       - name: Check for updates from upstream
         id: get_shas
         run: |
@@ -32,6 +33,7 @@ jobs:
           LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/${{ env.HISTORY_BRANCH }}/${{ env.HISTORY_FILE }}" || echo "none")
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
+      # 2. 判断是否需要继续
       - name: Decide whether to continue
         id: decision
         run: |
@@ -41,23 +43,29 @@ jobs:
             echo "continue=true" >> $GITHUB_OUTPUT
           fi
 
+      # 3. 检出 Upstream 源码
       - name: Checkout upstream
         if: steps.decision.outputs.continue == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.UPSTREAM_REPO }}
           ref: ${{ env.UPSTREAM_BRANCH }}
-          fetch-depth: 100
-          lfs: false # 明确关闭 LFS
+          fetch-depth: 0 # 获取完整历史以确保能找到 cherry-pick 的 commit
+          lfs: false 
 
+      # 4. 执行 Cherry-pick 逻辑并排除工作流文件修改
       - name: Apply modifications via cherry-pick
         if: steps.decision.outputs.continue == 'true'
         run: |
+          # 记录 cherry-pick 开始前的状态 SHA
+          PRE_CHERRY_PICK_SHA=$(git rev-parse HEAD)
+          echo "Base SHA before cherry-pick: $PRE_CHERRY_PICK_SHA"
+
           # 彻底禁用 LFS 钩子
           git config --global filter.lfs.smudge "cat"
           git config --global filter.lfs.clean "cat"
           git config --global filter.lfs.required false
-          git config --global advice.submoduleMergeConflict false # 禁用子模块冲突建议
+          git config --global advice.submoduleMergeConflict false
           git lfs uninstall --local || true
 
           git config --global user.name 'github-actions[bot]'
@@ -66,23 +74,19 @@ jobs:
           git remote add mod_source https://github.com/hwj55/openpilot.git
           git fetch mod_source --no-tags
           
-          echo "Performing robust cherry-pick loop..."
+          echo "Performing fixed range cherry-pick loop..."
+          # 指定你需要的 Commit 范围
           COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..f619f782f8d28457ba3370147a4ded96b4a74255)
           
           for commit in $COMMITS; do
             echo "Applying: $commit"
-            # 尝试 cherry-pick
             if ! git cherry-pick $commit -X theirs; then
-              # 1. 检查是否是由于空提交（已存在）引起的失败
               if git status | grep -q "nothing to commit"; then
                 echo "Skipping redundant commit $commit"
                 git cherry-pick --skip
-              # 2. 处理子模块或其它遗留冲突
               else
-                echo "Conflict detected on $commit. Attempting auto-resolve (favoring theirs)..."
-                # 强制添加所有冲突文件，这会解决子模块指针冲突
+                echo "Conflict detected on $commit. Attempting auto-resolve..."
                 git add . 
-                # 继续 cherry-pick。使用 -c core.editor=true 避免进入编辑器
                 if ! git -c core.editor=true cherry-pick --continue; then
                   echo "Fatal error: Could not resolve conflict on $commit"
                   git status
@@ -92,16 +96,27 @@ jobs:
             fi
           done
 
+          # --- 核心改进：排除掉工作流文件的修改 ---
+          echo "Reverting any changes to .github/workflows to prevent push rejection..."
+          # 从 cherry-pick 之前的 SHA 中恢复 workflows 目录
+          git checkout $PRE_CHERRY_PICK_SHA -- .github/workflows || true
+          
+          # 检查是否有需要提交的“恢复”操作
+          if ! git diff --cached --quiet .github/workflows; then
+            git commit -m "chore: revert workflow changes to comply with token permissions" || echo "No workflow changes to revert"
+          fi
+
+      # 5. 推送到目标分支
       - name: Force push to target branch
         if: steps.decision.outputs.continue == 'true'
         env:
-          GIT_LFS_SKIP_PUSH: 1 # 核心：强制 Git LFS 跳过上传/验证 LFS 对象
+          GIT_LFS_SKIP_PUSH: 1
         run: |
-          # 关键点：在推送时设置 lfs.hooksonly=false 彻底绕过 LFS 的 SSH 验证
           echo "Force pushing to target branch..."
           git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin --no-verify
 
+      # 6. 更新同步记录到统一的 history 分支
       - name: Update record in shared history branch
         if: steps.decision.outputs.continue == 'true'
         env:
@@ -109,33 +124,22 @@ jobs:
         run: |
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
-          # 创建临时目录
           mkdir history_temp && cd history_temp
           git init
           git remote add origin "$ORIGIN_URL"
           
-          # 检查远程是否存在 history 分支
           if git ls-remote --exit-code --heads origin ${{ env.HISTORY_BRANCH }}; then
-            echo "Branch ${{ env.HISTORY_BRANCH }} exists. Fetching..."
             git fetch origin ${{ env.HISTORY_BRANCH }}
             git checkout ${{ env.HISTORY_BRANCH }}
           else
-            echo "Branch ${{ env.HISTORY_BRANCH }} does not exist. Creating orphan..."
             git checkout --orphan ${{ env.HISTORY_BRANCH }}
-            # 只有当目录不为空时才运行 rm
-            [ "$(ls -A)" ] && git rm -rf . || echo "Directory is already empty."
+            git rm -rf . || true
           fi
           
-          # 写入新的 SHA 记录文件
           echo "${{ steps.get_shas.outputs.remote_sha }}" > ${{ env.HISTORY_FILE }}
           
-          # 配置用户并提交
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add ${{ env.HISTORY_FILE }}
-          
-          # 只有在有变动时才提交，防止空提交报错
           git commit -m "chore: update sync record for ${{ env.TARGET_BRANCH }}" || echo "No changes to commit"
-          
-          # 推送（禁用 LFS 验证）
           git push origin ${{ env.HISTORY_BRANCH }} --no-verify
