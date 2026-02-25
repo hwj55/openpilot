@@ -78,12 +78,12 @@ jobs:
           git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
           
           echo "Fetching commits from source..."
-          git fetch cherry_pick_source dp251128 --no-tags
+          git fetch cherry_pick_source dp103-260126 --no-tags
           
           echo "Performing cherry-pick..."
           # 范围：86ce61c... 到 f5db0ae...
           # 使用 -X theirs 策略，冲突时以 cherry-pick 进来的代码为准
-          git cherry-pick 86ce61c58a28c9758c82323ddec854979fa4d9a6^..14ff5e8e60f95af7d69216ceda646c100363f0fc -X theirs
+          git cherry-pick 8ce38587110b849824264f740ea9216ede12a9a7 -X theirs
 
       # 步骤 5: 推送到 dpYYMMDD 格式的新分支
       - name: Push to new dated branch
