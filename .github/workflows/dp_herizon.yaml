@@ -1,0 +1,125 @@
+# 文件名: .github/workflows/sync-dp-and-cherry-pick.yaml
+name: Sync Dragonpilot herizon1054 dp103cn and Cherry-pick Modifications
+
+on:
+  #schedule:
+  #  - cron: '0 2 * * *' # 每天 UTC 时间 2 点 (北京时间上午 10 点) 运行
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync-and-cherry-pick:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 必须赋予写入权限
+
+    steps:
+      # 步骤 1: 检查远程仓库 dragonpilot 的 pre-build 分支是否有更新
+      - name: Check for updates from dragonpilot/pre-build
+        id: get_shas
+        run: |
+          # 1. 获取 dragonpilot/pre-build 最新的 commit SHA
+          # 这里已修正为 'pre-build'
+          REMOTE_SHA=$(git ls-remote https://github.com/herizon1054/openpilot.git dp103cn | awk '{print $1}')
+          echo "Latest remote SHA (dragonpilot/pre-build): $REMOTE_SHA"
+          echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
+
+          # 2. 从你自己的仓库的 dp-pb-history 分支获取上次同步的 SHA
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/dp-pb-history/.last_sync_sha" || echo "none")
+          echo "Last recorded SHA from your repo's dp-pb-history branch: $LOCAL_RECORDED_SHA"
+          echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
+
+      # 步骤 2: 比较 SHA，决定是否继续
+      - name: Decide whether to continue
+        id: decision
+        run: |
+          if [[ "${{ steps.get_shas.outputs.remote_sha }}" == "${{ steps.get_shas.outputs.local_recorded_sha }}" ]]; then
+            echo "Repository is up to date. No sync needed."
+            echo "continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "Remote repository has updates. Starting sync process..."
+            echo "continue=true" >> $GITHUB_OUTPUT
+          fi
+          
+      # ===== 下面的步骤只有在检测到 dragonpilot 有更新时才会运行 =====
+
+      - name: Get current date (YYMMDD)
+        if: steps.decision.outputs.continue == 'true'
+        id: get_date
+        # 修改日期格式：+ '%y%m%d' 会输出 251201 这种格式
+        run: echo "date=$(date +'%y%m%d')" >> $GITHUB_OUTPUT
+        
+      # 步骤 3: 检出 Dragonpilot 的 pre-build 分支
+      - name: Checkout dragonpilot/pre-build
+        if: steps.decision.outputs.continue == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: herizon1054/openpilot
+          ref: dp103cn # 这里已修正为 'pre-build'
+          lfs: false
+          fetch-depth: 1
+          
+      - name: Unshallow pre-build history only
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          # --unshallow 表示把当前的浅克隆变成完整克隆
+          # 指定 origin pre-build 表示只针对这一个分支操作
+          git fetch origin dp103cn --unshallow
+
+      # 步骤 4: 执行 Cherry-pick
+      - name: Apply modifications via cherry-pick
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          echo "Adding remote for cherry-pick source..."
+          # 【注意】这里依然假设你需要 pick 的 commit 在 hwj55/openpilot 这个仓库里
+          # 如果这些 commit 在别的仓库，请修改下面的 URL
+          git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
+          
+          echo "Fetching commits from source..."
+          git fetch cherry_pick_source dp260225 --no-tags
+          
+          echo "Performing cherry-pick..."
+          # 范围：86ce61c... 到 f5db0ae...
+          # 使用 -X theirs 策略，冲突时以 cherry-pick 进来的代码为准
+          git cherry-pick d4d9c1536484494d2bed533c0ac7ab4d7d179e45 -X theirs
+
+      # 步骤 5: 推送到 dpYYMMDD 格式的新分支
+      - name: Push to new dated branch
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          # 拼接分支名：dp + 251201 = dp251201
+          BRANCH_NAME="dp${{ steps.get_date.outputs.date }}"
+          echo "Pushing changes to new branch: $BRANCH_NAME"
+          
+          # 推送
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force
+
+      # 步骤 6: 更新 dp-pb-history 分支上的记录
+      - name: Update sync record on 'dp-pb-history' branch
+        if: steps.decision.outputs.continue == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          if git ls-remote --exit-code --heads "$ORIGIN_URL" dp-pb-history; then
+            echo "Branch 'dp-pb-history' exists. Checking it out."
+            git fetch "$ORIGIN_URL" dp-pb-history
+            git checkout -B dp-pb-history FETCH_HEAD
+          else
+            echo "Branch 'dp-pb-history' does not exist. Creating it as an orphan."
+            git checkout --orphan dp-pb-history
+            git rm -rf .
+          fi
+          
+          echo "Updating .last_sync_sha file..."
+          echo "${{ steps.get_shas.outputs.remote_sha }}" > .last_sync_sha
+          
+          git add .last_sync_sha
+          git commit -m "chore(sync): Update last sync SHA for dragonpilot/pre-build" -m "Based on commit: ${{ steps.get_shas.outputs.remote_sha }}"
+          git push "$ORIGIN_URL" dp-pb-history
+          
+          echo "Sync record updated successfully."
