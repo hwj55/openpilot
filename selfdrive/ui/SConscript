@@ -7,6 +7,10 @@ Import('env', 'arch', 'common')
 # build the fonts
 generator = File("#selfdrive/assets/fonts/process.py")
 source_files = Glob("#selfdrive/assets/fonts/*.ttf") + Glob("#selfdrive/assets/fonts/*.otf")
+
+# --- 新增：將翻譯檔加入字體產生的依賴項目 ---
+po_files = Glob("#selfdrive/ui/translations/*.po")
+
 output_files = [
   (f.abspath.split('.')[0] + ".fnt", f.abspath.split('.')[0] + ".png")
   for f in source_files
@@ -14,7 +18,7 @@ output_files = [
 ]
 env.Command(
   target=output_files,
-  source=[generator, source_files],
+  source=[generator, source_files, po_files], # 這裡加上了 po_files
   action=f"python3 {generator}",
 )
 
@@ -22,8 +26,19 @@ env.Command(
 with open(File("translations/languages.json").abspath) as f:
   languages = json.loads(f.read())
 
-po_sources = [f"#selfdrive/ui/translations/app_{l}.po" for l in languages.values()]
-po_sources = [src for src in po_sources if os.path.exists(File(src).abspath)]
+# --- FIX START: Support dragonpilot & standard translation files ---
+po_sources = []
+for l in languages.values():
+  # 加入標準翻譯檔
+  po_sources.append(f"#selfdrive/ui/translations/app_{l}.po")
+  # 加入 DP 專屬翻譯檔
+  po_sources.append(f"#selfdrive/ui/translations/dragonpilot_{l}.po")
+
+# 過濾掉不存在的檔案 (這會自動踢除不存在的檔案)
+po_sources = [src for src in po_sources 
+if os.path.exists(File(src).abspath)]
+# --- FIX END ---
+
 mo_targets = [src.replace(".po", ".mo") for src in po_sources]
 mo_build = []
 for src, tgt in zip(po_sources, mo_targets):
@@ -45,6 +60,7 @@ if GetOption('extras'):
       raylib_libs += ["GL"]
 
     release = "release3"
+ 
     installers = [
       ("openpilot", release),
       ("openpilot_test", f"{release}-staging"),
@@ -55,11 +71,14 @@ if GetOption('extras'):
     cont = raylib_env.Command("installer/continue_openpilot.o", "installer/continue_openpilot.sh",
                               "ld -r -b binary -o $TARGET $SOURCE")
     inter = raylib_env.Command("installer/inter_ttf.o", "installer/inter-ascii.ttf",
-                               "ld -r -b binary -o $TARGET $SOURCE")
+             
+                  "ld -r -b binary -o $TARGET $SOURCE")
     inter_bold = raylib_env.Command("installer/inter_bold.o", "../assets/fonts/Inter-Bold.ttf",
-                                "ld -r -b binary -o $TARGET $SOURCE")
+                               "ld -r -b binary -o $TARGET $SOURCE")
     inter_light = raylib_env.Command("installer/inter_light.o", "../assets/fonts/Inter-Light.ttf",
-                                "ld -r -b binary -o $TARGET $SOURCE")
+                         
+       "ld -r -b binary -o $TARGET $SOURCE")
+
     for name, branch in installers:
       d = {'BRANCH': f"'\"{branch}\"'"}
       if "internal" in name:

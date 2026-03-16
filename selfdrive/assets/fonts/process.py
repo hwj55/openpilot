@@ -23,21 +23,58 @@ def _languages():
 
 def _char_sets():
   base = set(map(chr, range(32, 127))) | set(EXTRA_CHARS)
+  
+  # --- 新增：多路徑搜尋 events.py ---
+  possible_paths = [
+      Path("/data/openpilot/selfdrive/selfdrived/events.py"),
+      SELFDRIVE_DIR / "selfdrived" / "events.py",
+      SELFDRIVE_DIR / "controls" / "lib" / "events.py",
+      Path("/data/openpilot/selfdrive/controls/lib/events.py"),
+  ]
+
+  found = False
+  print("\n--- Searching for events.py ---")
+  for events_path in possible_paths:
+      print(f"DEBUG: Checking: {events_path}")
+      if events_path.exists():
+          print(f"SUCCESS: Found events.py at {events_path}")
+          try:
+              content = events_path.read_text(encoding="utf-8")
+              chars = set(content)
+              base.update(chars)
+              print(f"SUCCESS: Added {len(chars)} characters from events.py")
+              found = True
+              break
+          except Exception as e:
+              print(f"ERROR: Could not read file: {e}")
+
+  if not found:
+      print("WARNING: Could not find events.py in any known location!")
+      print("WARNING: Chinese characters WILL BE MISSING in the output images.")
+  print("-------------------------------\n")
+  # --- 搜尋結束 ---
+
   labels = set(base)
   per_lang: dict[str, tuple[int, ...]] = {}
 
   for language, code in _languages().items():
     labels.update(language)
-    po_path = TRANSLATIONS_DIR / f"app_{code}.po"
-    try:
-      chars = set(po_path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-      continue
+    
+    lang_chars = set()
+    # 支援多種 po 檔前綴
+    for prefix in ("app_", "dragonpilot_"):
+      po_path = TRANSLATIONS_DIR / f"{prefix}{code}.po"
+      try:
+        chars = set(po_path.read_text(encoding="utf-8"))
+        lang_chars.update(chars)
+      except FileNotFoundError:
+        continue
+        
     if code in UNIFONT_LANGUAGES:
-      lang_chars = set(base) | chars
-      per_lang[code] = tuple(sorted(ord(c) for c in lang_chars))
+      lang_chars_combined = set(base) | lang_chars
+      per_lang[code] = tuple(sorted(ord(c) for c in lang_chars_combined))
     else:
-      base.update(chars)
+      base.update(lang_chars)
 
   base_cp = tuple(sorted(ord(c) for c in base))
   labels_cp = tuple(sorted(ord(c) for c in labels))
