@@ -27,7 +27,7 @@ V_EGO_STATIONARY = 4.   # no stationary object flag below this speed
 # ==========================================
 STATIONARY_MAX_DIST = 120.0        # 靜止車最遠偵測距離 (公尺)。建議值：80.0 ~ 120.0
 
-STATIONARY_MIN_PROB = 0.3          # 視覺模型最低信心度 (大於此值才啟動雷達判定)。建議值：0.1 ~ 0.3
+STATIONARY_MIN_PROB = 0.5          # 視覺模型最低信心度 (大於此值才啟動雷達判定)。建議值：0.1 ~ 0.3
                                    # (數值越低越依賴雷達，提早鎖定；數值越高越依賴鏡頭，較晚鎖定但抗雜訊強)
 
 BLIND_SPOT_PRIORITY_DIST = 23.0    # [新增] 低速盲區煞停「強制接管並鎖定」的距離 (公尺)
