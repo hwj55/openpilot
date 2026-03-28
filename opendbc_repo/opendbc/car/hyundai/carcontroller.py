@@ -117,19 +117,21 @@ class CarController(CarControllerBase):
   def create_can_msgs(self, apply_steer_req, apply_torque, torque_fault, set_speed_in_units, accel, stopping, hud_control, actuators, CS, CC):
     can_sends = []
 
-    # HUD messages (已修正為 CC.enabled)
+    # HUD messages (保留使用 CC.enabled 控制主視覺警告)
     sys_warning, sys_state, left_lane_warning, right_lane_warning = process_hud_alert(CC.enabled, self.car_fingerprint,
                                                                                       hud_control)
 
-    # LKAS11 (已修正為 CC.enabled)
+    # LKAS11 (保留使用 CC.enabled 控制視覺)
     can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP, apply_torque, apply_steer_req,
                                               torque_fault, CS.lkas11, sys_warning, sys_state, CC.enabled,
                                               hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                               left_lane_warning, right_lane_warning))
 
-    # Button messages
+    # Button messages (【加入 cp 剎車防護理念】)
     if not self.CP.openpilotLongitudinalControl:
-      if CC.cruiseControl.cancel:
+      if CS.out.brakePressed or CS.out.brakeHoldActive:
+        pass # 踩剎車或 AutoHold 時，不送出任何干擾原車的按鍵訊號
+      elif CC.cruiseControl.cancel:
         can_sends.append(hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.CANCEL, self.CP))
       elif CC.cruiseControl.resume:
         # send resume at a max freq of 10Hz
@@ -147,9 +149,9 @@ class CarController(CarControllerBase):
                                                       hud_control, set_speed_in_units, stopping,
                                                       CC.cruiseControl.override, use_fca, self.CP))
 
-    # 20 Hz LFA MFA message (【重大修正點】已將 CC.latActive 改為 CC.enabled)
+    # 20 Hz LFA MFA message (【重大修正點：引入 cp 精準狀態分離】將 CC 完整傳入，下放邏輯)
     if self.frame % 5 == 0 and self.CP.flags & HyundaiFlags.SEND_LFA.value:
-      can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled))
+      can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC))
 
     # 5 Hz ACC options
     if self.frame % 20 == 0 and self.CP.openpilotLongitudinalControl:
@@ -167,7 +169,7 @@ class CarController(CarControllerBase):
     lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING
     lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
-    # steering control (已修正為 CC.enabled)
+    # steering control (保留 CC.enabled 控制，但 torque 仍依照 apply_steer_req 發送)
     can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque))
 
     # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
@@ -175,9 +177,9 @@ class CarController(CarControllerBase):
       can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CAN, CS.lfa_block_msg,
                                                         self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT))
 
-    # LFA and HDA icons (已修正為 CC.enabled)
+    # LFA and HDA icons (【重大修正點：引入 cp 精準狀態分離】將縱向 CC.longActive 與橫向 CC.latActive 分開傳遞)
     if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
-      can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, self.CAN, CC.enabled))
+      can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, CS, self.CAN, CC.longActive, CC.latActive))
 
     # blinkers
     if lka_steering and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
@@ -193,8 +195,10 @@ class CarController(CarControllerBase):
                                                          set_speed_in_units, hud_control))
         self.accel_last = accel
     else:
-      # button presses
-      if (self.frame - self.last_button_frame) * DT_CTRL > 0.25:
+      # button presses (【加入 cp 剎車防護理念】)
+      if CS.out.brakePressed or CS.out.brakeHoldActive:
+        pass # 踩剎車或 AutoHold 時，阻斷按鍵發送
+      elif (self.frame - self.last_button_frame) * DT_CTRL > 0.25:
         # cruise cancel
         if CC.cruiseControl.cancel:
           if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
