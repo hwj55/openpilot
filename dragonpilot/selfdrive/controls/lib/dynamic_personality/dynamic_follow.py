@@ -17,7 +17,7 @@ LongPersonality = log.LongitudinalPersonality
 FOLLOW_PROFILES = {
   LongPersonality.relaxed:    [1.25, 1.25, 1.25, 1.25, 1.35, 1.35, 1.75, 1.75, 1.95, 1.95, 1.95],
   LongPersonality.standard:   [1.15, 1.15, 1.15, 1.15, 1.25, 1.25, 1.45, 1.45, 1.55, 1.55, 1.65],
-  LongPersonality.aggressive: [0.85, 0.85, 0.85, 0.85, 1.00, 1.00, 1.15, 1.15, 1.25, 1.25, 1.25],
+  LongPersonality.aggressive: [0.65, 0.75, 0.85, 0.85, 1.00, 1.00, 1.15, 1.15, 1.25, 1.25, 1.25],
 }
 
 # 將上述指定的 km/h 斷點轉換為系統使用的 m/s
