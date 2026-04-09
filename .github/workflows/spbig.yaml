@@ -93,7 +93,7 @@ jobs:
           echo "Pushing changes to new branch: $BRANCH_NAME"
           
           # 推送
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force
+          GIT_LFS_SKIP_PUSH=1 git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force --no-verify
 
       # 步骤 6: 更新 spbig2-history 分支上的记录
       - name: Update sync record on 'spbig2-history' branch
@@ -119,6 +119,6 @@ jobs:
           
           git add .last_sync_sha
           git commit -m "chore(sync): Update last sync SHA for dragonpilot/pre-build" -m "Based on commit: ${{ steps.get_shas.outputs.remote_sha }}"
-          git push "$ORIGIN_URL" spbig2-history
+          GIT_LFS_SKIP_PUSH=1 git push "$ORIGIN_URL" spbig2-history --no-verify
           
           echo "Sync record updated successfully."
