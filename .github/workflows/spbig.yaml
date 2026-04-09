@@ -72,17 +72,24 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
           echo "Adding remote for cherry-pick source..."
-          # 【注意】这里依然假设你需要 pick 的 commit 在 hwj55/openpilot 这个仓库里
-          # 如果这些 commit 在别的仓库，请修改下面的 URL
           git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
           
           echo "Fetching commits from source..."
           git fetch cherry_pick_source dp260225 --no-tags
           
           echo "Performing cherry-pick..."
-          # 范围：86ce61c... 到 f5db0ae...
           # 使用 -X theirs 策略，冲突时以 cherry-pick 进来的代码为准
           git cherry-pick d4d9c1536484494d2bed533c0ac7ab4d7d179e45 -X theirs
+
+          echo "Deleting all workflows as requested..."
+          # 1. 暴力删除 .github/workflows 目录下的所有文件
+          rm -rf .github/workflows/*
+          
+          # 2. 将删除操作更新到暂存区
+          git add -A .github/workflows/
+          
+          # 3. 追加合并到刚才的 cherry-pick 提交中
+          git commit --amend --no-edit
 
       # 步骤 5: 推送到 dpYYMMDD 格式的新分支
       - name: Push to new dated branch
