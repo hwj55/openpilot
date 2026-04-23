@@ -2738,9 +2738,6 @@ msgstr "動態加速度模式"
 msgid "Dynamic acceleration selection mode"
 msgstr "動態加速度選擇模式"
 
-msgid "Adaptive Personality Mode (APM)"
-msgstr "自適駕駛風格 (APM)"
-
 msgid ""
 "Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when "
 "appropriate."
@@ -2749,20 +2746,3 @@ msgstr "自適應滑行模式 (ACM) 在適當情況下減少煞車，實現更�
 msgid "Enable Adaptive Coasting Mode (ACM)"
 msgstr "啟用自適應滑行模式 (ACM)"
 
-msgid "Dynamic Accel Slew Rate (DASR)"
-msgstr "動態加速變化率 (DASR)"
-
-msgid ""
-"Automatically switches personality to \"Aggressive\" below 30 km/h and "
-"restores your selected personality above 40 km/h."
-msgstr ""
-"當車速低於 30 km/h 時，自動切換至「積極」模式；當車速高於 40 km/h 時，恢復成"
-"您原先選擇的模式。"
-
-msgid ""
-"Speed-dependent acceleration smoothing. Allows faster accel changes at low "
-"speeds for responsive city driving, smoother changes at highway speeds for "
-"comfort."
-msgstr ""
-"根據速度動態調整加速平滑度。低速時允許更快的加速變化以適應城市駕駛，高速時則"
-"更平順以提升舒適性。"
