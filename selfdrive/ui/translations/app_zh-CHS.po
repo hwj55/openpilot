@@ -1826,7 +1826,7 @@ msgstr ""
 "倒车 边缘 优秀 习惯 汉字 分钟 触​碰 踩​掉落 刹​踏​板"
 "系​带齿条 胎​压 轮​档 关门 书​签 倒车 录像 驾驶"
 "脱齿 请倒车 环境 关系 驻车制动 启动横向 左右 至少"
-"个人 配置值得 混合控制 故障 尝试 异常"
+"个人 配置值得 混合控制 故障 尝试"
 
 msgid "Less Restrict Settings for Self-Tune (Beta)"
 msgstr "自学习调校宽松设置（测试版）"
@@ -2705,3 +2705,64 @@ msgid ""
 msgstr ""
 "sunnypilot不会接管油门和刹车的控制权。 "
 "系统将使用丰田原厂的纵向控制功能。"
+
+msgid "### Human Turn Detection ###"
+msgstr "### 人工转弯检测 ###"
+
+msgid "Enable Human Turn Detection"
+msgstr "启用人工转弯检测(HTD)"
+
+msgid "Unavailable during cruise control.Automatically pause steering when the driver applies large manual steering input, then smoothly resume."
+msgstr "自动巡航时不可用。当车速35公里以下驾驶员大角度手动打方向时自动暂停横向控制，松手后平滑恢复。"
+
+msgid "Trigger angle"
+msgstr "触发角度"
+
+msgid "Driver steering angle that triggers HTD (degrees)."
+msgstr "触发人工转弯检测的方向盘角度（度）。"
+msgid "Dynamic Follow Mode (DFM)"
+msgstr "动态车距模式 (DFM)"
+
+msgid "Dynamically adjusts the follow distance based on speed and selected longitudinal personality."
+msgstr "根据速度和选定的纵向特性动态调整跟车距离。"
+
+msgid "Dynamic Accel Personality"
+msgstr "动态加速度模式开关"
+
+msgid "Dynamic acceleration switch"
+msgstr "动态加速度模式开关"
+
+msgid "Accel Personality"
+msgstr "动态加速度模式"
+
+msgid "Dynamic acceleration selection mode"
+msgstr "动态加速度选择模式"
+
+msgid "Adaptive Personality Mode (APM)"
+msgstr "自适驾驶风格 (APM)"
+
+msgid ""
+"Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when "
+"appropriate."
+msgstr "自适应滑行模式 (ACM) 在适当情况下减少煞车，实现更平顺的滑行。"
+
+msgid "Enable Adaptive Coasting Mode (ACM)"
+msgstr "启用自适应滑行模式 (ACM)"
+
+msgid "Dynamic Accel Slew Rate (DASR)"
+msgstr "动态加速变化率 (DASR)"
+
+msgid ""
+"Automatically switches personality to \"Aggressive\" below 30 km/h and "
+"restores your selected personality above 40 km/h."
+msgstr ""
+"当车速低于 30 km/h 时，自动切换至“积极”模式；当车速高于 40 km/h 时，恢复成"
+"您原先选择的模式。"
+
+msgid ""
+"Speed-dependent acceleration smoothing. Allows faster accel changes at low "
+"speeds for responsive city driving, smoother changes at highway speeds for "
+"comfort."
+msgstr ""
+"根据速度动态调整加速平滑度。低速时允许更快的加速变化以适应城市驾驶，高速时则"
+"更平顺以提升舒适性。"
