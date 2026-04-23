@@ -15,8 +15,8 @@ from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.sunnypilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlannerSP
-from openpilot.selfdrive.controls.lib.acm import ACM
-from openpilot.selfdrive.controls.lib.accel_controller import AccelPersonalityController
+from openpilot.sunnypilot.selfdrive.controls.lib.acm import ACM
+from openpilot.sunnypilot.selfdrive.controls.lib.accel_controller import AccelPersonalityController
 
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
 A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]
