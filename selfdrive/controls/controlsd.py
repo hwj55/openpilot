@@ -25,7 +25,7 @@ from openpilot.sunnypilot.selfdrive.controls.controlsd_ext import ControlsExt
 # ==========================================
 # ++ 新增：匯入 HTD 模組 ++
 # ==========================================
-from openpilot.selfdrive.controls.lib.human_turn_detection import HumanTurnDetection, HTDState
+from openpilot.sunnypilot.selfdrive.controls.lib.human_turn_detection import HumanTurnDetection, HTDState
 
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
