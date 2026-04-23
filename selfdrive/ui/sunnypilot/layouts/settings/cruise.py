@@ -87,6 +87,29 @@ class CruiseLayout(Widget):
       description=tr("Enable toggle to allow the model to determine when to use sunnypilot ACC or sunnypilot End to End Longitudinal."),
       param="DynamicExperimentalControl")
 
+    # ==========================================
+    # 移植自 DragonPilot (DP) 的縱向控制 UI 開關
+    # ==========================================
+    self.dp_acm_toggle = toggle_item_sp(
+      title=tr("Enable Adaptive Coasting Mode (ACM)"),
+      description=tr("Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when appropriate."),
+      param="dp_lon_acm")
+
+    # [修正點]：強制 value_map 為整數，防止 Params 存檔時出現 Type Mismatch
+    self.dp_accel_personality_option = option_item_sp(
+      title=tr("Accel Personality"),
+      param="AccelPersonality",
+      min_value=0, max_value=2, value_change_step=1,
+      value_map={0: 0, 1: 1, 2: 2},  # 強制寫入的數值型態為整數 INT
+      label_callback=lambda value: {0: tr("Sport"), 1: tr("Normal"), 2: tr("Eco")}.get(value, str(value)),
+      inline=True)
+
+    self.dp_accel_personality_en_toggle = toggle_item_sp(
+      title=tr("Dynamic Accel Personality"),
+      description=tr("Dynamic acceleration switch."),
+      param="AccelPersonalityEnabled",
+      callback=self._on_accel_personality_toggle)
+
     items = [
       self.icbm_toggle,
       self.dec_toggle,
@@ -96,6 +119,10 @@ class CruiseLayout(Widget):
       self.custom_acc_short_increment,
       self.custom_acc_long_increment,
       self.sla_settings_button,
+      # 加入 DP 選單項目
+      self.dp_acm_toggle,
+      self.dp_accel_personality_en_toggle,
+      self.dp_accel_personality_option,
     ]
     return items
 
@@ -110,6 +137,15 @@ class CruiseLayout(Widget):
     self._scroller.show_event()
     self.icbm_toggle.show_description(True)
     self.custom_acc_toggle.show_description(True)
+    
+    # ===== 確保點擊時高度不會動態改變 =====
+    self.dec_toggle.show_description(True)
+    self.scc_v_toggle.show_description(True)
+    self.scc_m_toggle.show_description(True)
+    # ====================================
+    # 確保 DP 功能顯示描述
+    self.dp_acm_toggle.show_description(True)
+    self.dp_accel_personality_en_toggle.show_description(True)
 
   def _set_current_panel(self, panel: PanelType):
     self._current_panel = panel
@@ -147,15 +183,28 @@ class CruiseLayout(Widget):
         self.dec_toggle.action_item.set_enabled(has_long)
         self.scc_v_toggle.action_item.set_enabled(True)
         self.scc_m_toggle.action_item.set_enabled(True)
+        
+        # 開啟 DP 功能的互動狀態
+        self.dp_acm_toggle.action_item.set_enabled(has_long)
+        self.dp_accel_personality_en_toggle.action_item.set_enabled(has_long)
       else:
         ui_state.params.remove("CustomAccIncrementsEnabled")
         ui_state.params.remove("DynamicExperimentalControl")
         ui_state.params.remove("SmartCruiseControlVision")
         ui_state.params.remove("SmartCruiseControlMap")
+        
+        # 移除並禁用 DP 功能
+        ui_state.params.remove("dp_lon_acm")
+        ui_state.params.remove("AccelPersonalityEnabled")
+        ui_state.params.remove("AccelPersonality")
+        
         self.custom_acc_toggle.action_item.set_enabled(False)
         self.dec_toggle.action_item.set_enabled(False)
         self.scc_v_toggle.action_item.set_enabled(False)
         self.scc_m_toggle.action_item.set_enabled(False)
+        
+        self.dp_acm_toggle.action_item.set_enabled(False)
+        self.dp_accel_personality_en_toggle.action_item.set_enabled(False)
 
     else:
       has_icbm = has_long = False
@@ -185,9 +234,14 @@ class CruiseLayout(Widget):
         self.custom_acc_toggle.show_description(True)
 
     self._on_custom_acc_toggle(self.custom_acc_toggle.action_item.get_state())
+    self._on_accel_personality_toggle(self.dp_accel_personality_en_toggle.action_item.get_state())
 
   def _on_custom_acc_toggle(self, state):
     self.custom_acc_short_increment.set_visible(state)
     self.custom_acc_long_increment.set_visible(state)
     self.custom_acc_short_increment.action_item.set_enabled(self.custom_acc_toggle.action_item.enabled)
     self.custom_acc_long_increment.action_item.set_enabled(self.custom_acc_toggle.action_item.enabled)
+
+  def _on_accel_personality_toggle(self, state):
+    self.dp_accel_personality_option.set_visible(state)
+    self.dp_accel_personality_option.action_item.set_enabled(self.dp_accel_personality_en_toggle.action_item.enabled)
