@@ -11,7 +11,7 @@ from openpilot.common.realtime import DT_MDL
 from openpilot.common.params import Params
 
 # 定義加速度性格的列舉值
-AccelPersonality = custom.LongitudinalPlanDP.AccelerationPersonality
+AccelPersonality = custom.LongitudinalPlanSP.AccelerationPersonality
 ACCEL_PERSONALITY_OPTIONS = [AccelPersonality.eco, AccelPersonality.normal, AccelPersonality.sport]
 
 # 加速度設定檔 (Max Accel Profiles)
@@ -28,8 +28,8 @@ MAX_ACCEL_BREAKPOINTS =       [0.0,  0.5,  1.0,  4.0,   6.0,  9.0,  11.0, 16.0, 
 # 根據不同的性格與車速，定義車輛允許的最大減速度 (負值)
 MIN_ACCEL_PROFILES = {
   AccelPersonality.eco:    [-.002, -.003, -0.25, -0.27, -0.30, -0.35, -0.44, -2.0],
-  AccelPersonality.normal: [-.002, -.003, -0.26, -0.29, -0.33, -0.50, -0.76, -2.0],
-  AccelPersonality.sport:  [-.002, -.003, -0.26, -0.29, -0.33, -0.55, -0.80, -2.0],
+  AccelPersonality.normal: [-.002, -.003, -0.25, -0.27, -0.30, -0.50, -0.76, -2.0],
+  AccelPersonality.sport:  [-.002, -.003, -0.25, -0.27, -0.30, -0.55, -0.80, -2.0],
 }
 # 對應最大減速度的車速節點 (單位: m/s)
 MIN_ACCEL_BREAKPOINTS =    [2.0, 3.0, 4.5, 5.0, 6.0, 7.0, 9.0, 25]
