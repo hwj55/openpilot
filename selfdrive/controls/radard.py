@@ -169,7 +169,7 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   is_physically_stationary = abs(v_absolute) < 2.0
   
   # 原本的遠距離機率倒掛修復 (越遠要求越高)
-  dynamic_stat_prob = np.interp(track.dRel, [30.0, 90.0], [0.5, 0.75])
+  dynamic_stat_prob = np.interp(track.dRel, [50.0, 90.0], [0.5, 0.6])
   
   # [融合紅利] 如果靜止目標也符合高度重合，給予 0.2 的機率減免，避免隧道內閃爍丟失
   if is_high_overlap:
