@@ -155,9 +155,9 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   expected_yRel = -np.interp(model_x, path_x, path_y)
   
   # ==========================================
-  # [防護機制] 30m 前方彎道預判與平滑極速收縮 (純幾何、無紅利)
+  # [防護機制] 50m 前方彎道預判與平滑極速收縮 (純幾何、無紅利)
   # ==========================================
-  curve_offset = abs(np.interp(30.0, path_x, path_y))
+  curve_offset = abs(np.interp(50.0, path_x, path_y))
   
   dynamic_y_threshold = np.interp(curve_offset, [0.15, 0.25], [0.7, 0.4])
   y_sane_on_path = abs(track.yRel - expected_yRel) < dynamic_y_threshold
@@ -169,6 +169,7 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   is_physically_stationary = abs(v_absolute) < 2.0
   
   # 原本的遠距離機率倒掛修復 (越遠要求越高)
+  # [修改] 距離起算從 30m 改為 50m，最高門檻從 0.75 下修至 0.6
   dynamic_stat_prob = np.interp(track.dRel, [50.0, 90.0], [0.5, 0.6])
   
   # [融合紅利] 如果靜止目標也符合高度重合，給予 0.2 的機率減免，避免隧道內閃爍丟失
