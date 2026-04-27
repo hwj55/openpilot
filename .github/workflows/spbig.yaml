@@ -18,13 +18,13 @@ jobs:
         id: get_shas
         run: |
 
-          REMOTE_SHA=$(git ls-remote https://github.com/herizon1054/openpilot.git spbig2 | awk '{print $1}')
+          REMOTE_SHA=$(git ls-remote https://github.com/herizon1054/openpilot.git spkitty | awk '{print $1}')
           echo "Latest remote SHA (dragonpilot/pre-build): $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
-          # 2. 从你自己的仓库的 spbig2-history 分支获取上次同步的 SHA
-          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/spbig2-history/.last_sync_sha" || echo "none")
-          echo "Last recorded SHA from your repo's spbig2-history branch: $LOCAL_RECORDED_SHA"
+          # 2. 从你自己的仓库的 spkitty-history 分支获取上次同步的 SHA
+          LOCAL_RECORDED_SHA=$(curl -sSfL "https://raw.githubusercontent.com/${{ github.repository }}/spkitty-history/.last_sync_sha" || echo "none")
+          echo "Last recorded SHA from your repo's spkitty-history branch: $LOCAL_RECORDED_SHA"
           echo "local_recorded_sha=$LOCAL_RECORDED_SHA" >> $GITHUB_OUTPUT
 
       # 步骤 2: 比较 SHA，决定是否继续
@@ -53,7 +53,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: herizon1054/openpilot
-          ref: spbig2 # 这里已修正为 'pre-build'
+          ref: spkitty # 这里已修正为 'pre-build'
           lfs: false
           fetch-depth: 1
           
@@ -62,7 +62,7 @@ jobs:
         run: |
           # --unshallow 表示把当前的浅克隆变成完整克隆
           # 指定 origin pre-build 表示只针对这一个分支操作
-          git fetch origin spbig2 --unshallow
+          git fetch origin spkitty --unshallow
 
       # 步骤 4: 执行 Cherry-pick
       - name: Apply modifications via cherry-pick
@@ -102,8 +102,8 @@ jobs:
           # 推送
           GIT_LFS_SKIP_PUSH=1 git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force --no-verify
 
-      # 步骤 6: 更新 spbig2-history 分支上的记录
-      - name: Update sync record on 'spbig2-history' branch
+      # 步骤 6: 更新 spkitty-history 分支上的记录
+      - name: Update sync record on 'spkitty-history' branch
         if: steps.decision.outputs.continue == 'true'
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -111,13 +111,13 @@ jobs:
           
           ORIGIN_URL="https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git"
           
-          if git ls-remote --exit-code --heads "$ORIGIN_URL" spbig2-history; then
-            echo "Branch 'spbig2-history' exists. Checking it out."
-            git fetch "$ORIGIN_URL" spbig2-history
-            git checkout -B spbig2-history FETCH_HEAD
+          if git ls-remote --exit-code --heads "$ORIGIN_URL" spkitty-history; then
+            echo "Branch 'spkitty-history' exists. Checking it out."
+            git fetch "$ORIGIN_URL" spkitty-history
+            git checkout -B spkitty-history FETCH_HEAD
           else
-            echo "Branch 'spbig2-history' does not exist. Creating it as an orphan."
-            git checkout --orphan spbig2-history
+            echo "Branch 'spkitty-history' does not exist. Creating it as an orphan."
+            git checkout --orphan spkitty-history
             git rm -rf .
           fi
           
@@ -126,6 +126,6 @@ jobs:
           
           git add .last_sync_sha
           git commit -m "chore(sync): Update last sync SHA for dragonpilot/pre-build" -m "Based on commit: ${{ steps.get_shas.outputs.remote_sha }}"
-          GIT_LFS_SKIP_PUSH=1 git push "$ORIGIN_URL" spbig2-history --no-verify
+          GIT_LFS_SKIP_PUSH=1 git push "$ORIGIN_URL" spkitty-history --no-verify
           
           echo "Sync record updated successfully."
