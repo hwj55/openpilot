@@ -32,6 +32,27 @@ JERK_GAIN = 0.3
 LAT_ACCEL_REQUEST_BUFFER_SECONDS = 1.0
 VERSION = 1
 
+# === 神級過濾器輔助函數 開始 ===
+def sign(x):
+  return 1.0 if x > 0.0 else (-1.0 if x < 0.0 else 0.0)
+
+def get_lookahead_value(future_vals, current_val):
+  # 如果沒有未來資料，直接回傳當前值
+  if len(future_vals) == 0:
+    return current_val
+  
+  # 找出與「當前急衝度」方向（正負號）相同的未來數值
+  same_sign_vals = [v for v in future_vals if sign(v) == sign(current_val)]
+  
+  # 如果未來的數值有相反的正負號（代表雜訊或直線微動），直接回傳 0 濾除震盪
+  if len(same_sign_vals) < len(future_vals):
+    return 0.0
+    
+  # 如果方向一致（代表真的要進彎），取絕對值最小的，讓過彎最平滑
+  min_val = min(same_sign_vals + [current_val], key=lambda x: abs(x))
+  return min_val
+# === 神級過濾器輔助函數 結束 ===
+
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI, dt):
     super().__init__(CP, CI, dt)
@@ -74,8 +95,32 @@ class LatControlTorque(LatControl):
     error = setpoint - measurement
 
     lookahead_idx = int(np.clip(-delay_frames + self.lookahead_frames, -self.lat_accel_request_buffer_len+1, -2))
-    raw_lateral_jerk = (self.lat_accel_request_buffer[lookahead_idx+1] - self.lat_accel_request_buffer[lookahead_idx-1]) / (2 * self.dt)
-    desired_lateral_jerk = self.jerk_filter.update(raw_lateral_jerk)
+    
+    # === 神級過濾器與防呆保護區塊 開始 ===
+    try:
+      # 1. 計算當前的基準 raw_lateral_jerk
+      raw_lateral_jerk = (self.lat_accel_request_buffer[lookahead_idx+1] - self.lat_accel_request_buffer[lookahead_idx-1]) / (2 * self.dt)
+      
+      # 2. 安全地抓取未來幾個 frame 的預測變化
+      future_jerks = []
+      # 防呆 1：確保往未來抓取的索引不會超出陣列極限 (-2)
+      max_future_idx = min(lookahead_idx + 5, -2) 
+      
+      if max_future_idx > lookahead_idx:
+        for i in range(lookahead_idx, max_future_idx):
+          jerk_val = (self.lat_accel_request_buffer[i+1] - self.lat_accel_request_buffer[i-1]) / (2 * self.dt)
+          future_jerks.append(jerk_val)
+
+      # 3. 套用神級過濾器 (濾除高頻雜訊)
+      filtered_raw_jerk = get_lookahead_value(future_jerks, raw_lateral_jerk)
+
+    except Exception:
+      # 防呆 2：如果發生任何預期外的陣列錯誤，默默退回官方原本的安全算法，保證不斷線
+      raw_lateral_jerk = (self.lat_accel_request_buffer[lookahead_idx+1] - self.lat_accel_request_buffer[lookahead_idx-1]) / (2 * self.dt)
+      filtered_raw_jerk = raw_lateral_jerk
+    # === 神級過濾器與防呆保護區塊 結束 ===
+
+    desired_lateral_jerk = self.jerk_filter.update(filtered_raw_jerk)
     gravity_adjusted_future_lateral_accel = future_desired_lateral_accel - roll_compensation
     ff = gravity_adjusted_future_lateral_accel
     # latAccelOffset corrects roll compensation bias from device roll misalignment relative to car roll
