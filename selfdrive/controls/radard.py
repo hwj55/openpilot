@@ -137,8 +137,8 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   diff_y = abs(track.yRel - (-lead.y[0]))
   diff_v = abs((track.vRel + v_ego) - lead.v[0])
 
-  # 條件：縱向差 < 3m, 橫向差 < 1m, 絕對速度差 < 2m/s, 且必須是真實打到的雷達點 (非預測殘影)
-  is_high_overlap = (diff_d < 3.0) and (diff_y < 1.0) and (diff_v < 2.0) and track.measured
+  # 條件：縱向差 < 1.5m, 橫向差 < 1m, 絕對速度差 < 1.5m/s, 且必須是真實打到的雷達點 (非預測殘影)
+  is_high_overlap = (diff_d < 1.5) and (diff_y < 1.0) and (diff_v < 1.5) and track.measured
 
   # 動態機率門檻：若高度重合，將動態車輛門檻降到 0.4 (給予信任，但保有安全底線)
   applied_dynamic_prob = 0.4 if is_high_overlap else current_prob_threshold
