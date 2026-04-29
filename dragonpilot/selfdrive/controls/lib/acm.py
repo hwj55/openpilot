@@ -252,12 +252,11 @@ class SoftHoldLogic:
         closing_speed = max(v_ego - lead.vLead, 0.1)
         current_ttc = lead.dRel / closing_speed
         
-        # --- 核心修正：真・動態跟車目標距離 ---
+        # === 核心修正 (V3)：移除剛性 6.0m 防線，改用數學底線 ===
         safe_v_lead = max(0.0, lead.vLead)
-        # 理想目標距離 = (自車煞停距離) - (前車煞停緩衝)
         mpc_target = get_safe_obstacle_distance(v_ego, t_follow) - get_stopped_equivalence_factor(safe_v_lead)
-        # 使用原廠 STOP_DISTANCE 作為數學防線，防止分母過小
-        dynamic_target_dist = max(mpc_target, STOP_DISTANCE)
+        # 只保留 1.0 的數學下限防止除以零，讓分母在前車蠕行時能自然縮小，避免 Soft Hold 誤判斷開
+        dynamic_target_dist = max(mpc_target, 1.0)
         ratio = lead.dRel / dynamic_target_dist
         
         if not should_cancel_soft_hold:
