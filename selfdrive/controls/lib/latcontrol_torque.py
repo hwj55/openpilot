@@ -20,38 +20,15 @@ from openpilot.common.pid import PIDController
 # Additionally, there is friction in the steering wheel that needs
 # to be overcome to move it at all, this is compensated for too.
 
-KP = 0.8
-KI = 0.15
-
-INTERP_SPEEDS = [1, 1.5, 2.0, 3.0, 5, 7.5, 10, 15, 30]
-KP_INTERP = [250, 120, 65, 30, 11.5, 5.5, 3.5, 2.0, KP]
+KP = 1.0
+KI = 0.25
+KD = 0.0
+INTERP_SPEEDS = [1, 1.5, 2.0, 3.0, 5, 7.5, 10, 15, 20, 30]
+KP_INTERP = [200, 120, 65, 30, 11.5, 8.5, 5.5, 3.0, 2.0, KP]
 
 LP_FILTER_CUTOFF_HZ = 1.2
-JERK_LOOKAHEAD_SECONDS = 0.19
-JERK_GAIN = 0.3
 LAT_ACCEL_REQUEST_BUFFER_SECONDS = 1.0
-VERSION = 1
-
-# === 神級過濾器輔助函數 開始 ===
-def sign(x):
-  return 1.0 if x > 0.0 else (-1.0 if x < 0.0 else 0.0)
-
-def get_lookahead_value(future_vals, current_val):
-  # 如果沒有未來資料，直接回傳當前值
-  if len(future_vals) == 0:
-    return current_val
-  
-  # 找出與「當前急衝度」方向（正負號）相同的未來數值
-  same_sign_vals = [v for v in future_vals if sign(v) == sign(current_val)]
-  
-  # 如果未來的數值有相反的正負號（代表雜訊或直線微動），直接回傳 0 濾除震盪
-  if len(same_sign_vals) < len(future_vals):
-    return 0.0
-    
-  # 如果方向一致（代表真的要進彎），取絕對值最小的，讓過彎最平滑
-  min_val = min(same_sign_vals + [current_val], key=lambda x: abs(x))
-  return min_val
-# === 神級過濾器輔助函數 結束 ===
+VERSION = 0
 
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI, dt):
@@ -59,13 +36,13 @@ class LatControlTorque(LatControl):
     self.torque_params = CP.lateralTuning.torque.as_builder()
     self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
     self.lateral_accel_from_torque = CI.lateral_accel_from_torque()
-    self.pid = PIDController([INTERP_SPEEDS, KP_INTERP], KI, rate=1/self.dt)
+    self.pid = PIDController([INTERP_SPEEDS, KP_INTERP], KI, KD, rate=1/self.dt)
     self.update_limits()
     self.steering_angle_deadzone_deg = self.torque_params.steeringAngleDeadzoneDeg
     self.lat_accel_request_buffer_len = int(LAT_ACCEL_REQUEST_BUFFER_SECONDS / self.dt)
     self.lat_accel_request_buffer = deque([0.] * self.lat_accel_request_buffer_len , maxlen=self.lat_accel_request_buffer_len)
-    self.lookahead_frames = int(JERK_LOOKAHEAD_SECONDS / self.dt)
-    self.jerk_filter = FirstOrderFilter(0.0, 1 / (2 * np.pi * LP_FILTER_CUTOFF_HZ), self.dt)
+    self.previous_measurement = 0.0
+    self.measurement_rate_filter = FirstOrderFilter(0.0, 1 / (2 * np.pi * LP_FILTER_CUTOFF_HZ), self.dt)
 
   def update_live_torque_params(self, latAccelFactor, latAccelOffset, friction):
     self.torque_params.latAccelFactor = latAccelFactor
@@ -80,62 +57,44 @@ class LatControlTorque(LatControl):
   def update(self, active, CS, VM, params, steer_limited_by_safety, desired_curvature, curvature_limited, lat_delay):
     pid_log = log.ControlsState.LateralTorqueState.new_message()
     pid_log.version = VERSION
-    measured_curvature = -VM.calc_curvature(math.radians(CS.steeringAngleDeg - params.angleOffsetDeg), CS.vEgo, params.roll)
-    measurement = measured_curvature * CS.vEgo ** 2
-    future_desired_lateral_accel = desired_curvature * CS.vEgo ** 2
-    self.lat_accel_request_buffer.append(future_desired_lateral_accel)
-
-    roll_compensation = params.roll * ACCELERATION_DUE_TO_GRAVITY
-    curvature_deadzone = abs(VM.calc_curvature(math.radians(self.steering_angle_deadzone_deg), CS.vEgo, 0.0))
-    lateral_accel_deadzone = curvature_deadzone * CS.vEgo ** 2
-
-    delay_frames = int(np.clip(lat_delay / self.dt + 1, 1, self.lat_accel_request_buffer_len))
-    expected_lateral_accel = self.lat_accel_request_buffer[-delay_frames]
-    setpoint = expected_lateral_accel
-    error = setpoint - measurement
-
-    lookahead_idx = int(np.clip(-delay_frames + self.lookahead_frames, -self.lat_accel_request_buffer_len+1, -2))
-    
-    # === 神級過濾器與防呆保護區塊 開始 ===
-    try:
-      # 1. 計算當前的基準 raw_lateral_jerk
-      raw_lateral_jerk = (self.lat_accel_request_buffer[lookahead_idx+1] - self.lat_accel_request_buffer[lookahead_idx-1]) / (2 * self.dt)
-      
-      # 2. 安全地抓取未來幾個 frame 的預測變化
-      future_jerks = []
-      # 防呆 1：確保往未來抓取的索引不會超出陣列極限 (-2)
-      max_future_idx = min(lookahead_idx + 5, -2) 
-      
-      if max_future_idx > lookahead_idx:
-        for i in range(lookahead_idx, max_future_idx):
-          jerk_val = (self.lat_accel_request_buffer[i+1] - self.lat_accel_request_buffer[i-1]) / (2 * self.dt)
-          future_jerks.append(jerk_val)
-
-      # 3. 套用神級過濾器 (濾除高頻雜訊)
-      filtered_raw_jerk = get_lookahead_value(future_jerks, raw_lateral_jerk)
-
-    except Exception:
-      # 防呆 2：如果發生任何預期外的陣列錯誤，默默退回官方原本的安全算法，保證不斷線
-      raw_lateral_jerk = (self.lat_accel_request_buffer[lookahead_idx+1] - self.lat_accel_request_buffer[lookahead_idx-1]) / (2 * self.dt)
-      filtered_raw_jerk = raw_lateral_jerk
-    # === 神級過濾器與防呆保護區塊 結束 ===
-
-    desired_lateral_jerk = self.jerk_filter.update(filtered_raw_jerk)
-    gravity_adjusted_future_lateral_accel = future_desired_lateral_accel - roll_compensation
-    ff = gravity_adjusted_future_lateral_accel
-    # latAccelOffset corrects roll compensation bias from device roll misalignment relative to car roll
-    ff -= self.torque_params.latAccelOffset
-    ff += get_friction(error + JERK_GAIN * desired_lateral_jerk, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
-
     if not active:
       output_torque = 0.0
       pid_log.active = False
     else:
+      measured_curvature = -VM.calc_curvature(math.radians(CS.steeringAngleDeg - params.angleOffsetDeg), CS.vEgo, params.roll)
+      roll_compensation = params.roll * ACCELERATION_DUE_TO_GRAVITY
+      curvature_deadzone = abs(VM.calc_curvature(math.radians(self.steering_angle_deadzone_deg), CS.vEgo, 0.0))
+      lateral_accel_deadzone = curvature_deadzone * CS.vEgo ** 2
+
+      delay_frames = int(np.clip(lat_delay / self.dt, 1, self.lat_accel_request_buffer_len))
+      expected_lateral_accel = self.lat_accel_request_buffer[-delay_frames]
+      # TODO factor out lateral jerk from error to later replace it with delay independent alternative
+      future_desired_lateral_accel = desired_curvature * CS.vEgo ** 2
+      self.lat_accel_request_buffer.append(future_desired_lateral_accel)
+      gravity_adjusted_future_lateral_accel = future_desired_lateral_accel - roll_compensation
+      desired_lateral_jerk = (future_desired_lateral_accel - expected_lateral_accel) / lat_delay
+
+      measurement = measured_curvature * CS.vEgo ** 2
+      measurement_rate = self.measurement_rate_filter.update((measurement - self.previous_measurement) / self.dt)
+      self.previous_measurement = measurement
+
+      setpoint = lat_delay * desired_lateral_jerk + expected_lateral_accel
+      error = setpoint - measurement
+
       # do error correction in lateral acceleration space, convert at end to handle non-linear torque responses correctly
       pid_log.error = float(error)
+      ff = gravity_adjusted_future_lateral_accel
+      # latAccelOffset corrects roll compensation bias from device roll misalignment relative to car roll
+      ff -= self.torque_params.latAccelOffset
+      # TODO jerk is weighted by lat_delay for legacy reasons, but should be made independent of it
+      ff += get_friction(error, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
 
       freeze_integrator = steer_limited_by_safety or CS.steeringPressed or CS.vEgo < 5
-      output_lataccel = self.pid.update(pid_log.error, speed=CS.vEgo, feedforward=ff, freeze_integrator=freeze_integrator)
+      output_lataccel = self.pid.update(pid_log.error,
+                                       -measurement_rate,
+                                        feedforward=ff,
+                                        speed=CS.vEgo,
+                                        freeze_integrator=freeze_integrator)
       output_torque = self.torque_from_lateral_accel(output_lataccel, self.torque_params)
 
       pid_log.active = True
