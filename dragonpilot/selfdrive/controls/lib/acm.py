@@ -3,6 +3,7 @@ import numpy as np
 from cereal import log
 from openpilot.common.swaglog import cloudlog
 
+# 匯入 Openpilot 原廠 MPC 相關公式與常數
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import (
   COMFORT_BRAKE, STOP_DISTANCE, get_safe_obstacle_distance,
   get_stopped_equivalence_factor, get_T_FOLLOW
@@ -58,6 +59,9 @@ SOFT_HOLD_ACCEL_V  = [1.1,  0.90,  0.70,  0.50,  0.30,  0.10]
 TARGET_FACTOR_FILTER_ALPHA = 0.3 
 SOFT_HOLD_HYSTERESIS_TIME = 1.0  
 
+# =========================================================
+# 邏輯模組 1：純滑行控制器
+# =========================================================
 class CoastingLogic:
   def __init__(self):
     self.active = False                
@@ -125,20 +129,28 @@ class CoastingLogic:
           traj[mask] = traj[mask] * (np.abs(traj[mask]) / 0.15)
     return traj
 
+
+# =========================================================
+# 邏輯模組 2：物理級距柔和滑行控制器 (防震盪鎖定版)
+# =========================================================
 class SoftHoldLogic:
   def __init__(self):
     self._soft_hold_factor = 1.0          
     self._vrel_high_start_time = 0.0      
     self._vrel_high_active = False        
+    
     self._last_lead_time = 0.0            
     self._last_target_factor = 1.0        
     self._last_soft_hold_accel = 0.0      
+
     self.accel_intent_counter = 0
     self.intent_accelerating = False
     self._accel_intent_strength = 0.0     
+    
     self._ratio_hysteresis_state = False  
     self._cancel_filter = 0.0             
     self._target_factor_smooth = 1.0      
+    
     self._last_stable_cancel_state = False
     self._state_change_time = 0.0
     self._is_soft_holding = False
@@ -242,10 +254,11 @@ class SoftHoldLogic:
                 should_cancel_soft_hold = True
         
         # ==========================================================
-        # 🔴 終極防線：6 公尺絕對棄權原則 (最高優先級覆寫)
-        # 只要實體距離小於等於 6 公尺，ACM 強制罷工，交還原廠 MPC 處理最終煞停
+        # 🔴 終極防線：絕對棄權原則 (最高優先級覆寫)
+        # 只要實體距離小於等於原廠 STOP_DISTANCE，
+        # ACM 強制罷工，交還原廠 MPC 處理最終精準煞停
         # ==========================================================
-        if lead.dRel <= 6.0:
+        if lead.dRel <= STOP_DISTANCE:
             should_cancel_soft_hold = True
             self._is_soft_holding = False
             self._ratio_hysteresis_state = True # 同步重置防震盪狀態
@@ -320,6 +333,9 @@ class SoftHoldLogic:
 
     return traj
 
+# =========================================================
+# 統一對外接口
+# =========================================================
 class ACM:
   def __init__(self):
     self.enabled = False                  
