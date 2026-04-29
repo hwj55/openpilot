@@ -1,5 +1,5 @@
 # 文件名: .github/workflows/sync-dp-and-cherry-pick.yaml
-name: Sync Dragonpilot herizon1054 dp103r3 and Cherry-pick Modifications
+name: Sync Dragonpilot herizon1054 dp103r2sc and Cherry-pick Modifications
 
 on:
   #schedule:
@@ -19,7 +19,7 @@ jobs:
         run: |
           # 1. 获取 dragonpilot/pre-build 最新的 commit SHA
           # 这里已修正为 'pre-build'
-          REMOTE_SHA=$(git ls-remote https://github.com/herizon1054/openpilot.git dp103r3 | awk '{print $1}')
+          REMOTE_SHA=$(git ls-remote https://github.com/herizon1054/openpilot.git dp103r2sc | awk '{print $1}')
           echo "Latest remote SHA (dragonpilot/pre-build): $REMOTE_SHA"
           echo "remote_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
 
@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: herizon1054/openpilot
-          ref: dp103r3 # 这里已修正为 'pre-build'
+          ref: dp103r2sc # 这里已修正为 'pre-build'
           lfs: false
           fetch-depth: 1
           
@@ -63,7 +63,7 @@ jobs:
         run: |
           # --unshallow 表示把当前的浅克隆变成完整克隆
           # 指定 origin pre-build 表示只针对这一个分支操作
-          git fetch origin dp103r3 --unshallow
+          git fetch origin dp103r2sc --unshallow
 
       # 步骤 4: 执行 Cherry-pick
       - name: Apply modifications via cherry-pick
