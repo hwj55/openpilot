@@ -44,6 +44,9 @@ class APM:
     self.is_departing = False       # 場景 1：是否在起步加速階段
     self.is_relaxed_mode = False    # 場景 2：是否正處於前車慢速的緩和模式
     self.is_approaching = False     # 場景 3：是否正快速接近慢車中 (速差過大)
+    
+    # 濾波平滑化狀態
+    self.v_rel_smoothed = None      # 用來儲存過濾/平滑化後的相對速差
 
   def get_personality(self, v_ego, has_lead, v_lead, a_lead, d_lead, personality):
     """
@@ -66,8 +69,19 @@ class APM:
 
     # --- 2. 判斷前車狀況 ---
     if has_lead:
-      # 先計算與前車相對速差 (v_ego - v_lead 就是我比前車快多少)
-      v_rel = v_ego - v_lead
+      # 取得當下瞬間的相對速差 (原始含有雜訊的資料)
+      v_rel_raw = v_ego - v_lead
+
+      # --- 低通濾波處理 (Exponential Moving Average) ---
+      if self.v_rel_smoothed is None:
+        # 剛抓到前車時，以當下數值為基準
+        self.v_rel_smoothed = v_rel_raw
+      else:
+        # 保留 90% 歷史平滑值，採納 10% 最新值，削平雜訊與突波
+        self.v_rel_smoothed = self.v_rel_smoothed * 0.90 + v_rel_raw * 0.10
+      
+      # 將平滑後的數值指派給 v_rel，供後續判定使用
+      v_rel = self.v_rel_smoothed
 
       # 場景 2：前車絕對速度判斷 + 負加速判斷 + 車距判斷
       if v_lead < V_LEAD_RELAX_ENTER and a_lead < A_LEAD_RELAX_ENTER and d_lead >= D_LEAD_RELAX_ENTER:
@@ -87,6 +101,7 @@ class APM:
       # 如果沒有前車，解除所有與前車相關的緩和模式
       self.is_relaxed_mode = False
       self.is_approaching = False
+      self.v_rel_smoothed = None  # 失去前車目標時，清空平滑化數值
 
     # --- 3. 決定最終輸出的模式 (依照優先級：場景 1 > 場景 2 > 場景 3) ---
     
