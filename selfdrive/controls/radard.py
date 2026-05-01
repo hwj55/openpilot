@@ -137,8 +137,8 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   diff_y = abs(track.yRel - (-lead.y[0]))
   diff_v = abs((track.vRel + v_ego) - lead.v[0])
 
-  # 條件：縱向差 < 1.5m, 橫向差 < 1m, 絕對速度差 < 1.5m/s, 且必須是真實打到的雷達點 (非預測殘影)
-  is_high_overlap = (diff_d < 1.5) and (diff_y < 1.0) and (diff_v < 1.5) and track.measured
+  # 條件：縱向差 < 1.5m, 橫向差 < 1.5m, 絕對速度差 < 1.5m/s, 且必須是真實打到的雷達點 (非預測殘影)
+  is_high_overlap = (diff_d < 1.5) and (diff_y < 1.5) and (diff_v < 1.5) and track.measured
 
   # 動態機率門檻：若高度重合，將動態車輛門檻降到 0.4 (給予信任，但保有安全底線)
   applied_dynamic_prob = 0.4 if is_high_overlap else current_prob_threshold
@@ -170,7 +170,7 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
   
   # 原本的遠距離機率倒掛修復 (越遠要求越高)
   # [修改] 距離起算從 30m 改為 50m，最高門檻從 0.75 下修至 0.6
-  dynamic_stat_prob = np.interp(track.dRel, [50.0, 90.0], [0.5, 0.6])
+  dynamic_stat_prob = np.interp(track.dRel, [50.0, 90.0], [0.5, 0.5])
   
   # [融合紅利] 如果靜止目標也符合高度重合，給予 0.2 的機率減免，避免隧道內閃爍丟失
   if is_high_overlap:
