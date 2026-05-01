@@ -223,15 +223,14 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     # ACM - Adaptive Coasting Module
     if dp_flags & DPFlags.ACM:
       user_control = long_control_off if self.CP.openpilotLongitudinalControl else not sm['selfdriveState'].enabled
-      # [修改處] 在這裡將 mode=mode 傳進 ACM
       self.acm.update_states(sm['carControl'], sm['radarState'], user_control, v_ego, v_cruise, mode=mode, personality=personality, dtsc_is_active=is_dtsc_active)
 
       lead = sm['radarState'].leadOne
+      # [修正點]：這裡已經確實拔除了 t_follow 參數
       self.a_desired_trajectory = self.acm.update_a_desired_trajectory(
         self.a_desired_trajectory,
         v_ego=v_ego,
-        lead=lead,
-        t_follow=None
+        lead=lead
       )
 
     self.j_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC[:-1], self.mpc.j_solution)
@@ -251,7 +250,6 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     output_a_target_e2e = sm['modelV2'].action.desiredAcceleration
     output_should_stop_e2e = sm['modelV2'].action.shouldStop
 
-    # [修改處] 將原本的 if sm['selfdriveState'].experimentalMode: 改為判斷 mode
     if mode == 'blended':
       output_a_target = min(output_a_target_e2e, output_a_target_mpc)
       self.output_should_stop = output_should_stop_e2e or output_should_stop_mpc
