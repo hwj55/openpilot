@@ -17,12 +17,6 @@ else:
 
 from casadi import SX, vertcat
 
-# --- 從 APM 匯入強制秒距設定 ---
-try:
-  from dragonpilot.selfdrive.controls.lib.apm import APM_RELAXED_T_FOLLOW
-except ImportError:
-  APM_RELAXED_T_FOLLOW = 2.0  # 備援預設值
-
 MODEL_NAME = 'long'
 LONG_MPC_DIR = os.path.dirname(os.path.abspath(__file__))
 EXPORT_DIR = os.path.join(LONG_MPC_DIR, "c_generated_code")
@@ -50,6 +44,8 @@ LEAD_DANGER_FACTOR = 0.75
 LIMIT_COST = 1e6
 ACADOS_SOLVER_TYPE = 'SQP_RTI'
 
+# Fewer timestamps don't hurt performance and lead to
+# much better convergence of the MPC with low iterations
 N = 12
 MAX_T = 10.0
 T_IDXS_LST = [index_function(idx, max_val=MAX_T, max_idx=N) for idx in range(N+1)]
@@ -93,14 +89,22 @@ def get_safe_obstacle_distance(v_ego, t_follow):
 def gen_long_model():
   model = AcadosModel()
   model.name = MODEL_NAME
+
+  # states
   x_ego, v_ego, a_ego = SX.sym('x_ego'), SX.sym('v_ego'), SX.sym('a_ego')
   model.x = vertcat(x_ego, v_ego, a_ego)
+
+  # controls
   j_ego = SX.sym('j_ego')
   model.u = vertcat(j_ego)
+
+  # xdot
   x_ego_dot = SX.sym('x_ego_dot')
   v_ego_dot = SX.sym('v_ego_dot')
   a_ego_dot = SX.sym('a_ego_dot')
   model.xdot = vertcat(x_ego_dot, v_ego_dot, a_ego_dot)
+
+  # live parameters
   a_min = SX.sym('a_min')
   a_max = SX.sym('a_max')
   x_obstacle = SX.sym('x_obstacle')
@@ -108,6 +112,8 @@ def gen_long_model():
   lead_t_follow = SX.sym('lead_t_follow')
   lead_danger_factor = SX.sym('lead_danger_factor')
   model.p = vertcat(a_min, a_max, x_obstacle, a_prev, lead_t_follow, lead_danger_factor)
+
+  # dynamics model
   f_expl = vertcat(v_ego, a_ego, j_ego)
   model.f_impl_expr = model.xdot - f_expl
   model.f_expl_expr = f_expl
@@ -116,24 +122,36 @@ def gen_long_model():
 def gen_long_ocp():
   ocp = AcadosOcp()
   ocp.model = gen_long_model()
+
   Tf = T_IDXS[-1]
+
+  # set dimensions
   ocp.dims.N = N
+
+  # set cost module
   ocp.cost.cost_type = 'NONLINEAR_LS'
   ocp.cost.cost_type_e = 'NONLINEAR_LS'
+
   QR = np.zeros((COST_DIM, COST_DIM))
   Q = np.zeros((COST_E_DIM, COST_E_DIM))
+
   ocp.cost.W = QR
   ocp.cost.W_e = Q
+
   x_ego, v_ego, a_ego = ocp.model.x[0], ocp.model.x[1], ocp.model.x[2]
   j_ego = ocp.model.u[0]
+
   a_min, a_max = ocp.model.p[0], ocp.model.p[1]
   x_obstacle = ocp.model.p[2]
   a_prev = ocp.model.p[3]
   lead_t_follow = ocp.model.p[4]
   lead_danger_factor = ocp.model.p[5]
+
   ocp.cost.yref = np.zeros((COST_DIM, ))
   ocp.cost.yref_e = np.zeros((COST_E_DIM, ))
+
   desired_dist_comfort = get_safe_obstacle_distance(v_ego, lead_t_follow)
+
   costs = [((x_obstacle - x_ego) - (desired_dist_comfort)) / (v_ego + 10.),
            x_ego,
            v_ego,
@@ -142,31 +160,39 @@ def gen_long_ocp():
            j_ego]
   ocp.model.cost_y_expr = vertcat(*costs)
   ocp.model.cost_y_expr_e = vertcat(*costs[:-1])
+
   constraints = vertcat(v_ego,
                         (a_ego - a_min),
                         (a_max - a_ego),
                         ((x_obstacle - x_ego) - lead_danger_factor * (desired_dist_comfort)) / (v_ego + 10.))
   ocp.model.con_h_expr = constraints
+
   x0 = np.zeros(X_DIM)
   ocp.constraints.x0 = x0
   ocp.parameter_values = np.array([-1.2, 1.2, 0.0, 0.0, get_T_FOLLOW(), LEAD_DANGER_FACTOR])
+
   cost_weights = np.zeros(CONSTR_DIM)
   ocp.cost.zl = cost_weights
   ocp.cost.Zl = cost_weights
   ocp.cost.Zu = cost_weights
   ocp.cost.zu = cost_weights
+
   ocp.constraints.lh = np.zeros(CONSTR_DIM)
   ocp.constraints.uh = 1e4*np.ones(CONSTR_DIM)
   ocp.constraints.idxsh = np.arange(CONSTR_DIM)
+
   ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM'
   ocp.solver_options.hessian_approx = 'GAUSS_NEWTON'
   ocp.solver_options.integrator_type = 'ERK'
   ocp.solver_options.nlp_solver_type = ACADOS_SOLVER_TYPE
   ocp.solver_options.qp_solver_cond_N = 1
+
   ocp.solver_options.qp_solver_iter_max = 10
   ocp.solver_options.qp_tol = 1e-3
+
   ocp.solver_options.tf = Tf
   ocp.solver_options.shooting_nodes = T_IDXS
+
   ocp.code_export_directory = EXPORT_DIR
   return ocp
 
@@ -180,6 +206,7 @@ class LongitudinalMpc:
 
   def reset(self):
     self.solver.reset()
+
     self.x_sol = np.zeros((N+1, X_DIM))
     self.u_sol = np.zeros((N, 1))
     self.v_solution = np.zeros(N+1)
@@ -187,18 +214,24 @@ class LongitudinalMpc:
     self.j_solution = np.zeros(N)
     self.a_prev = np.array(self.a_solution)
     self.yref = np.zeros((N+1, COST_DIM))
+
     for i in range(N):
       self.solver.cost_set(i, "yref", self.yref[i])
     self.solver.cost_set(N, "yref", self.yref[N][:COST_E_DIM])
+
     self.params = np.zeros((N+1, PARAM_DIM))
+    # 給定基礎的安全上下限
     self.params[:, 0] = ACCEL_MIN
     self.params[:, 1] = ACCEL_MAX
+    
     for i in range(N+1):
       self.solver.set(i, 'x', np.zeros(X_DIM))
+
     self.last_cloudlog_t = 0
     self.status = False
     self.crash_cnt = 0.0
     self.solution_status = 0
+    # timers
     self.solve_time = 0.0
     self.time_qp_solution = 0.0
     self.time_linearization = 0.0
@@ -212,6 +245,7 @@ class LongitudinalMpc:
       W[4,4] = cost_weights[4] * np.interp(T_IDXS[i], [0.0, 1.0, 2.0], [1.0, 1.0, 0.0])
       self.solver.cost_set(i, 'W', W)
     self.solver.cost_set(N, 'W', np.copy(W[:COST_E_DIM, :COST_E_DIM]))
+
     Zl = np.array(constraint_cost_weights)
     for i in range(N):
       self.solver.cost_set(i, 'Zl', Zl)
@@ -251,6 +285,7 @@ class LongitudinalMpc:
       v_lead = v_ego + 10.0
       a_lead = 0.0
       a_lead_tau = _LEAD_ACCEL_TAU
+
     min_x_lead = MIN_X_LEAD_FACTOR * (v_ego + v_lead) * (v_ego - v_lead) / (-ACCEL_MIN * 2)
     x_lead = np.clip(x_lead, min_x_lead, 1e8)
     v_lead = np.clip(v_lead, 0.0, 1e8)
@@ -258,15 +293,9 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  # [加入覆寫參數支援 a_cruise_min_override, t_follow_override]
-  def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard, a_cruise_min_override=None, t_follow_override=None):
-    
-    # --- 優先攔截 APM Relaxed 模式 (場景 2 & 3) ---
-    if personality == log.LongitudinalPersonality.relaxed:
-      t_follow = APM_RELAXED_T_FOLLOW
-    else:
-      t_follow = t_follow_override if t_follow_override is not None else get_T_FOLLOW(personality)
-    
+  # [加入覆寫參數支援 a_cruise_min_override]
+  def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard, a_cruise_min_override=None):
+    t_follow = get_T_FOLLOW(personality)
     a_cruise_min = a_cruise_min_override if a_cruise_min_override is not None else CRUISE_MIN_ACCEL
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
@@ -277,6 +306,7 @@ class LongitudinalMpc:
     lead_0_obstacle = lead_xv_0[:,0] + get_stopped_equivalence_factor(lead_xv_0[:,1])
     lead_1_obstacle = lead_xv_1[:,0] + get_stopped_equivalence_factor(lead_xv_1[:,1])
 
+    # [應用 a_cruise_min_override]
     v_lower = v_ego + (T_IDXS * a_cruise_min * 1.05)
     v_upper = v_ego + (T_IDXS * CRUISE_MAX_ACCEL * 1.05)
     v_cruise_clipped = np.clip(v_cruise * np.ones(N+1), v_lower, v_upper)
@@ -309,19 +339,24 @@ class LongitudinalMpc:
       self.solver.set(i, 'p', self.params[i])
     self.solver.constraints_set(0, "lbx", self.x0)
     self.solver.constraints_set(0, "ubx", self.x0)
+
     self.solution_status = self.solver.solve()
     self.solve_time = float(self.solver.get_stats('time_tot')[0])
     self.time_qp_solution = float(self.solver.get_stats('time_qp')[0])
     self.time_linearization = float(self.solver.get_stats('time_lin')[0])
     self.time_integrator = float(self.solver.get_stats('time_sim')[0])
+
     for i in range(N+1):
       self.x_sol[i] = self.solver.get(i, 'x')
     for i in range(N):
       self.u_sol[i] = self.solver.get(i, 'u')
+
     self.v_solution = self.x_sol[:,1]
     self.a_solution = self.x_sol[:,2]
     self.j_solution = self.u_sol[:,0]
+
     self.a_prev = np.interp(T_IDXS + self.dt, T_IDXS, self.a_solution)
+
     t = time.monotonic()
     if self.solution_status != 0:
       if t > self.last_cloudlog_t + 5.0:
