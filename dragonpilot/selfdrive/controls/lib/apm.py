@@ -32,9 +32,6 @@ V_REL_RELAX_EXIT = 10 * 1000 / 3600      # 10 km/h：速差降至 10 km/h 以內
 
 V_EGO_STOPPED = 0.5                      # 低於 0.5 m/s (約 1.8 km/h) 視為完全靜止
 
-# --- APM 連動參數 ---
-APM_RELAXED_T_FOLLOW = 2.0               # 當場景 2 或 3 觸發時，強制的跟車秒距 (TTC)
-
 
 class APM:
 
