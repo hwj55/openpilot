@@ -1,5 +1,4 @@
 import time
-from collections import deque
 import numpy as np
 from cereal import log
 from openpilot.common.swaglog import cloudlog
@@ -20,8 +19,8 @@ TRAJECTORY_HORIZON  = 6      # 預判原廠規劃軌跡的前 6 個點 (約涵�
 INTENT_LOOKAHEAD    = 3      # 在這 6 個點中，若有 3 個點符合加速閾值，即判定車輛「有意圖」加速
 INTENT_V_LOW        = 0.0    # 低速基準線 (0 km/h)
 INTENT_V_HIGH       = 22.22  # 高速基準線 (約 80 km/h, 單位: m/s)
-INTENT_FRAMES_LOW   = 1      # 低速時，只需 1 幀偵測到加速即觸發解除 (極度靈敏，利於起步)
-INTENT_FRAMES_HIGH  = 20     # 高速時，需要連續 20 幀偵測到加速才鎖定意圖 (防止高速巡航時的震盪誤判)
+INTENT_FRAMES_LOW   = 0      # 低速時，需連續 0 幀 (即只要當下這 1 幀偵測到，立刻 0 延遲放行)
+INTENT_FRAMES_HIGH  = 20     # 高速時，需要連續 20 幀偵測到加速才放行 (防止高速巡航時的震盪誤判)
 
 # --- 巡航與坡度參數 ---
 SPEED_OFFSET_MIN_KPH = 1.0             # 容許的最小超速滑行寬容值
@@ -162,12 +161,11 @@ class SoftHoldLogic:
     self._last_target_factor = 1.0        
     self._last_soft_hold_accel = 0.0      
 
+    # 新版意圖加速計數器 (移除所有強度與過濾器)
     self.accel_intent_counter = 0
     self.intent_accelerating = False
-    self._accel_intent_strength = 0.0     
     
     self._ratio_hysteresis_state = False  
-    self._cancel_filter = 0.0             
     self._target_factor_smooth = 1.0      
     
     self._last_stable_cancel_state = False
@@ -176,10 +174,6 @@ class SoftHoldLogic:
     # 核心狀態鎖：防止低速煞停時因為比例波動而「放開又煞車」
     self._is_soft_holding = False
 
-    # --- 新增：加速意圖放行專用佇列 (Sliding Window) ---
-    # 長度為 6 的 Deque，用來記錄過去 6 幀的立即加速狀態
-    self._recent_accel_queue = deque(maxlen=6)
-
   def process_trajectory(self, a_desired_trajectory, v_ego, lead, current_pitch, t_follow):
     should_cancel_soft_hold = False
     current_time = time.monotonic()
@@ -187,24 +181,12 @@ class SoftHoldLogic:
     # --- 1. 動態意圖偵測 (預判是否該補油門了) ---
     recent_trajectory = a_desired_trajectory[:TRAJECTORY_HORIZON]
     has_valid_lead = lead is not None and lead.status
-
-    # 【新增邏輯：近期軌跡（6幀）加速意圖放行判定】
-    # 判斷這 1 幀是否具有起步或加速意圖（取原廠軌跡第一點的加速度 > 0.05）
-    current_frame_intent = 1 if a_desired_trajectory[0] > 0.05 else 0
-    self._recent_accel_queue.append(current_frame_intent)
-
-    # 檢查長度為 6 的狀態佇列中，是否有一半 (3幀) 判定具備加速意圖
-    queue_intent_release = False
-    if sum(self._recent_accel_queue) >= 3:
-        # 安全防護：確認前車正在遠離 (vRel > 0.0) 或無前車威脅，才允許放行
-        if not has_valid_lead or lead.vRel > 0.0:
-            queue_intent_release = True
     
-    # 依據車速動態計算需要的觀察幀數 (低速反應快，高速防雜訊)
+    # 依據車速動態計算需要的觀察幀數 (低速 0 幀立刻反應，高速 20 幀防雜訊)
     v_ratio = max(0.0, min((v_ego - INTENT_V_LOW) / (INTENT_V_HIGH - INTENT_V_LOW), 1.0))
     dynamic_intent_frames = int(round(INTENT_FRAMES_LOW + v_ratio * (INTENT_FRAMES_HIGH - INTENT_FRAMES_LOW)))
     
-    # 偵測原廠未來軌跡預判中是否包含明確的加速指令
+    # 偵測原廠軌跡中是否包含明確的加速指令
     moment_accel = sum(1 for a in recent_trajectory if a > 0.05) >= INTENT_LOOKAHEAD and (lead.vRel > 0.05 if has_valid_lead else True)
 
     target_factor = 1.0   
@@ -213,15 +195,12 @@ class SoftHoldLogic:
     is_lead_braking_strict = False
     skip_state_2 = False
 
-    # --- 2. 狀態機與意圖累積過濾 ---
+    # --- 2. 狀態機與意圖直接放行 ---
     if not has_valid_lead:
-        # 雷達失去目標時的衰減邏輯
         self._vrel_high_active = False
-        decrement = 1.0 / max(dynamic_intent_frames, 1)
-        self._accel_intent_strength = max(0.0, self._accel_intent_strength - decrement)
-        if self._accel_intent_strength < 0.1:
-            self.intent_accelerating = False
-            self.accel_intent_counter = 0
+        # 失去前車時，計數器與狀態直接乾淨歸零
+        self.accel_intent_counter = 0
+        self.intent_accelerating = False
 
         # 短暫失去目標時維持上一幀狀態 (防雷達閃爍)
         if (current_time - self._last_lead_time) < 0.5:
@@ -239,32 +218,19 @@ class SoftHoldLogic:
     else:
         self._last_lead_time = current_time 
         
-        # 累積或衰減加速意圖分數
+        # 乾淨的連續計數器：只要有加速意圖就累加，一沒有就立刻斷開歸零
         if moment_accel:
-            increment = 1.0 / max(dynamic_intent_frames, 1)
-            self._accel_intent_strength = min(1.0, self._accel_intent_strength + increment)
             self.accel_intent_counter += 1
         else:
-            decrement = 1.0 / max(dynamic_intent_frames, 1)
-            self._accel_intent_strength = max(0.0, self._accel_intent_strength - decrement)
             self.accel_intent_counter = 0
 
-        # 意圖狀態鎖定
-        if self._accel_intent_strength > 0.7:  
+        # 【條件達成即刻放行】
+        # 只要 moment_accel 成立，且累積幀數大於等於當下車速規定的閾值，直接觸發放行
+        if moment_accel and self.accel_intent_counter >= dynamic_intent_frames:
             self.intent_accelerating = True
-        elif self._accel_intent_strength < 0.3:  
-            self.intent_accelerating = False
-
-        if self.intent_accelerating:
-            cancel_probability = min(1.0, self._accel_intent_strength * 1.5) 
-            self._cancel_filter = 0.8 * self._cancel_filter + 0.2 * cancel_probability
-            if self._cancel_filter > 0.5:
-                should_cancel_soft_hold = True
-
-        # 【新增邏輯：觸發加速意圖放行】
-        # 若歷史 6 幀的 Deque 判定達標，則具備最高解除權限，直接觸發放行
-        if queue_intent_release:
             should_cancel_soft_hold = True
+        else:
+            self.intent_accelerating = False
 
         # 速差過大保護 (防高速逼近)
         if lead.vRel > 1.0:
@@ -340,8 +306,7 @@ class SoftHoldLogic:
     # --- 5. 最終動力與煞車因子的計算與覆寫 ---
     if should_cancel_soft_hold:
         target_factor = 1.0  # 1.0 代表 100% 聽從原廠 MPC 的軌跡 (還原動力/煞車)
-        # 若為歷史佇列放行或意圖累積放行，給予更靈敏的過渡 alpha 值
-        alpha = 0.60 if (self.intent_accelerating or queue_intent_release) else 0.30 
+        alpha = 0.60 if self.intent_accelerating else 0.30 
         self._is_soft_holding = False # 釋放狀態鎖定
         
     elif not skip_state_2: 
@@ -474,4 +439,3 @@ class ACM:
     traj = self.soft_hold.process_trajectory(traj, v_ego, lead, self.current_pitch, t_follow)
     
     return traj
-
