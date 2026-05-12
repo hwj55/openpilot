@@ -16,6 +16,7 @@ from openpilot.sunnypilot import PARAMS_UPDATE_PERIOD
 from openpilot.sunnypilot.livedelay.helpers import get_lat_delay
 from openpilot.sunnypilot.modeld_v2.modeld_base import ModelStateBase
 from openpilot.sunnypilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
+from openpilot.sunnypilot.selfdrive.controls.lib.lat_curvature_prefilter import CurvaturePreFilteredLatControl
 from openpilot.sunnypilot.selfdrive.controls.lib.latcontrol_torque_v0 import LatControlTorque as LatControlTorqueV0
 
 
@@ -39,13 +40,13 @@ class ControlsExt(ModelStateBase):
     torque_versions = self.params.get("TorqueControlTune")
     if not enforce_torque_control:
       if self.CP.lateralTuning.which() == 'torque':
-        return LatControlTorqueV0(self.CP, self.CP_SP, CI, dt)  # FIXME-SP: revert when upstream fixes tuning issues with v1
+        return CurvaturePreFilteredLatControl(LatControlTorqueV0(self.CP, self.CP_SP, CI, dt))  # FIXME-SP: revert when upstream fixes tuning issues with v1
       return lac
 
     if torque_versions == 0.0:  # v0
-      return LatControlTorqueV0(self.CP, self.CP_SP, CI, dt)
+      return CurvaturePreFilteredLatControl(LatControlTorqueV0(self.CP, self.CP_SP, CI, dt))
     else:
-      return lac
+      return CurvaturePreFilteredLatControl(lac) if self.CP.lateralTuning.which() == 'torque' else lac
 
   def get_params_sp(self, sm: messaging.SubMaster) -> None:
     if time.monotonic() - self._param_update_time > PARAMS_UPDATE_PERIOD:
