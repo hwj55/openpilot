@@ -38,6 +38,13 @@ INTEGRATOR_DECAY_FRAMES = 20
 INTEGRATOR_DECAY_BP = [1.0, 5.0, 15.0, 30.0]
 INTEGRATOR_DECAY_V = [0.985, 0.990, 0.995, 0.999]      # multiplier per frame once triggered
 
+# Turn-exit hard reset: when planner ends a turn (|desired_curvature| drops from real
+# turn magnitude toward zero), bleed integrator immediately so it can't keep pushing the
+# wheel past straight. Targets the ~10-20% turn-exit overshoots seen on routes 035c/d.
+TURN_EXIT_TURN_THRESHOLD = 0.005       # 1/m - "in a real turn" floor
+TURN_EXIT_NEAR_ZERO = 0.0015           # 1/m - "back near straight" ceiling
+TURN_EXIT_I_DECAY = 0.85               # multiplier per frame while in exit window
+
 
 # At a given roll, if pitch magnitude increases, the
 # gravitational acceleration component starts pointing
@@ -65,6 +72,7 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
     self.measurement_filter = FirstOrderFilter(0.0, MEAS_FILTER_TAU_V[-1], 0.01)
     self._prev_output_torque = 0.0
     self._integrator_decay_counter = 0
+    self._max_recent_desired_curvature = 0.0
 
     # setup future time offsets
     self.future_times = [0.3, 0.6, 1.0, 1.5] # seconds in the future
@@ -87,6 +95,7 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
     self._prev_output_torque = 0.0
     self.measurement_filter.x = 0.0
     self._integrator_decay_counter = 0
+    self._max_recent_desired_curvature = 0.0
 
   def update_limits(self):
     if not self._nnlc_enabled:
@@ -121,6 +130,13 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
       self._integrator_decay_counter = 0
     if self._integrator_decay_counter >= INTEGRATOR_DECAY_FRAMES:
       self._pid.i *= float(np.interp(CS.vEgo, INTEGRATOR_DECAY_BP, INTEGRATOR_DECAY_V))
+
+    # turn-exit hard reset: 0.95 decay rolling max over 1s; if max was real-turn and
+    # current |desired| is near zero, bleed I aggressively
+    self._max_recent_desired_curvature = max(abs(self._desired_curvature),
+                                             self._max_recent_desired_curvature * 0.99)
+    if self._max_recent_desired_curvature > TURN_EXIT_TURN_THRESHOLD and abs(self._desired_curvature) < TURN_EXIT_NEAR_ZERO:
+      self._pid.i *= TURN_EXIT_I_DECAY
     is_winding = abs(raw_output) > abs(self._prev_output_torque)
     slew_v = OUTPUT_SLEW_WIND_UP_V if is_winding else OUTPUT_SLEW_UNWIND_V
     slew = float(np.interp(CS.vEgo, OUTPUT_SLEW_BP, slew_v))
