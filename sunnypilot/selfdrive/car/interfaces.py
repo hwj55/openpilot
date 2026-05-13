@@ -10,6 +10,7 @@ from opendbc.car import structs
 from opendbc.car.interfaces import CarInterfaceBase
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
+from openpilot.sunnypilot.selfdrive.car.toyota.gas_brake_hysteresis import GasBrakeHysteresis
 from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.helpers import get_nn_model_path
 from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit_assist_availability
 
@@ -69,6 +70,22 @@ def _initialize_torque_lateral_control(CI: CarInterfaceBase, CP: structs.CarPara
     CI.configure_torque_tune(CP.carFingerprint, CP.lateralTuning)
 
 
+def _wrap_toyota_gas_brake_hysteresis(CI: CarInterfaceBase) -> None:
+  hyst = GasBrakeHysteresis()
+  base_apply = CI.apply
+
+  def apply(c, c_sp, now_nanos=None):
+    raw = float(c.actuators.accel)
+    held = hyst.update(raw)
+    if held == raw:
+      return base_apply(c, c_sp, now_nanos)
+    c_b = c.as_builder()
+    c_b.actuators.accel = held
+    return CI.CC.update(c_b.as_reader(), c_sp, CI.CS, now_nanos)
+
+  CI.apply = apply
+
+
 def _cleanup_unsupported_params(CP: structs.CarParams, CP_SP: structs.CarParamsSP, params: Params = None) -> None:
   if params is None:
     params = Params()
@@ -101,6 +118,9 @@ def setup_interfaces(CI: CarInterfaceBase, params: Params = None) -> None:
   _initialize_intelligent_cruise_button_management(CP, CP_SP, params)
   _initialize_torque_lateral_control(CI, CP, enforce_torque, nnlc_enabled)
   _cleanup_unsupported_params(CP, CP_SP)
+
+  if CP.brand == "toyota" and CI.CC is not None:
+    _wrap_toyota_gas_brake_hysteresis(CI)
 
   try:
     STATSLOGSP.raw('sunnypilot.car_params', CP.to_dict())
