@@ -19,7 +19,7 @@ from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.helpers import MOCK_MODEL_
 from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.model import NNTorqueModel
 
 LOW_SPEED_X = [0, 10, 20, 30]
-LOW_SPEED_Y = [3, 0.5, 0, 0]
+LOW_SPEED_Y = [4.5, 1.0, 0.25, 0]
 
 # Measurement low-pass tau (seconds) vs v_ego. Higher tau at low speed suppresses
 # sensor noise that drives PID ping-pong; near-zero at hwy preserves tracking.
@@ -30,7 +30,13 @@ MEAS_FILTER_TAU_V = [0.07, 0.07, 0.06, 0.05, 0.01]
 # is tighter than unwind; both tightest at low speed where ping-pong limit cycle lives.
 OUTPUT_SLEW_BP = [5.0, 25.0]
 OUTPUT_SLEW_WIND_UP_V = [0.005, 0.015]
-OUTPUT_SLEW_UNWIND_V = [0.010, 0.020]
+OUTPUT_SLEW_UNWIND_V = [0.040, 0.040]                  # loose unwind - fast return to zero
+
+# Anti-windup integrator decay: when error opposes integrator for N frames, bleed I.
+# Kills long-period oscillation where integrator winds up against slew-limited output.
+INTEGRATOR_DECAY_FRAMES = 20
+INTEGRATOR_DECAY_BP = [1.0, 5.0, 15.0, 30.0]
+INTEGRATOR_DECAY_V = [0.985, 0.990, 0.995, 0.999]      # multiplier per frame once triggered
 
 
 # At a given roll, if pitch magnitude increases, the
@@ -58,6 +64,7 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
     self.pitch_last = 0.0
     self.measurement_filter = FirstOrderFilter(0.0, MEAS_FILTER_TAU_V[-1], 0.01)
     self._prev_output_torque = 0.0
+    self._integrator_decay_counter = 0
 
     # setup future time offsets
     self.future_times = [0.3, 0.6, 1.0, 1.5] # seconds in the future
@@ -79,6 +86,7 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
   def reset_state(self):
     self._prev_output_torque = 0.0
     self.measurement_filter.x = 0.0
+    self._integrator_decay_counter = 0
 
   def update_limits(self):
     if not self._nnlc_enabled:
@@ -107,6 +115,12 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
                                   feedforward=self._ff,
                                   speed=CS.vEgo,
                                   freeze_integrator=freeze_integrator)
+    if (self._pid.i > 0 and self._pid_log.error < 0) or (self._pid.i < 0 and self._pid_log.error > 0):
+      self._integrator_decay_counter = min(self._integrator_decay_counter + 1, INTEGRATOR_DECAY_FRAMES + 10)
+    else:
+      self._integrator_decay_counter = 0
+    if self._integrator_decay_counter >= INTEGRATOR_DECAY_FRAMES:
+      self._pid.i *= float(np.interp(CS.vEgo, INTEGRATOR_DECAY_BP, INTEGRATOR_DECAY_V))
     is_winding = abs(raw_output) > abs(self._prev_output_torque)
     slew_v = OUTPUT_SLEW_WIND_UP_V if is_winding else OUTPUT_SLEW_UNWIND_V
     slew = float(np.interp(CS.vEgo, OUTPUT_SLEW_BP, slew_v))
@@ -166,7 +180,7 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
     # error as the input to the NNLC model. This is not ideal, and potentially degrades the NNLC
     # accuracy for cars that don't have this issue, but it's necessary until a better NNLC model
     # structure is used that doesn't create this issue when high-magnitude data is missing.
-    error_blend_factor = float(np.interp(abs(self._desired_lateral_accel), [1.5, 2.5], [0.0, 0.5]))
+    error_blend_factor = float(np.interp(abs(self._desired_lateral_accel), [1.0, 2.0], [0.0, 1.0]))
     if error_blend_factor > 0.0:  # blend in stronger error response when in high lat accel
       # NNFF inputs 5+ are optional, and if left out are replaced with 0.0 inside the NNFF class
       nnff_error_input = [CS.vEgo, self._setpoint - self._measurement, self.lateral_jerk_setpoint - self.lateral_jerk_measurement, 0.0]

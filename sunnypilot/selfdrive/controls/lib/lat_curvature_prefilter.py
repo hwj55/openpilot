@@ -11,7 +11,7 @@ import numpy as np
 # converted to curvature space. Wind-up (|curv| increasing) limited tighter than unwind.
 _RATE_BP = [5.0, 25.0]                       # m/s
 _WIND_UP_RATE = [0.000139, 0.0000693]        # 1/m per DT_CTRL frame (100 Hz)
-_UNWIND_RATE = [0.000166, 0.000120]          # 1/m per DT_CTRL frame (100 Hz)
+_UNWIND_RATE = [0.00060, 0.00030]            # 1/m per DT_CTRL frame (100 Hz) - loose toward 0 for fast unwind
 
 
 def angle_like_clip_curvature(v_ego: float, prev_curvature: float, new_curvature: float) -> float:
