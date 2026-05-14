@@ -72,19 +72,7 @@ jobs:
           git fetch mod_source --no-tags
           
           echo "Performing fixed range cherry-pick..."
-          COMMITS=$(git rev-list --reverse 3c1c37f550c0db5658adce65ef51281a0d4a521d^..58b6c33c7133b2ec41951511e04d45dd71c8cec9)
-          
-          for commit in $COMMITS; do
-            echo "Applying: $commit"
-            if ! git cherry-pick $commit -X theirs; then
-              if git status | grep -q "nothing to commit"; then
-                git cherry-pick --skip
-              else
-                git add . 
-                git -c core.editor=true cherry-pick --continue || exit 1
-              fi
-            fi
-          done
+          git cherry-pick 04f1b0b708206e14058ec7b0756b0d7ac1800058 -X theirs
 
           # --- 彻底解决权限问题的操作：删除所有工作流文件 ---
           echo "Removing .github/workflows to bypass GitHub Action restrictions..."
