@@ -20,7 +20,7 @@ INTENT_LOOKAHEAD    = 3      # 在這 6 個點中，若有 3 個點符合加速�
 INTENT_V_LOW        = 0.0    # 低速基準線 (0 km/h)
 INTENT_V_HIGH       = 22.22  # 高速基準線 (約 80 km/h, 單位: m/s)
 INTENT_FRAMES_LOW   = 0      # 低速時，需連續 0 幀 (即只要當下這 1 幀偵測到，立刻 0 延遲放行)
-INTENT_FRAMES_HIGH  = 5     # 高速時，需要連續 5 幀偵測到加速才放行 (防止高速巡航時的震盪誤判)
+INTENT_FRAMES_HIGH  = 5      # 高速時，需要連續 5 幀偵測到加速才放行 (防止高速巡航時的震盪誤判)
 
 # --- 巡航與坡度參數 ---
 SPEED_OFFSET_MIN_KPH = 1.0             # 容許的最小超速滑行寬容值
@@ -50,7 +50,7 @@ MIN_DIST_V = [5., 10., 15., 20.]       # 對應車速的絕對最小安全物理
 # 🚀 物理公式專用：滑行與防震盪閾值 (核心修改區)
 # =========================================================
 # 這裡的數值代表「實體距離佔動態目標距離的百分比」
-SOFT_HOLD_RANGE_MAX = 0.90            # 進入純滑行的最高界線 (低於目標距離 90% 啟動滑行，斷開原廠煞車)
+SOFT_HOLD_RANGE_MAX = 0.90             # 進入純滑行的最高界線 (低於目標距離 90% 啟動滑行，斷開原廠油門)
 SOFT_HOLD_RANGE_MIN = 0.70             # 交還控制權的最低界線 (低於目標距離 70% 代表太近，交給原廠重煞)
 
 RATIO_ENTER_THRESHOLD = 1.00           # 空間充裕界線：實體距離大於目標 100% 時，徹底解除滑行允許補油門
@@ -76,6 +76,7 @@ class CoastingLogic:
     self._has_lead = False             
     self._last_lead_time = 0.0         
     self._active_prev = False          
+    self._last_v_ego = 0.0             # 記錄上一幀車速，用於判定是否處於減速狀態
 
   def check_emergency(self, lead, v_ego, current_time):
     """檢查是否處於緊急狀況 (例如快撞上、前車急煞)，若是則強制退出滑行"""
@@ -111,7 +112,12 @@ class CoastingLogic:
     """綜合判斷是否允許開啟無車純滑行模式"""
     if not enabled:
       self.active = False
+      self._last_v_ego = v_ego  # 系統未啟用時，也要持續更新歷史車速基準
       return
+
+    # 判斷是否處於減速狀態 (當下車速比上一幀小，加上 1e-4 微小容差防止感測器雜訊誤判)
+    is_decelerating = v_ego < (self._last_v_ego - 1e-4)
+    self._last_v_ego = v_ego    # 更新歷史車速供下一幀使用
       
     # 根據坡度決定容許的超速上限
     if current_pitch < PITCH_DOWNHILL_THRESHOLD:
@@ -123,28 +129,30 @@ class CoastingLogic:
     is_in_coast_window = (v_ego >= v_cruise and v_ego < upper_bound)
     in_cooldown = (current_time - self._last_lead_time) < LEAD_COOLDOWN_TIME
     
-    # 啟動條件：無人工干預、無前車威脅、在容許超速範圍內、非陡坡
+    # 【新增條件】：車速低於 10 km/h 且正在減速時，禁用滑行
+    is_low_speed_decelerating = ((v_ego * 3.6) < 10.0) and is_decelerating
+
+    # 啟動條件：無人工干預、無前車威脅、在容許超速範圍內、非陡坡、且【未觸發低速減速禁用條件】
     should_activate = (not dtsc_is_active and
                        current_pitch <= PITCH_UPHILL_THRESHOLD and
                        not user_ctrl_lon and     
                        not self._has_lead and    
                        not in_cooldown and       
-                       is_in_coast_window)
+                       is_in_coast_window and
+                       not is_low_speed_decelerating)
+                       
     self.active = should_activate
     self._active_prev = self.active
 
   def process_trajectory(self, a_desired_trajectory, lead):
-    """處理軌跡，將微弱的煞車指令抹平以實現純滑行"""
+    """處理軌跡 (依需求：完全保留原廠所有剎車，不抹平任何微小剎車)"""
     traj = np.copy(a_desired_trajectory)
     if self.active:
       min_accel = np.min(traj)
       if min_accel < EMERGENCY_DECEL_THRESHOLD:
-        self.active = False # 原廠要急煞了，立刻交還控制權
-      else:
-        if not (lead is not None and lead.status):
-          # 將 -0.15 到 0.0 之間的微弱煞車歸零，達成順暢滑行
-          mask = (traj > -0.15) & (traj < 0.0)
-          traj[mask] = traj[mask] * (np.abs(traj[mask]) / 0.15)
+        self.active = False # 原廠要求急煞時，立刻交還控制權
+        
+      # (原有的 -0.15~0.0 抹平遮罩已徹底移除，原廠微煞車 100% 保留)
     return traj
 
 
@@ -319,12 +327,12 @@ class SoftHoldLogic:
             # 2. 若前車走遠，空間充裕，解除鎖定準備加速
             elif ratio >= RATIO_ENTER_THRESHOLD:
                 self._is_soft_holding = False
-            # 3. 進入安全的滑行口袋區間，啟動鎖定！
-            # (一旦鎖定，即使低速時分母縮水導致 ratio 暴增，系統也會堅持踩住煞車，直到前車真的開走)
+            # 3. 進入安全的滑行口袋區間 (90%~70%)，啟動鎖定！
+            # (一旦鎖定，強制切斷原廠動力)
             elif ratio < SOFT_HOLD_RANGE_MAX and current_ttc <= SOFT_HOLD_TTC_THRESHOLD:
                 self._is_soft_holding = True
 
-            # 只要處於鎖定滑行狀態，強制切斷原廠動力 (factor = 0.0)
+            # 只要處於鎖定狀態，強制切斷原廠油門動力 (factor = 0.0)
             if self._is_soft_holding:
                 distance_factor = 0.0
 
@@ -360,19 +368,27 @@ class SoftHoldLogic:
     self._last_target_factor = target_factor
     self._last_soft_hold_accel = current_soft_hold_accel
     
-    # 透過低通濾波器平滑因子，確保加減速過渡不頓挫
+    # 透過低通濾波器平滑因子，確保過渡不頓挫
     self._soft_hold_factor = (1.0 - alpha) * self._soft_hold_factor + alpha * target_factor
     self._target_factor_smooth = (1.0 - TARGET_FACTOR_FILTER_ALPHA) * self._target_factor_smooth + TARGET_FACTOR_FILTER_ALPHA * self._soft_hold_factor
 
     # --- 6. 軌跡合成 (Trajectory Blending) ---
     traj = np.copy(a_desired_trajectory)
     if self._target_factor_smooth < 0.99: 
-        hold_strength = 1.0 - self._target_factor_smooth
-        # 將原廠的加速指令與我們的微煞車指令依權重融合
-        dynamic_limit = np.maximum(traj, 0.0) * self._target_factor_smooth + current_soft_hold_accel * hold_strength
-        blend_factor = 0.5
-        exceeds_mask = traj > dynamic_limit
-        traj = np.where(exceeds_mask, dynamic_limit * blend_factor + traj * (1.0 - blend_factor), traj)
+        # 【核心修改區】：只針對「正加速 (油門)」進行等比例抹平
+        # 當距離比例進入 90%~70% 區間，_target_factor_smooth 會趨近 0，進而將多餘油門歸零
+        mask_positive = traj > 0.0
+        traj[mask_positive] = traj[mask_positive] * self._target_factor_smooth
+        
+        # 負加速 (原廠微小或重度剎車) 則完全放行，不做任何抹平處理
+        
+        # 決定是否疊加上模組自帶的極微弱輔助剎車 (Soft Hold Accel)
+        if current_soft_hold_accel < 0.0:
+            hold_strength = 1.0 - self._target_factor_smooth
+            dynamic_limit = current_soft_hold_accel * hold_strength
+            # 只有當原廠軌跡(包含微小剎車) 的制動力道「不足」，比我們預期的輔助剎車還要弱時，才疊加介入
+            exceeds_mask = traj > dynamic_limit
+            traj = np.where(exceeds_mask, dynamic_limit, traj)
 
     return traj
 
