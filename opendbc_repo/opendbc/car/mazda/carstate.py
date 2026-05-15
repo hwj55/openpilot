@@ -111,7 +111,7 @@ class CarState(CarStateBase):
     ]
 
     if self.CP.openpilotLongitudinalControl:
-      acc_armed = cp.vl["PEDALS"]["ACC_OFF"] == 1
+      acc_armed = cp.vl["PEDALS"]["ACC_OFF"] == 0
       acc_active = cp.vl["PEDALS"]["ACC_ACTIVE"] == 1
       ret.cruiseState.available = acc_armed or acc_active
       ret.cruiseState.enabled = acc_active
