@@ -67,7 +67,7 @@ TARGET_FACTOR_FILTER_ALPHA = 0.3       # 最終輸出因子的平滑濾波係數
 SOFT_HOLD_HYSTERESIS_TIME = 1.0        # 狀態切換的滯後防震盪時間 (秒)
 
 # =========================================================
-# 邏輯模組 1：純滑行控制器 (無車或極度安全時的空檔滑行)
+# 邏輯模組 1：純滑行控制器 (完全還原原始版本)
 # =========================================================
 class CoastingLogic:
   def __init__(self):
@@ -76,7 +76,6 @@ class CoastingLogic:
     self._has_lead = False             
     self._last_lead_time = 0.0         
     self._active_prev = False          
-    self._last_v_ego = 0.0             # 記錄上一幀車速，用於判定是否處於減速狀態
 
   def check_emergency(self, lead, v_ego, current_time):
     """檢查是否處於緊急狀況 (例如快撞上、前車急煞)，若是則強制退出滑行"""
@@ -112,12 +111,7 @@ class CoastingLogic:
     """綜合判斷是否允許開啟無車純滑行模式"""
     if not enabled:
       self.active = False
-      self._last_v_ego = v_ego  # 系統未啟用時，也要持續更新歷史車速基準
       return
-
-    # 判斷是否處於減速狀態 (當下車速比上一幀小，加上 1e-4 微小容差防止感測器雜訊誤判)
-    is_decelerating = v_ego < (self._last_v_ego - 1e-4)
-    self._last_v_ego = v_ego    # 更新歷史車速供下一幀使用
       
     # 根據坡度決定容許的超速上限
     if current_pitch < PITCH_DOWNHILL_THRESHOLD:
@@ -129,35 +123,33 @@ class CoastingLogic:
     is_in_coast_window = (v_ego >= v_cruise and v_ego < upper_bound)
     in_cooldown = (current_time - self._last_lead_time) < LEAD_COOLDOWN_TIME
     
-    # 【新增條件】：車速低於 10 km/h 且正在減速時，禁用滑行
-    is_low_speed_decelerating = ((v_ego * 3.6) < 10.0) and is_decelerating
-
-    # 啟動條件：無人工干預、無前車威脅、在容許超速範圍內、非陡坡、且【未觸發低速減速禁用條件】
+    # 啟動條件：無人工干預、無前車威脅、在容許超速範圍內、非陡坡
     should_activate = (not dtsc_is_active and
                        current_pitch <= PITCH_UPHILL_THRESHOLD and
                        not user_ctrl_lon and     
                        not self._has_lead and    
                        not in_cooldown and       
-                       is_in_coast_window and
-                       not is_low_speed_decelerating)
-                       
+                       is_in_coast_window)
     self.active = should_activate
     self._active_prev = self.active
 
   def process_trajectory(self, a_desired_trajectory, lead):
-    """處理軌跡 (依需求：完全保留原廠所有剎車，不抹平任何微小剎車)"""
+    """處理軌跡，將微弱的煞車指令抹平以實現純滑行 (還原版邏輯)"""
     traj = np.copy(a_desired_trajectory)
     if self.active:
       min_accel = np.min(traj)
       if min_accel < EMERGENCY_DECEL_THRESHOLD:
-        self.active = False # 原廠要求急煞時，立刻交還控制權
-        
-      # (原有的 -0.15~0.0 抹平遮罩已徹底移除，原廠微煞車 100% 保留)
+        self.active = False # 原廠要急煞了，立刻交還控制權
+      else:
+        if not (lead is not None and lead.status):
+          # 將 -0.15 到 0.0 之間的微弱煞車歸零，達成順暢滑行
+          mask = (traj > -0.15) & (traj < 0.0)
+          traj[mask] = traj[mask] * (np.abs(traj[mask]) / 0.15)
     return traj
 
 
 # =========================================================
-# 邏輯模組 2：物理級距柔和滑行控制器 (防震盪鎖定版)
+# 邏輯模組 2：物理級距柔和滑行控制器 (保留最新修改版)
 # =========================================================
 class SoftHoldLogic:
   def __init__(self):
@@ -376,17 +368,13 @@ class SoftHoldLogic:
     traj = np.copy(a_desired_trajectory)
     if self._target_factor_smooth < 0.99: 
         # 【核心修改區】：只針對「正加速 (油門)」進行等比例抹平
-        # 當距離比例進入 90%~70% 區間，_target_factor_smooth 會趨近 0，進而將多餘油門歸零
         mask_positive = traj > 0.0
         traj[mask_positive] = traj[mask_positive] * self._target_factor_smooth
-        
-        # 負加速 (原廠微小或重度剎車) 則完全放行，不做任何抹平處理
         
         # 決定是否疊加上模組自帶的極微弱輔助剎車 (Soft Hold Accel)
         if current_soft_hold_accel < 0.0:
             hold_strength = 1.0 - self._target_factor_smooth
             dynamic_limit = current_soft_hold_accel * hold_strength
-            # 只有當原廠軌跡(包含微小剎車) 的制動力道「不足」，比我們預期的輔助剎車還要弱時，才疊加介入
             exceeds_mask = traj > dynamic_limit
             traj = np.where(exceeds_mask, dynamic_limit, traj)
 
