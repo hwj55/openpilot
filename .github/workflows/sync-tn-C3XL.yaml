@@ -73,7 +73,8 @@ jobs:
           
           echo "Performing fixed range cherry-pick..."
           git cherry-pick 04f1b0b708206e14058ec7b0756b0d7ac1800058 -X theirs
-
+          git cherry-pick 3214a50699b14b0991f9378762409fa3b68d08bf -X theirs
+          
           # --- 彻底解决权限问题的操作：删除所有工作流文件 ---
           echo "Removing .github/workflows to bypass GitHub Action restrictions..."
           rm -rf .github/workflows
