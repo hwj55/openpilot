@@ -140,7 +140,8 @@ class LongitudinalPlanner(LongitudinalPlannerSP):
     jerk_factor_scale, t_follow_offset = self.accel.decel_mod(self.is_e2e(sm))
     self.mpc.set_weights(prev_accel_constraint, personality=sm['selfdriveState'].personality, jerk_factor_scale=jerk_factor_scale)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(sm['radarState'], v_cruise, personality=sm['selfdriveState'].personality, t_follow_offset=t_follow_offset)
+    radarstate = self.smooth_radarstate(sm['radarState'])
+    self.mpc.update(radarstate, v_cruise, personality=sm['selfdriveState'].personality, t_follow_offset=t_follow_offset)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)
