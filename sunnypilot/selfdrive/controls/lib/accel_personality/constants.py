@@ -28,7 +28,7 @@ STOCK_RISE_RATE = 0.05  # m/s^2 per planner cycle (DT_MDL=0.05s -> 1.0 m/s^2/s);
 # Eco launch (v<=10) is kept ~stock so departing a stop/green light is not sluggish (no getting honked at);
 # the eco character is in the cruise/highway roll-on (>=25 m/s), not off-the-line.
 A_CRUISE_MAX_V = {
-  ECO:    [1.6, 1.10, 0.55, 0.40],
+  ECO:    [1.6, 1.10, 0.45, 0.30],
   NORMAL: STOCK_A_CRUISE_MAX_V,
   SPORT:  [1.8, 1.40, 1.00, 0.75],
 }

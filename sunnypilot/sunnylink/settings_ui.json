@@ -680,6 +680,19 @@
               ]
             },
             {
+              "key": "SmoothBraking",
+              "widget": "toggle",
+              "title": "Smooth Brake Onset",
+              "description": "Eases the start of light braking so it builds in gradually instead of biting sharply. Hard and emergency braking are unaffected.",
+              "enablement": [
+                {
+                  "type": "capability",
+                  "field": "has_longitudinal_control",
+                  "equals": true
+                }
+              ]
+            },
+            {
               "key": "IntelligentCruiseButtonManagement",
               "widget": "toggle",
               "title": "Intelligent Cruise Button Management (ICBM) (Alpha)",
