@@ -2,8 +2,7 @@
 name: Sync sunnypilot tn to tn-C3XL-newest
 
 on:
-  schedule:
-    - cron: '30 4 * * *'
+ 
   workflow_dispatch:
 
 env:
