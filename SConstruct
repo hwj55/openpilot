@@ -120,7 +120,7 @@ env = Environment(
   LIBPATH=[
     "#common",
     "#msgq_repo",
-    "#selfdrive/pandad",
+    "#selfdrive/pandad_tici" if "TICI_DOS" in os.environ else "#selfdrive/pandad",
     "#rednose/helpers",
     [x.LIB_DIR for x in pkgs],
   ],
@@ -237,6 +237,7 @@ Export('messaging')
 
 # Build other submodules
 SConscript(['panda/SConscript'])
+SConscript(['panda_tici/SConscript'])
 
 # Build rednose library
 SConscript(['rednose/SConscript'])
@@ -252,6 +253,7 @@ if arch == "larch64":
 # Build selfdrive
 SConscript([
   'selfdrive/pandad/SConscript',
+  'selfdrive/pandad_tici/SConscript',
   'selfdrive/controls/lib/lateral_mpc_lib/SConscript',
   'selfdrive/controls/lib/longitudinal_mpc_lib/SConscript',
   'selfdrive/locationd/SConscript',
