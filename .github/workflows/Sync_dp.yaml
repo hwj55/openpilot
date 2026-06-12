@@ -1,0 +1,93 @@
+# 文件名: .github/workflows/sync-dp-and-cherry-pick.yaml
+
+name: Clone Dragonpilot Testing and Cherry-pick Modifications
+
+on:
+  # 仅允许手动触发
+  workflow_dispatch:
+
+jobs:
+  sync-and-cherry-pick:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      # 步骤 1：获取当前日期，用于生成目标分支名称
+      - name: Get current date
+        id: get_date
+        shell: bash
+        run: |
+          echo "date=$(date +'%y%m%d')" >> "$GITHUB_OUTPUT"
+
+      # 步骤 2：检出 Dragonpilot 官方仓库的 testing 分支
+      - name: Checkout dragonpilot/testing
+        uses: actions/checkout@v4
+        with:
+          repository: dragonpilot/dragonpilot
+          ref: testing
+          fetch-depth: 1
+          lfs: false
+          submodules: false
+
+      # 步骤 3：配置 Git 用户信息
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # 步骤 4：从 hwj55/openpilot 获取并 Cherry-pick 指定提交
+      - name: Apply modifications via cherry-pick
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Adding cherry-pick source remote..."
+
+          git remote remove cherry_pick_source 2>/dev/null || true
+          git remote add cherry_pick_source \
+            https://github.com/hwj55/openpilot.git
+
+          echo "Fetching dp260225 branch from cherry-pick source..."
+
+          git fetch \
+            --no-tags \
+            cherry_pick_source \
+            dp260225
+
+          echo "Cherry-picking commit..."
+
+          # 冲突时优先采用被 Cherry-pick 进来的提交内容
+          git cherry-pick \
+            -X theirs \
+            d4d9c1536484494d2bed533c0ac7ab4d7d179e45
+
+      # 步骤 5：推送至当前仓库的 dpYYMMDD 分支
+      - name: Push to dated branch
+        shell: bash
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          TARGET_REPOSITORY: ${{ github.repository }}
+          DATE_SUFFIX: ${{ steps.get_date.outputs.date }}
+        run: |
+          set -euo pipefail
+
+          BRANCH_NAME="dp${DATE_SUFFIX}"
+          TARGET_URL="https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
+
+          echo "Target repository: ${TARGET_REPOSITORY}"
+          echo "Target branch: ${BRANCH_NAME}"
+
+          # 在本地创建对应分支，方便日志和后续处理
+          git checkout -B "${BRANCH_NAME}"
+
+          # 推送到运行本工作流的仓库
+          git push \
+            "${TARGET_URL}" \
+            "HEAD:refs/heads/${BRANCH_NAME}" \
+            --force
+
+          echo "Successfully pushed branch: ${BRANCH_NAME}"
+
