@@ -72,23 +72,9 @@ jobs:
           TARGET_REPOSITORY: ${{ github.repository }}
           DATE_SUFFIX: ${{ steps.get_date.outputs.date }}
         run: |
-          set -euo pipefail
-
+         
           BRANCH_NAME="dp${DATE_SUFFIX}"
-          TARGET_URL="https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
-
-          echo "Target repository: ${TARGET_REPOSITORY}"
-          echo "Target branch: ${BRANCH_NAME}"
-
-          # 在本地创建对应分支，方便日志和后续处理
-          git checkout -B "${BRANCH_NAME}"
-
-          # 推送到运行本工作流的仓库
-          git push \
-            "${TARGET_URL}" \
-            "HEAD:refs/heads/${BRANCH_NAME}" \
-            --no-thin \
-            --force
+          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force
 
           echo "Successfully pushed branch: ${BRANCH_NAME}"
 
