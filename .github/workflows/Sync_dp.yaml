@@ -1,80 +1,62 @@
+
 # 文件名: .github/workflows/sync-dp-and-cherry-pick.yaml
 
-name: Clone Dragonpilot Testing and Cherry-pick Modifications
+name: Sync Dragonpilot Testing and Cherry-pick Modifications
 
 on:
-  # 仅允许手动触发
-  workflow_dispatch:
+  workflow_dispatch: # 仅允许手动触发
 
 jobs:
   sync-and-cherry-pick:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: write # 必须赋予写入权限
 
     steps:
-      # 步骤 1：获取当前日期，用于生成目标分支名称
-      - name: Get current date
+      # 步骤 1: 获取当前日期
+      - name: Get current date (YYMMDD)
         id: get_date
-        shell: bash
-        run: |
-          echo "date=$(date +'%y%m%d')" >> "$GITHUB_OUTPUT"
+        run: echo "date=$(date +'%y%m%d')" >> $GITHUB_OUTPUT
 
-      # 步骤 2：检出 Dragonpilot 官方仓库的 testing 分支
+      # 步骤 2: 检出 Dragonpilot 的 testing 分支
       - name: Checkout dragonpilot/testing
         uses: actions/checkout@v4
         with:
           repository: dragonpilot/dragonpilot
           ref: testing
-          fetch-depth: 1
           lfs: false
-          submodules: false
+          fetch-depth: 1
 
-      # 步骤 3：配置 Git 用户信息
-      - name: Configure Git
-        shell: bash
+      # 步骤 3: 获取 testing 分支完整历史
+      - name: Unshallow testing history only
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin testing --unshallow
 
-      # 步骤 4：从 hwj55/openpilot 获取并 Cherry-pick 指定提交
+      # 步骤 4: 执行 Cherry-pick
       - name: Apply modifications via cherry-pick
-        shell: bash
         run: |
-          set -euo pipefail
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-          echo "Adding cherry-pick source remote..."
+          echo "Adding remote for cherry-pick source..."
 
-          git remote remove cherry_pick_source 2>/dev/null || true
-          git remote add cherry_pick_source \
-            https://github.com/hwj55/openpilot.git
+          git remote add cherry_pick_source https://github.com/hwj55/openpilot.git
 
-          echo "Fetching dp260225 branch from cherry-pick source..."
+          echo "Fetching commits from source..."
 
-          git fetch \
-            --no-tags \
-            cherry_pick_source \
-            dp260225
+          git fetch cherry_pick_source dp260225 --no-tags
 
-          echo "Cherry-picking commit..."
+          echo "Performing cherry-pick..."
 
-          # 冲突时优先采用被 Cherry-pick 进来的提交内容
-          git cherry-pick \
-            -X theirs \
-            d4d9c1536484494d2bed533c0ac7ab4d7d179e45
+          git cherry-pick d4d9c1536484494d2bed533c0ac7ab4d7d179e45 -X theirs
 
-      # 步骤 5：推送至当前仓库的 dpYYMMDD 分支
-      - name: Push to dated branch
-        shell: bash
-        env:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          TARGET_REPOSITORY: ${{ github.repository }}
-          DATE_SUFFIX: ${{ steps.get_date.outputs.date }}
+      # 步骤 5: 推送到 dpYYMMDD 格式的新分支
+      - name: Push to new dated branch
         run: |
-         
-          BRANCH_NAME="dp${DATE_SUFFIX}"
+          # 拼接分支名：dp + 251201 = dp251201
+          BRANCH_NAME="dp${{ steps.get_date.outputs.date }}"
+          echo "Pushing changes to new branch: $BRANCH_NAME"
+
+          # 推送
           git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"refs/heads/$BRANCH_NAME" --force
-
-          echo "Successfully pushed branch: ${BRANCH_NAME}"
-
