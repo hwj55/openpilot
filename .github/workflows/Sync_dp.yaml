@@ -87,6 +87,7 @@ jobs:
           git push \
             "${TARGET_URL}" \
             "HEAD:refs/heads/${BRANCH_NAME}" \
+            --no-thin \
             --force
 
           echo "Successfully pushed branch: ${BRANCH_NAME}"
