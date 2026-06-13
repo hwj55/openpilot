@@ -1,131 +1,66 @@
-name: Build Prebuilt on C3 (J6)
+
+# 文件名: .github/workflows/sync-tn-c3-newest.yaml
+name: Sync sunnypilot tn-prebuilt to tn-C3XL-newest
 
 on:
-  #push:
-  #  branches: [ tn-C3-newest, master-tici ]
   workflow_dispatch:
 
 env:
-  TMPDIR: "/data/github-runner/tmp"
-  RUNNER_TEMP: "/data/github-runner/tmp"
-  RUNNER_TOOL_CACHE: "/data/github-runner/_work/_tool"
-  SCONS_CACHE_DIR: "/data/scons_cache"
-  OUTPUT_DIR: "/data/openpilot_output"
+  UPSTREAM_REPO: "sunnypilot/sunnypilot"
+  UPSTREAM_BRANCH: "tn-prebuilt"
+  MY_REPO: "${{ github.repository }}"
+  TARGET_BRANCH: "tn-prebuilt"
 
 jobs:
-  build:
-    runs-on: [self-hosted, Linux, ARM64]
-    
+  sync-job:
+    runs-on: ubuntu-latest
+    env:
+      GIT_LFS_SKIP_SMUDGE: 1
+    permissions:
+      contents: write
+      actions: write # 显式声明权限
+
     steps:
-      - name: 0. 协议预处理 (防止 GitLab SSH 验证)
-        run: |
-          git config --global url."https://gitlab.com/".insteadOf git@gitlab.com:
-          git config --global url."https://github.com/".insteadOf git@github.com:
-
-      - name: 1. 清理环境
-        run: |
-          sudo rm -rf ${{ env.OUTPUT_DIR }}
-          mkdir -p ${{ env.OUTPUT_DIR }}
-          mkdir -p ${{ env.TMPDIR }}
-          mkdir -p ${{ env.SCONS_CACHE_DIR }}
-
-      - name: 2. 检出代码 (包含子模块)
+      # 1. 检出 Upstream 源码
+      - name: Checkout upstream
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          fetch-depth: 1
-          lfs: false 
+          repository: ${{ env.UPSTREAM_REPO }}
+          ref: ${{ env.UPSTREAM_BRANCH }}
+          fetch-depth: 0
+          filter: blob:none
+          lfs: false
 
-      - name: 3. 精确拉取 LFS 资源 (acados + 模型)
+      # 2. 执行 Cherry-pick 并彻底删除工作流文件
+      - name: Apply modifications and remove workflows
         run: |
-          echo "Fetching essential LFS files..."
-          git lfs pull --include="third_party/acados/larch64/*"
-          git lfs pull --include="third_party/libyuv/larch64/lib/libyuv.a"
-          git lfs pull --include="selfdrive/modeld/models/*.onnx"
-          chmod +x third_party/acados/larch64/t_renderer
+          # 禁用 LFS 钩子
+          git config --global filter.lfs.smudge "cat"
+          git config --global filter.lfs.clean "cat"
+          git config --global filter.lfs.required false
+          git lfs uninstall --local || true
 
-      - name: 4. 强制绕过字体处理
-        run: |
-          cat <<EOF > selfdrive/assets/fonts/process.py
-          import sys
-          import os
-          if __name__ == "__main__":
-              font_dir = "selfdrive/assets/fonts"
-              for f in ["Audiowide-Regular", "Inter-SemiBold", "JetBrainsMono-Medium"]:
-                  open(f"{font_dir}/{f}.fnt", 'a').close()
-                  open(f"{font_dir}/{f}.png", 'a').close()
-              sys.exit(0)
-          EOF
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: 5. 编译预处理
-        run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          if [ -f "scripts/manage-powersave.py" ]; then
-            python3 scripts/manage-powersave.py --disable || true
-          fi
+          # 添加修改源（你的仓库）
+          git remote add mod_source "https://github.com/${{ github.repository }}.git"
+          git fetch mod_source --no-tags
 
-      - name: 6. 执行 SCons 编译 (J6)
-        run: |
-          export TMPDIR=${{ env.TMPDIR }}
-          export PYTHONPATH=$GITHUB_WORKSPACE
-          scons -j6 cache_dir=${{ env.SCONS_CACHE_DIR }} --minimal
-          touch prebuilt
+          echo "Performing fixed range cherry-pick..."
+          git cherry-pick 04f1b0b708206e14058ec7b0756b0d7ac1800058 -X theirs
+          git cherry-pick 3214a50699b14b0991f9378762409fa3b68d08bf -X theirs
+          git cherry-pick aae3631bd8041e9d0f0c60eb6d1d04306f2b1348 -X theirs
 
-      - name: 7. 提取二进制文件 (生成 Prebuilt)
+    
+      # 3. 推送到目标分支
+      - name: Force push to target branch
+        env:
+          GIT_LFS_SKIP_PUSH: 1
         run: |
-          echo "Filtering files via rsync..."
-          # 提取时排除所有源代码，保留 .so, .onnx, .pkl, .fnt, .png
-          rsync -am \
-            --include='**/panda/board/' \
-            --include='**/panda/board/obj' \
-            --include='**/panda/board/obj/panda.bin.signed' \
-            --include='**/panda/board/obj/panda_h7.bin.signed' \
-            --include='**/*.fnt' \
-            --include='**/*.png' \
-            --include='**/*.pkl' \
-            --include='**/*.so' \
-            --include='**/*.onnx' \
-            --exclude='.sconsign.dblite' \
-            --exclude='*.a' \
-            --exclude='*.o' \
-            --exclude='*.os' \
-            --exclude='*.pyc' \
-            --exclude='*.cc' \
-            --exclude='*.cpp' \
-            --exclude='*.h' \
-            --exclude='*.hpp' \
-            --exclude='**/.git/' \
-            --exclude='**/.github/' \
-            --exclude='**/__pycache__/' \
-            --delete-excluded \
-            ./ ${{ env.OUTPUT_DIR }}/
+          echo "Force pushing to target branch..."
 
-      - name: 8. 推送 Prebuilt 分支 (解决 Push 报错)
-        run: |
-          cd ${{ env.OUTPUT_DIR }}
-          
-          # 关键点 1: 删除所有 .gitattributes 文件，防止 GitHub 强制要求 LFS 对象
-          find . -name ".gitattributes" -delete
-          
-          # 关键点 2: 重新初始化并彻底禁用 LFS 钩子
-          git init
-          git lfs uninstall
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git checkout -b prebuilt-tn-C3-newest
-          git add .
-          git commit -m "chore: C3 build prebuilt [$(date +'%Y-%m-%d %H:%M')]"
-          
-          echo "Pushing to GitHub..."
-          # 关键点 3: 使用 --force 和 --no-thin 推送
-          git push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
-            prebuilt-tn-C3-newest --force --no-thin
+          # 使用 HEAD:refs/heads/tn 确保无论本地叫什么都推送到 tn
+          git -c lfs.hooksonly=false push "https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" \
+            HEAD:refs/heads/${{ env.TARGET_BRANCH }} --force --no-thin --no-verify
 
-      - name: 9. 善后
-        if: always()
-        run: |
-          if [ -f "scripts/manage-powersave.py" ]; then
-            python3 scripts/manage-powersave.py --enable || true
-          fi
