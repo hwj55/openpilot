@@ -1038,8 +1038,6 @@ msgstr "車門自動鎖定/解鎖"
 
 #: dragonpilot/settings.py:172
 #, python-format
-msgid "Dynamic Accel Slew Rate (DASR)"
-msgstr "動態加速變化率 (DASR)"
 
 #: dragonpilot/settings.py:160
 #, python-format
@@ -1381,3 +1379,96 @@ msgstr "選取車型"
 
 msgid "Show"
 msgstr "顯示"
+
+msgid ""
+"openpilot defaults to driving in chill mode. Experimental mode enables alpha-"
+"level features that aren't ready for chill mode. Experimental features are "
+"listed below:<br><h4>End-to-End Longitudinal Control</h4><br>Let the driving "
+"model control the gas and brakes. openpilot will drive as it thinks a human "
+"would, including stopping for red lights and stop signs. Since the driving "
+"model decides the speed to drive, the set speed will only act as an upper "
+"bound. This is an alpha quality feature; mistakes should be expected."
+"<br><h4>New Driving Visualization</h4><br>The driving visualization will "
+"transition to the road-facing wide-angle camera at low speeds to better show "
+"some turns. The Experimental mode logo will also be shown in the top right "
+"corner."
+msgstr ""
+"openpilot 預設以安穩模式行駛。實驗模式啟用尚未準備好進入安穩模式的 Alpha 等級"
+"功能。實驗功能如下：<br><h4>端到端縱向控制</h4><br>讓駕駛模型控制油門與煞車。"
+"openpilot 會如同人類駕駛般行駛，包括在紅燈與停車標誌前停車。由於駕駛模型決定"
+"行駛速度，設定速度僅作為上限。此為 Alpha 品質功能；預期會有失誤。<br><h4>全新"
+"駕駛視覺化</h4><br>在低速時，駕駛視覺化將切換至面向道路的廣角鏡頭以更好呈現部"
+"分轉彎。右上角亦會顯示實驗模式圖示。"
+
+#: selfdrive/ui/layouts/settings/device.py:178
+#, python-format
+msgid ""
+"openpilot is continuously calibrating, resetting is rarely required. "
+"Resetting calibration will restart openpilot if the car is powered on."
+msgstr ""
+"openpilot 會持續校正，通常不需重設。若車輛通電，重設校正將重新啟動 "
+"openpilot。"
+
+#: selfdrive/ui/layouts/settings/firehose.py:12
+msgid ""
+"openpilot learns to drive by watching humans, like you, drive.\n"
+"\n"
+"Firehose Mode allows you to maximize your training data uploads to improve "
+"openpilot's driving models. More data means bigger models, which means "
+"better Experimental Mode."
+msgstr ""
+"openpilot 透過觀察人類（也就是您）的駕駛方式來學習。\n"
+"\n"
+"Firehose 模式可讓您最大化上傳訓練資料，以改進 openpilot 的駕駛模型。更多資料"
+"代表更大的模型，也就代表更好的實驗模式。"
+
+msgid ""
+"Use the openpilot system for adaptive cruise control and lane keep driver "
+"assistance. Your attention is required at all times to use this feature."
+msgstr ""
+"使用 openpilot 進行 ACC 與車道維持輔助。使用此功能時，您必須始終保持專注。"
+
+#: selfdrive/ui/layouts/settings/toggles.py:25
+msgid ""
+"Standard is recommended. In aggressive mode, openpilot will follow lead cars "
+"closer and be more aggressive with the gas and brake. In relaxed mode "
+"openpilot will stay further away from lead cars. On supported cars, you can "
+"cycle through these personalities with your steering wheel distance button."
+msgstr ""
+"建議使用標準模式。積極模式下，openpilot 會更貼近前車，油門與煞車反應更積極；"
+"從容模式下，會與前車保持更遠距離。於支援車款，可用方向盤距離按鈕切換這些風"
+"格。"
+
+msgid ""
+"Receive alerts to steer back into the lane when your vehicle drifts over a "
+"detected lane line without a turn signal activated while driving over 31 mph "
+"(50 km/h)."
+msgstr ""
+"當車輛以超過 31 mph（50 km/h）行駛且未打方向燈越過偵測到的車道線時，接收轉向"
+"回車道的警示。"
+
+#: selfdrive/ui/layouts/settings/toggles.py:37
+#, python-format
+msgid "Disable logging service"
+msgstr "停用記錄服務"
+
+#: selfdrive/ui/layouts/settings/toggles.py:38
+#, python-format
+msgid "Disable update service"
+msgstr "停用更新服務"
+
+msgid ""
+"ADB (Android Debug Bridge) allows connecting to your device over USB or over "
+"the network. See https://docs.comma.ai/how-to/connect-to-comma for more info."
+msgstr ""
+"ADB (Android Debug Bridge) 可透過 USB 或網路連線至您的裝置。詳見 https://"
+"docs.comma.ai/how-to/connect-to-comma。"
+
+#: selfdrive/ui/layouts/settings/developer.py:24
+msgid ""
+"Warning: This grants SSH access to all public keys in your GitHub settings. "
+"Never enter a GitHub username other than your own. A comma employee will "
+"NEVER ask you to add their GitHub username."
+msgstr ""
+"警告：這將授予對您 GitHub 設定中所有公開金鑰的 SSH 存取權。請勿輸入非您本人"
+"的 GitHub 帳號。comma 員工絕不會要求您新增他們的帳號。"
