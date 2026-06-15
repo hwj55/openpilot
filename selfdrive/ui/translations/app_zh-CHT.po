@@ -1472,3 +1472,13 @@ msgid ""
 msgstr ""
 "警告：這將授予對您 GitHub 設定中所有公開金鑰的 SSH 存取權。請勿輸入非您本人"
 "的 GitHub 帳號。comma 員工絕不會要求您新增他們的帳號。"
+msgid "[AUTO DETECT]"
+msgstr "[自動偵測]"
+
+msgid "Go Offroad"
+msgstr "切至離線"
+
+#: selfdrive/ui/layouts/settings/device.py:298
+#, python-format
+msgid "Go Onroad"
+msgstr "切至上線"
