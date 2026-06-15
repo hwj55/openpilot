@@ -1342,7 +1342,13 @@ msgid "sec"
 msgstr "秒"
 
 msgid "Enable dashy Visual"
-msgstr"dashy HUD 仪表盘"
+msgstr "dashy HUD 仪表盘"
 
 msgid "dashy - dragonpilot's all-in-one system hub.<br><br>Visit http://&lt;device_ip&gt;:5088 to access.<br><br>Enable this to use Tesla Visual/HUD."
-msgstr"dashy - dragonpilot 的一体化系统中心。<br><br>访问 http://<设备IP>:5088 打开。<br><br>启用此选项以使用特斯拉风格 HUD。"
+msgstr "dashy - dragonpilot 的一体化系统中心。<br><br>访问 http://<设备IP>:5088 打开。<br><br>启用此选项以使用特斯拉风格 HUD。"
+
+msgid "Show Last Errors"
+msgstr "显示最近错误"
+
+msgid "Lateral Maneuver Mode"
+msgstr "横向机动模式"
