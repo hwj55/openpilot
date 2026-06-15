@@ -42,17 +42,79 @@ def _dragonpilot_chars(code: str) -> set[str]:
 
 def _char_sets():
   base = set(map(chr, range(32, 127))) | set(EXTRA_CHARS)
+  
+  # === 保留舊版的 events.py 快取與掃描機制 ===
+  EVENTS_CACHE = FONT_DIR / "events_chars.cache"
+
+  if EVENTS_CACHE.exists():
+      print(f"INFO: Loading events.py characters from cache: {EVENTS_CACHE.name}")
+      try:
+          cached_chars = EVENTS_CACHE.read_text(encoding="utf-8")
+          base.update(set(cached_chars))
+      except Exception as e:
+          print(f"ERROR: Could not read events cache: {e}")
+  else:
+      possible_paths = [
+          Path("/data/openpilot/selfdrive/selfdrived/events.py"),
+      ]
+
+      found = False
+      print("\n--- Searching for events.py ---")
+      for events_path in possible_paths:
+          if events_path.exists():
+              print(f"SUCCESS: Found events.py at {events_path}")
+              try:
+                  content = events_path.read_text(encoding="utf-8")
+                  chars = set(content)
+                  base.update(chars)
+                  
+                  try:
+                      EVENTS_CACHE.write_text("".join(chars), encoding="utf-8")
+                      print(f"SUCCESS: Saved characters to cache at {EVENTS_CACHE.name}")
+                  except Exception as cache_err:
+                      print(f"WARNING: Could not write cache file: {cache_err}")
+                      
+                  print(f"SUCCESS: Added {len(chars)} characters from events.py")
+                  found = True
+                  break
+              except Exception as e:
+                  print(f"ERROR: Could not read file: {e}")
+
+      if not found:
+          print("WARNING: Could not find events.py! Chinese characters WILL BE MISSING in the output images.")
+      print("-------------------------------\n")
+  # === 快取機制結束 ===
+
   labels = set(base)
   per_lang: dict[str, tuple[int, ...]] = {}
 
   for language, code in _languages().items():
     labels.update(language)
+    chars = set()
+    
+    # 讀取 openpilot 原生翻譯檔
     po_path = TRANSLATIONS_DIR / f"app_{code}.po"
     try:
-      chars = set(po_path.read_text(encoding="utf-8"))
+      chars.update(po_path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-      continue
+      # 找不到 app_.po 時不跳過，讓程式繼續去抓 dp 的字元
+      pass 
+      
+    # 結合新版的 dragonpilot .mo 檔讀取機制
     chars |= _dragonpilot_chars(code)
+    
+    # 兼容舊版的 dragonpilot .po 檔讀取機制 (雙重保險)
+    dp_po_path = TRANSLATIONS_DIR / f"dragonpilot_{code}.po"
+    if dp_po_path.exists():
+      try:
+        chars.update(dp_po_path.read_text(encoding="utf-8"))
+      except Exception:
+        pass
+
+    # 如果該語言在處理後完全沒有抓到任何字元，才跳過
+    if not chars:
+        continue
+
     if code in UNIFONT_LANGUAGES:
       lang_chars = set(base) | chars
       per_lang[code] = tuple(sorted(ord(c) for c in lang_chars))
@@ -115,6 +177,15 @@ def _write_bmfont(path: Path, font_size: int, face: str, atlas_name: str, line_h
 
 def _process_font(font_path: Path, codepoints: tuple[int, ...], output_name: str | None = None):
   stem = output_name or font_path.stem
+  
+  # 檢查圖集與字型設定檔是否已存在，存在則完全跳過 (取自舊版優化)
+  atlas_name = f"{stem}.png"
+  atlas_path = FONT_DIR / atlas_name
+  fnt_path = FONT_DIR / f"{stem}.fnt"
+  if atlas_path.exists() and fnt_path.exists():
+      print(f"INFO: Skipping {stem}, atlas already exists at {atlas_name}.")
+      return
+
   font_size = 48 if font_path.stem.lower().startswith("opfont") else 200
   print(f"Processing {font_path.name} -> {stem} ({len(codepoints)} glyphs @ {font_size}px)...")
 
@@ -136,14 +207,12 @@ def _process_font(font_path: Path, codepoints: tuple[int, ...], output_name: str
     raise RuntimeError("raylib returned an empty atlas")
 
   rects = rects_ptr[0]
-  atlas_name = f"{stem}.png"
-  atlas_path = FONT_DIR / atlas_name
   entries, line_height, base = _glyph_metrics(glyphs, rects, glyph_count[0])
 
   if not rl.export_image(image, atlas_path.as_posix()):
     raise RuntimeError("Failed to export atlas image")
 
-  _write_bmfont(FONT_DIR / f"{stem}.fnt", font_size, stem, atlas_name, line_height, base, (image.width, image.height), entries)
+  _write_bmfont(fnt_path, font_size, stem, atlas_name, line_height, base, (image.width, image.height), entries)
 
 
 def main():
