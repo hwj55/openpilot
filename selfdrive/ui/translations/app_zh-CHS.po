@@ -1352,6 +1352,13 @@ msgstr "显示最近错误"
 
 msgid "Lateral Maneuver Mode"
 msgstr "横向机动模式"
+
+msgid "Disable Logging"
+msgstr "停用记录"
+
+msgid "Disable Updates"
+msgstr "停用更新"
+
 msgid "Vehicle Model"
 msgstr "车辆型号"
 
@@ -1360,3 +1367,18 @@ msgstr "车辆型号清单格式无效。"
 
 msgid "On/Off Road"
 msgstr "上线/离线"
+
+msgid "Are you sure you want to switch?"
+msgstr "确定要切换吗？"
+
+msgid "CONFIRM"
+msgstr "确定"
+
+msgid "Select a Make"
+msgstr "选取品牌"
+
+msgid "Select a Model"
+msgstr "选取车型"
+
+msgid "Show"
+msgstr "显示"
