@@ -24,7 +24,7 @@ ITEMS = [
     "description": lambda: tr("Driver steering angle that triggers HTD (degrees)."),
     "flags": "PERSISTENT",
     "param_type": "INT",
-    "default": "90",
+    "default": "60",
     "min_val": 60,
     "max_val": 120,
     "step": 5,
