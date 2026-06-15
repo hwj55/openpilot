@@ -11,7 +11,7 @@ from openpilot.common.constants import CV
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 
 from dragonpilot.selfdrive.controls.lib.dtsc import DTSC
-from dragonpilot.selfdrive.controls.lib.accel_personality.accel_controller import AccelPersonalityController
+from dragonpilot.selfdrive.controls.lib.accel_controller import AccelPersonalityController
 from opendbc.car.interfaces import ACCEL_MIN
 
 LongitudinalPlanSource = custom.LongitudinalPlanDP.LongitudinalPlanSource
