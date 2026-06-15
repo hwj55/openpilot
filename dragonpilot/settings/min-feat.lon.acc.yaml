@@ -4,27 +4,17 @@ settings:
     title: "自適應性格模式 (APM)"
     description: "根據前方車輛自動切換跟車模式。建議保持標準模式。"
     category: "Longitudinal"
-    condition: "openpilotLongitudinalControl"
+    #condition: "openpilotLongitudinalControl"
     flags: PERSISTENT
     param_type: BOOL
     default: "0"
     
-  - key: dp_lon_dasr
-    type: toggle_item
-    title: "動態加速平滑 (DASR)"
-    description: "依據速度動態調整加速平滑度。在低速時允許更快的加速變化以應對市區駕駛，在高速時提供更平緩的變化以提升舒適度。"
-    category: "Longitudinal"
-    condition: "openpilotLongitudinalControl"
-    flags: PERSISTENT
-    param_type: BOOL
-    default: "0"
-
   - key: AccelPersonalityEnabled
     type: toggle_item
     title: "動態加速性格"
     description: "動態加速度切換"
     category: "Longitudinal"
-    condition: "openpilotLongitudinalControl"
+    #condition: "openpilotLongitudinalControl"
     flags: PERSISTENT
     param_type: BOOL
     default: "0"
@@ -38,7 +28,7 @@ settings:
     title: "加速性格"
     description: "動態加速度選擇模式"
     category: "Longitudinal"
-    condition: "openpilotLongitudinalControl"
+    #condition: "openpilotLongitudinalControl"
     flags: PERSISTENT
     param_type: INT
     default: "1"
