@@ -1348,3 +1348,6 @@ msgstr "dashy - dragonpilot 的一體化系統中心。<br><br>訪問 http://<�
 
 msgid "Show Last Errors"
 msgstr "顯示最近錯誤"
+
+msgid "Lateral Maneuver Mode"
+msgstr "橫向機動模式"
