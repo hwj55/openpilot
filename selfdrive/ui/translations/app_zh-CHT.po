@@ -1366,3 +1366,18 @@ msgstr "車輛型號清單格式無效。"
 
 msgid "On/Off Road"
 msgstr "上線/離線"
+
+msgid "Are you sure you want to switch?"
+msgstr "確定要切換嗎？"
+
+msgid "CONFIRM"
+msgstr "確定"
+
+msgid "Select a Make"
+msgstr "選取品牌"
+
+msgid "Select a Model"
+msgstr "選取車型"
+
+msgid "Show"
+msgstr "顯示"
