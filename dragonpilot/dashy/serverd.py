@@ -111,7 +111,9 @@ class AppCache:
         """Parse CarParams from Params store."""
         result = {'brand': '', 'openpilot_longitudinal_control': False}
         try:
-            car_params_bytes = self.params.get("CarParams")
+            # CarParams is cleared offroad/at boot; CarParamsPersistent keeps the last car's
+            # params so brand/longitudinal-gated settings still show when configuring parked.
+            car_params_bytes = self.params.get("CarParamsPersistent") or self.params.get("CarParams")
             if car_params_bytes:
                 from cereal import car
                 with car.CarParams.from_bytes(car_params_bytes) as cp:
