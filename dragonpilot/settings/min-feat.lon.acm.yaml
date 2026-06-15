@@ -1,8 +1,8 @@
 settings:
   - key: dp_lon_acm
     type: toggle_item
-    title: "Enable Adaptive Coasting Mode (ACM)"
-    description: "Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when appropriate."
+    title: "启用自适应滑行模式 (ACM)"
+    description: "自适应滑行模式 (ACM) 可减少制动，在适当情况下实现更平顺的滑行。"
     category: "Longitudinal"
     condition: "openpilotLongitudinalControl"
     flags: PERSISTENT

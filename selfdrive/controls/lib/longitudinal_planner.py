@@ -14,6 +14,9 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDX
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_from_plan
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
+
+# 導入 DP 原有的副檔案模組
+from dragonpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlannerDP
 from dragonpilot.selfdrive.controls.lib.acm import ACM
 from dragonpilot.selfdrive.controls.lib.aem import AEM
 from dragonpilot.selfdrive.controls.lib.apm import APM
@@ -32,6 +35,7 @@ class DPFlags:
   ACM = 1
   AEM = 2
   APM = 2 ** 2
+  DTSC = 2 ** 3  # 加入 DTSC 旗標
   pass
 
 def get_max_accel(v_ego):
@@ -46,8 +50,6 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   This function returns a limited long acceleration allowed, depending on the existing lateral acceleration
   this should avoid accelerating when losing the target in turns
   """
-  # FIXME: This function to calculate lateral accel is incorrect and should use the VehicleModel
-  # The lookup table for turns should also be updated if we do this
   a_total_max = np.interp(v_ego, _A_TOTAL_MAX_BP, _A_TOTAL_MAX_V)
   a_y = v_ego ** 2 * angle_steers * CV.DEG_TO_RAD / (CP.steerRatio * CP.wheelbase)
   a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
@@ -55,10 +57,15 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   return [a_target[0], min(a_target[1], a_x_allowed)]
 
 
-class LongitudinalPlanner:
+# 繼承 LongitudinalPlannerDP，保留副檔案的優勢
+class LongitudinalPlanner(LongitudinalPlannerDP):
   def __init__(self, CP, init_v=0.0, init_a=0.0, dt=DT_MDL):
     self.CP = CP
     self.mpc = LongitudinalMpc(dt=dt)
+    
+    # 初始化繼承的 DP 模組 (將 CP 與 mpc 傳入副檔案)
+    LongitudinalPlannerDP.__init__(self, self.CP, self.mpc)
+    
     # TODO remove mpc modes when TR released
     self.mpc.mode = 'acc'
     self.fcw = False
@@ -101,6 +108,9 @@ class LongitudinalPlanner:
   def update(self, sm, dp_flags = 0):
     mode = 'blended' if sm['selfdriveState'].experimentalMode else 'acc'
 
+    # 執行副檔案的更新邏輯 (包含 accel_controller 的刷新)
+    LongitudinalPlannerDP.update(self, sm)
+
     if dp_flags & DPFlags.AEM:
       self.aem.update_states(model_msg=sm['modelV2'], radar_msg=sm['radarState'], v_ego=sm['carState'].vEgo)
       mode = self.aem.get_mode(mode)
@@ -118,15 +128,14 @@ class LongitudinalPlanner:
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel
 
-    # Reset current state when not engaged, or user is controlling the speed
     reset_state = long_control_off if self.CP.openpilotLongitudinalControl else not sm['selfdriveState'].enabled
-    # PCM cruise speed may be updated a few cycles later, check if initialized
     reset_state = reset_state or not v_cruise_initialized
-
-    # No change cost when user is controlling the speed, or when standstill
     prev_accel_constraint = not (reset_state or sm['carState'].standstill)
 
-    if mode == 'acc':
+    # 透過副檔案獲取 ACC 最大加速度限制
+    if dp_accel_clip := LongitudinalPlannerDP.get_accel_clip(self, v_ego, mode):
+      accel_clip = dp_accel_clip
+    elif mode == 'acc':
       accel_clip = [ACCEL_MIN, get_max_accel(v_ego)]
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
       accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_clip, self.CP)
@@ -135,13 +144,10 @@ class LongitudinalPlanner:
 
     if reset_state:
       self.v_desired_filter.x = v_ego
-      # Clip aEgo to cruise limits to prevent large accelerations when becoming active
       self.a_desired = np.clip(sm['carState'].aEgo, accel_clip[0], accel_clip[1])
 
-    # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
     _, _, _, _, throttle_prob = self.parse_model(sm['modelV2'])
-    # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 
     if not self.allow_throttle:
@@ -149,19 +155,35 @@ class LongitudinalPlanner:
       clipped_accel_coast_interp = np.interp(v_ego, [MIN_ALLOW_THROTTLE_SPEED, MIN_ALLOW_THROTTLE_SPEED*2], [accel_clip[1], clipped_accel_coast])
       accel_clip[1] = min(accel_clip[1], clipped_accel_coast_interp)
 
-    if force_slow_decel:
-      v_cruise = 0.0
-
     personality = sm['selfdriveState'].personality
     if dp_flags & DPFlags.APM:
       personality = self.apm.get_personality(v_ego, personality)
 
     self.mpc.set_weights(prev_accel_constraint, personality=personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(sm['radarState'], v_cruise, personality=personality)
+
+    # DTSC：直接取用繼承自副檔案的 self.dtsc 來套用 MPC 彎道約束
+    if dp_flags & DPFlags.DTSC:
+      a_min_dtsc, a_max_dtsc = self.dtsc.get_mpc_constraints(sm['modelV2'], v_ego, accel_clip[0], accel_clip[1])
+      for i in range(len(a_min_dtsc)):
+        self.mpc.params[i, 0] = max(accel_clip[0], a_min_dtsc[i])
+        self.mpc.params[i, 1] = min(accel_clip[1], a_max_dtsc[i])
+        if self.mpc.params[i, 0] > self.mpc.params[i, 1]:
+             self.mpc.params[i, 0] = self.mpc.params[i, 1] - 0.05
+
+    # 透過副檔案決定最終的目標巡航速度與最小加速度覆寫值
+    v_cruise_target, a_target_from_dp = LongitudinalPlannerDP.update_targets(self, sm, self.v_desired_filter.x, self.a_desired, v_cruise)
+    a_cruise_min_override = LongitudinalPlannerDP.get_cruise_min_accel(self, v_ego)
+
+    if force_slow_decel:
+      v_cruise_target = 0.0
+
+    # 更新 MPC (支援傳入副檔案給的 a_cruise_min_override)
+    self.mpc.update(sm['radarState'], v_cruise_target, personality=personality, a_cruise_min_override=a_cruise_min_override)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)
+    
     # ACM - Adaptive Coasting Module
     if dp_flags & DPFlags.ACM:
       user_control = long_control_off if self.CP.openpilotLongitudinalControl else not sm['selfdriveState'].enabled
@@ -169,12 +191,10 @@ class LongitudinalPlanner:
       self.a_desired_trajectory = self.acm.update_a_desired_trajectory(self.a_desired_trajectory)
     self.j_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC[:-1], self.mpc.j_solution)
 
-    # TODO counter is only needed because radar is glitchy, remove once radar is gone
     self.fcw = self.mpc.crash_cnt > 2 and not sm['carState'].standstill
     if self.fcw:
       cloudlog.info("FCW triggered")
 
-    # Interpolate 0.05 seconds and save as starting point for next iteration
     a_prev = self.a_desired
     self.a_desired = float(np.interp(self.dt, CONTROL_N_T_IDX, self.a_desired_trajectory))
     self.v_desired_filter.x = self.v_desired_filter.x + self.dt * (self.a_desired + a_prev) / 2.0
@@ -221,3 +241,7 @@ class LongitudinalPlanner:
     longitudinalPlan.allowThrottle = bool(self.allow_throttle)
 
     pm.send('longitudinalPlan', plan_send)
+    
+    # 執行副檔案中的 UI 狀態發布
+    if hasattr(self, 'publish_longitudinal_plan_dp'):
+      self.publish_longitudinal_plan_dp(sm, pm)
