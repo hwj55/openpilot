@@ -1,14 +1,4 @@
 settings:
-  - key: dp_lon_apm
-    type: toggle_item
-    title: "自適應性格模式 (APM)"
-    description: "根據前方車輛自動切換跟車模式。建議保持標準模式。"
-    category: "Longitudinal"
-    #condition: "openpilotLongitudinalControl"
-    flags: PERSISTENT
-    param_type: BOOL
-    default: "0"
-    
   - key: AccelPersonalityEnabled
     type: toggle_item
     title: "動態加速性格"
