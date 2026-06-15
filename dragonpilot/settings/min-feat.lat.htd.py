@@ -6,7 +6,7 @@ ITEMS = [
     "key": "dp_htd_enabled",
     "type": "toggle_item",
     "title": lambda: tr("Enable Human Turn Detection"),
-    "description": lambda: tr("Unavailable during cruise control. Automatically pause steering when the driver applies large manual steering input, then smoothly resume."),
+    "description": lambda: tr("Unavailable during cruise control.Automatically pause steering when the driver applies large manual steering input, then smoothly resume."),
     "flags": "PERSISTENT",
     "param_type": "BOOL",
     "default": "0",
