@@ -1339,3 +1339,9 @@ msgstr "掃描以存取"
 #, python-format
 msgid "sec"
 msgstr "秒"
+
+msgid "Enable dashy Visual"
+msgstr"dashy HUD 儀表盤"
+
+msgid "dashy - dragonpilot's all-in-one system hub.<br><br>Visit http://&lt;device_ip&gt;:5088 to access.<br><br>Enable this to use Tesla Visual/HUD."
+msgstr"dashy - dragonpilot 的一體化系統中心。<br><br>訪問 http://<設備IP>:5088 打開。<br><br>啟用此選項以使用特斯拉風格 HUD。"
