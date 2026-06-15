@@ -10,6 +10,11 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.modeld.constants import index_function
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 
+# ==========================================
+# 引入 APM 模組 (請確認路徑與您的 DP 結構一致)
+from dragonpilot.selfdrive.controls.lib.apm import APM
+# ==========================================
+
 if __name__ == '__main__':  # generating code
   from acados.acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
 else:
@@ -219,6 +224,9 @@ class LongitudinalMpc:
     self.solver = AcadosOcpSolverCython(MODEL_NAME, ACADOS_SOLVER_TYPE, N)
     self.reset()
     self.source = LongitudinalPlanSource.cruise
+    
+    # 初始化 APM 模組
+    self.apm = APM()
 
   def reset(self):
     self.solver.reset()
@@ -313,9 +321,30 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard):
-    t_follow = get_T_FOLLOW(personality)
+  def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard, a_cruise_min_override=None):
     v_ego = self.x0[1]
+    
+    # APM 動態風格覆寫
+    has_lead = radarstate.leadOne.status
+    v_lead = radarstate.leadOne.vLead if has_lead else 0.0
+    a_lead = radarstate.leadOne.aLeadK if has_lead else 0.0
+    d_lead = radarstate.leadOne.dRel if has_lead else 0.0
+    t_follow_relaxed = get_T_FOLLOW(log.LongitudinalPersonality.relaxed)
+
+    personality = self.apm.get_personality(
+      v_ego=v_ego,
+      has_lead=has_lead,
+      v_lead=v_lead,
+      a_lead=a_lead,
+      d_lead=d_lead,
+      personality=personality,
+      t_follow_relaxed=t_follow_relaxed
+    )
+    
+    t_follow = get_T_FOLLOW(personality)
+    self.set_weights(personality=personality)
+    
+    a_cruise_min = a_cruise_min_override if a_cruise_min_override is not None else CRUISE_MIN_ACCEL
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
     lead_xv_0 = self.process_lead(radarstate.leadOne)
@@ -329,7 +358,7 @@ class LongitudinalMpc:
 
     # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
     # when the leads are no factor.
-    v_lower = v_ego + (T_IDXS * CRUISE_MIN_ACCEL * 1.05)
+    v_lower = v_ego + (T_IDXS * a_cruise_min * 1.05)
     # TODO does this make sense when max_a is negative?
     v_upper = v_ego + (T_IDXS * CRUISE_MAX_ACCEL * 1.05)
     v_cruise_clipped = np.clip(v_cruise * np.ones(N+1), v_lower, v_upper)
