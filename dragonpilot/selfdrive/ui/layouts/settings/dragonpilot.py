@@ -239,7 +239,27 @@ class DragonpilotLayout(Widget):
     dialog = ConfirmDialog(tr("Are you sure you want to reset ALL DP SETTINGS to default?"), tr("Reset"), callback=reset_dp_conf)
     gui_app.push_widget(dialog)
 
+  def _refresh_visibility(self):
+    # ui_state.CP is None when this panel is first built (the UI starts before the car is up),
+    # so brand/longitudinal-gated sections would be filtered out and never come back. Re-read CP
+    # when the menu is shown and rebuild the section list if it changed. CP comes from
+    # CarParamsPersistent, so this also works offroad once the car has been identified once.
+    brand = ui_state.CP.brand if ui_state.CP is not None else ""
+    oplong = ui_state.CP.openpilotLongitudinalControl if ui_state.CP is not None else False
+    if brand == self._brand and oplong == self._openpilot_longitudinal_control:
+      return
+    self._brand = brand
+    self._openpilot_longitudinal_control = oplong
+    self._toggles = {}
+    self._toggle_metadata = {}
+    self._defaults = {}
+    self._reverse_deps = {}
+    self._load_settings()
+    self._toggles['btn_reset_dp_conf'] = self._reset_dp_conf_btn
+    self._scroller = Scroller(list(self._toggles.values()), line_separator=True, spacing=0)
+
   def show_event(self):
+    self._refresh_visibility()
     self._scroller.show_event()
     self._update_toggles()
 
