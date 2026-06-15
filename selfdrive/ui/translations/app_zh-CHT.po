@@ -1351,3 +1351,18 @@ msgstr "顯示最近錯誤"
 
 msgid "Lateral Maneuver Mode"
 msgstr "橫向機動模式"
+
+msgid "Disable Logging"
+msgstr "停用記錄"
+
+msgid "Disable Updates"
+msgstr "停用更新"
+
+msgid "Vehicle Model"
+msgstr "車輛型號"
+
+msgid "Vehicle Model list is not a valid format."
+msgstr "車輛型號清單格式無效。"
+
+msgid "On/Off Road"
+msgstr "上線/離線"
