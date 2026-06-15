@@ -1352,3 +1352,11 @@ msgstr "显示最近错误"
 
 msgid "Lateral Maneuver Mode"
 msgstr "横向机动模式"
+msgid "Vehicle Model"
+msgstr "车辆型号"
+
+msgid "Vehicle Model list is not a valid format."
+msgstr "车辆型号清单格式无效。"
+
+msgid "On/Off Road"
+msgstr "上线/离线"
