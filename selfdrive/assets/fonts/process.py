@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import gettext
 import json
 
 import pyray as rl
@@ -22,28 +21,10 @@ def _languages():
     return json.load(f)
 
 
-def _dragonpilot_chars(code: str) -> set[str]:
-  """Characters used by dragonpilot's own translations (dragonpilot_{code}.mo).
-
-  dp settings translate via a separate catalog from openpilot's app_{code}.po,
-  so their glyphs must be baked too — otherwise translated dp settings render
-  as '?' (the catalog ships compiled, so we read the .mo, not a .po source)."""
-  mo_path = TRANSLATIONS_DIR / f"dragonpilot_{code}.mo"
-  if not mo_path.exists():
-    return set()
-  with mo_path.open("rb") as fh:
-    catalog = gettext.GNUTranslations(fh)._catalog
-  chars: set[str] = set()
-  for value in catalog.values():
-    if isinstance(value, str):
-      chars |= set(value)
-  return chars
-
-
 def _char_sets():
   base = set(map(chr, range(32, 127))) | set(EXTRA_CHARS)
   
-  # === 保留舊版的 events.py 快取與掃描機制 ===
+  # === 保留 events.py 快取與掃描機制 (處理動態系統字元) ===
   EVENTS_CACHE = FONT_DIR / "events_chars.cache"
 
   if EVENTS_CACHE.exists():
@@ -92,26 +73,14 @@ def _char_sets():
     labels.update(language)
     chars = set()
     
-    # 讀取 openpilot 原生翻譯檔
+    # 全部統一讀取 app_{code}.po
     po_path = TRANSLATIONS_DIR / f"app_{code}.po"
     try:
       chars.update(po_path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-      # 找不到 app_.po 時不跳過，讓程式繼續去抓 dp 的字元
       pass 
-      
-    # 結合新版的 dragonpilot .mo 檔讀取機制
-    chars |= _dragonpilot_chars(code)
-    
-    # 兼容舊版的 dragonpilot .po 檔讀取機制 (雙重保險)
-    dp_po_path = TRANSLATIONS_DIR / f"dragonpilot_{code}.po"
-    if dp_po_path.exists():
-      try:
-        chars.update(dp_po_path.read_text(encoding="utf-8"))
-      except Exception:
-        pass
 
-    # 如果該語言在處理後完全沒有抓到任何字元，才跳過
+    # 如果該語言沒有對應的翻譯檔，跳過處理
     if not chars:
         continue
 
@@ -157,7 +126,6 @@ def _glyph_metrics(glyphs, rects, glyph_count: int):
 
 
 def _write_bmfont(path: Path, font_size: int, face: str, atlas_name: str, line_height: int, base: int, atlas_size, entries):
-  # TODO: why doesn't raylib calculate these metrics correctly?
   if line_height != font_size:
     print("using font size for line height", atlas_name)
     line_height = font_size
@@ -178,7 +146,7 @@ def _write_bmfont(path: Path, font_size: int, face: str, atlas_name: str, line_h
 def _process_font(font_path: Path, codepoints: tuple[int, ...], output_name: str | None = None):
   stem = output_name or font_path.stem
   
-  # 檢查圖集與字型設定檔是否已存在，存在則完全跳過 (取自舊版優化)
+  # 檢查圖集與字型設定檔是否已存在，存在則完全跳過以加快速度
   atlas_name = f"{stem}.png"
   atlas_path = FONT_DIR / atlas_name
   fnt_path = FONT_DIR / f"{stem}.fnt"
