@@ -1552,7 +1552,7 @@ msgstr ""
 "\n"
 "我运行什么软件有关系吗？有，只有上游的 openpilot（及特定分支）可用于训练。"
 
-msgid "Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when appropriate.
+msgid "Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when appropriate."
 msgstr "自适应滑行模式 (ACM) 会在适当的时候减少制动，从而实现更平稳的滑行。"
 
 msgid "Automatically switches personality to \"Aggressive\" below 30 km/h and restores your selected personality above 40 km/h."
