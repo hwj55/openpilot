@@ -1482,3 +1482,39 @@ msgstr "切至离线"
 #, python-format
 msgid "Go Onroad"
 msgstr "切至上线"
+
+msgid "Use Stock Longitudinal (Nidec)"
+msgstr "使用原厂纵向控制 (Nidec)"
+
+msgid "Let the Honda Nidec ACC handle gas and brake instead of openpilot. Lateral control (steering) still runs through openpilot."
+msgstr "让本田Nidec ACC系统控制油门和煞车，而不是透过OpenPilot系统。横向控制（转向）仍然透过OpenPilot系统进行。"
+
+msgid "Use Stock Longitudinal Control"
+msgstr "使用原厂纵向控制"
+
+msgid "Let the car's built-in ACC handle gas and brake instead of openpilot. Lateral control (steering) still runs through openpilot."
+msgstr "让车辆内建的自适应巡航控制系统（ACC）来控制油门和煞车，而不是透过（OpenPilot）。横向控制（转向）仍然透过（OpenPilot）进行。"
+
+msgid "Enable Stop-and-Go on TSS1"
+msgstr "TSS 1.0 启用自动启动停止功能"
+
+msgid "Door Auto Lock/Unlock"
+msgstr "车门自动锁定/解锁"
+
+msgid "Restores stop-and-go behavior on Toyota Safety Sense 1.0 vehicles, allowing openpilot to resume from a full stop without driver intervention."
+msgstr "恢复丰田TSS 1.0 车辆的自动启动/停止功能，让 openpilot 在完全停止的情况下恢复行驶，无需驾驶员干预。"
+
+msgid "Enable Stop-and-Go on A0 Platform"
+msgstr "MQB A0 走停修正"
+
+msgid "Avoid EPS Lockout"
+msgstr "避免 EPS 锁定"
+
+msgid "Enable openpilot to auto-lock doors above 20 km/h and auto-unlock when shifting to Park."
+msgstr "启用 openpilot 功能，使车速超过 20 公里/小时时自动锁定车门，换到停车挡时自动解锁。"
+
+msgid "Scale steering torque down at low speeds to avoid EPS lockout."
+msgstr "低速行驶时降低转向扭矩，以避免 EPS 锁定。"
+
+msgid "Restores stop-and-go behavior on VAG A0 platform vehicles (Polo, Fabia, Ibiza, etc.), allowing openpilot to resume from a full stop without driver intervention."
+msgstr "恢复 VAG A0 平台车辆（Polo、Fabia、Ibiza 等）的走走停停功能，让 openpilot 从完全停止状态恢复行驶，而无需驾驶干预干预。"
