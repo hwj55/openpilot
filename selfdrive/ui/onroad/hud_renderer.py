@@ -273,8 +273,10 @@ class HudRenderer(Widget):
 
     cursor_x = bar_x + PERF_PADDING
     text_y = bar_y + PERF_PADDING
-    for text, measurement in zip(items, measurements):
-      rl.draw_text_ex(self._perf_font, text, rl.Vector2(cursor_x, text_y), PERF_FONT_SIZE, 0, rl.WHITE)
+    for i, (text, measurement) in enumerate(zip(items, measurements)):
+      # 將第一項 (Lead Dist) 的字體顏色設為紅色，其餘為白色
+      text_color = rl.RED if i == 0 else rl.WHITE
+      rl.draw_text_ex(self._perf_font, text, rl.Vector2(cursor_x, text_y), PERF_FONT_SIZE, 0, text_color)
       cursor_x += measurement.x + gap
 
   def _get_control_state_text(self) -> str:
