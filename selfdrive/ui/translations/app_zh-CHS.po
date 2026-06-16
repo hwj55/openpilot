@@ -1552,3 +1552,6 @@ msgstr "自适应滑行模式 (ACM) 会在适当的时候减少制动，从而�
 
 msgid "Automatically switches personality to \"Aggressive\" below 30 km/h and restores your selected personality above 40 km/h."
 msgstr "车速低于 30 公里/小时时，自动切换至‘激进’模式；车速高于 40 公里/小时时，恢复至您选择的模式。"
+
+msgid "Lead Dist"
+msgstr "前车距离"
