@@ -1464,14 +1464,6 @@ msgstr ""
 "ADB (Android Debug Bridge) 可透过 USB 或网路连线至您的装置。详见 https://"
 "docs.comma.ai/how-to/connect-to-comma。"
 
-#: selfdrive/ui/layouts/settings/developer.py:24
-msgid ""
-"Warning: This grants SSH access to all public keys in your GitHub settings. "
-"Never enter a GitHub username other than your own. A comma employee will "
-"NEVER ask you to add their GitHub username."
-msgstr ""
-"警告：这将授予对您 GitHub 设定中所有公开金钥的 SSH 存取权。请勿输入非您本人"
-"的 GitHub 帐号。comma 员工绝不会要求您新增他们的帐号。"
 msgid "[AUTO DETECT]"
 msgstr "[自动侦测]"
 
