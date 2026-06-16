@@ -38,12 +38,12 @@ COAST_DRAG_V = {
 }
 
 # 煞車底線 (A_MIN Floor) 的中斷點 (車速, 單位: m/s)
-A_MIN_FLOOR_BP =    [3,     4.5,   7.,    9.,     25]
+A_MIN_FLOOR_BP =    [2., 3., 4.5, 7.,  9., 25]
 # 各種個性化設定下的最大允許減速度值 (對應 A_MIN_FLOOR_BP)
 A_MIN_FLOOR_V = {
-  AccelPersonality.eco:    [-.003, -0.25, -0.35, -0.44, -2.0],
-  AccelPersonality.normal: [-.004, -0.27, -0.37, -0.46, -2.0],
-  AccelPersonality.sport:  [-.005, -0.29, -0.39, -0.48, -2.0],
+  AccelPersonality.eco:    [-.003, -0.16, -0.25, -0.35, -0.44, -2.0],
+  AccelPersonality.normal: [-.004, -0.17, -0.27, -0.37, -0.46, -2.0],
+  AccelPersonality.sport:  [-.005, -0.18, -0.29, -0.39, -0.48, -2.0],
 }
 
 # ==============================================================================
