@@ -79,8 +79,9 @@ class HudRenderer(Widget):
     self.speed: float = 0.0
     self.v_ego_cluster_seen: bool = False
     
-    # 前車距離字串變數，預設改為 -
+    # 前車距離字串與數值變數
     self.lead_dist: str = "-"
+    self.lead_dist_raw: float = 0.0
 
     self._font_semi_bold: rl.Font = gui_app.font(FontWeight.SEMI_BOLD)
     self._font_bold: rl.Font = gui_app.font(FontWeight.BOLD)
@@ -90,7 +91,7 @@ class HudRenderer(Widget):
 
     #self._torque_bar = TorqueBar(scale=4.0)
 
-    # Lincoln perf overlay init (效能統計字典預設值全部改為 -)
+    # Lincoln perf overlay init
     self._perf_font = gui_app.font(FontWeight.MEDIUM)
     self._perf_stats: dict[str, str] = {"cpu_temp": "-", "mem_usage": "-", "disk_free": "-"}
     self._perf_lock = threading.Lock()
@@ -105,17 +106,20 @@ class HudRenderer(Widget):
       self.is_cruise_set = False
       self.set_speed = SET_SPEED_NA
       self.speed = 0.0
-      self.lead_dist = "-"  # 系統未啟動時重置為 -
+      self.lead_dist = "-"
+      self.lead_dist_raw = 0.0
       return
 
     controls_state = sm['controlsState']
     car_state = sm['carState']
     radar_state = sm['radarState']
 
-    # 判斷是否有前車，有則顯示距離，無則顯示 -
+    # 紀錄真實距離並格式化字串
     if radar_state.leadOne.status:
-      self.lead_dist = f"{radar_state.leadOne.dRel:.0f}m"
+      self.lead_dist_raw = radar_state.leadOne.dRel
+      self.lead_dist = f"{self.lead_dist_raw:.0f}m"
     else:
+      self.lead_dist_raw = 0.0
       self.lead_dist = "-"
 
     v_cruise_cluster = car_state.vCruiseCluster
@@ -273,9 +277,15 @@ class HudRenderer(Widget):
 
     cursor_x = bar_x + PERF_PADDING
     text_y = bar_y + PERF_PADDING
+    
+    # 動態決定前車距離的顏色 (小於 15 公尺時顯示橘色，其餘顯示白色)
+    lead_color = rl.WHITE
+    if self.lead_dist != "-" and self.lead_dist_raw < 15.0:
+      lead_color = rl.Color(255, 188, 0, 200)
+
     for i, (text, measurement) in enumerate(zip(items, measurements)):
-      # 將第一項 (Lead Dist) 的字體顏色設為紅色，其餘為白色
-      text_color = rl.RED if i == 0 else rl.WHITE
+      # 將第一項 (Lead Dist) 的字體顏色套用動態判斷，其餘項目維持白色
+      text_color = lead_color if i == 0 else rl.WHITE
       rl.draw_text_ex(self._perf_font, text, rl.Vector2(cursor_x, text_y), PERF_FONT_SIZE, 0, text_color)
       cursor_x += measurement.x + gap
 
