@@ -25,36 +25,36 @@ def to_percent(v):
 class DRIVER_MONITOR_SETTINGS:
   def __init__(self):
     # https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:42018X1947&rid=2
-    self._WHEELTOUCH_POLICY_ALERT_1_TIMEOUT = 15.
-    self._WHEELTOUCH_POLICY_ALERT_2_TIMEOUT = 24.
-    self._WHEELTOUCH_POLICY_ALERT_3_TIMEOUT = 30.
+    self._WHEELTOUCH_POLICY_ALERT_1_TIMEOUT = 30.
+    self._WHEELTOUCH_POLICY_ALERT_2_TIMEOUT = 48.
+    self._WHEELTOUCH_POLICY_ALERT_3_TIMEOUT = 60.
     # https://cdn.euroncap.com/cars/assets/euro_ncap_protocol_safe_driving_driver_engagement_v11_a30e874152.pdf
-    self._VISION_POLICY_ALERT_1_TIMEOUT = 3.
-    self._VISION_POLICY_ALERT_2_TIMEOUT = 5.
-    self._VISION_POLICY_ALERT_3_TIMEOUT = 11.
+    self._VISION_POLICY_ALERT_1_TIMEOUT = 10.
+    self._VISION_POLICY_ALERT_2_TIMEOUT = 15.
+    self._VISION_POLICY_ALERT_3_TIMEOUT = 25.
 
     self._TIMEOUT_RECOVERY_FACTOR_MAX = 5.
     self._TIMEOUT_RECOVERY_FACTOR_MIN = 1.25
 
-    self._MAX_TERMINAL_ALERTS = 3  # not allowed to engage after 3 terminal alerts
-    self._MAX_TERMINAL_DURATION = int(30 / DT_DMON)  # not allowed to engage after 30s of terminal alerts
+    self._MAX_TERMINAL_ALERTS = 10  # not allowed to engage after 10 terminal alerts
+    self._MAX_TERMINAL_DURATION = int(120 / DT_DMON)  # not allowed to engage after 120s of terminal alerts
 
     self._FACE_THRESHOLD = 0.7
     self._EYE_THRESHOLD = 0.65
     self._SG_THRESHOLD = 0.9
-    self._BLINK_THRESHOLD = 0.865
-    self._PHONE_THRESH = 0.5
-    self._POSE_PITCH_THRESHOLD = 0.3133
-    self._POSE_PITCH_THRESHOLD_SLACK = 0.3237
+    self._BLINK_THRESHOLD = 0.95
+    self._PHONE_THRESH = 0.95
+    self._POSE_PITCH_THRESHOLD = 0.6
+    self._POSE_PITCH_THRESHOLD_SLACK = 0.65
     self._POSE_PITCH_THRESHOLD_STRICT = self._POSE_PITCH_THRESHOLD
-    self._POSE_YAW_THRESHOLD = 0.4020
-    self._POSE_YAW_THRESHOLD_SLACK = 0.5042
+    self._POSE_YAW_THRESHOLD = 0.8
+    self._POSE_YAW_THRESHOLD_SLACK = 0.9
     self._POSE_YAW_THRESHOLD_STRICT = self._POSE_YAW_THRESHOLD
     self._POSE_YAW_MIN_STEER_DEG = 30
     self._POSE_YAW_STEER_FACTOR = 0.15
     self._POSE_YAW_STEER_MAX_OFFSET = 0.3927
     self._PITCH_NATURAL_OFFSET = 0.011 # initial value before offset is learned
-    self._PITCH_NATURAL_THRESHOLD = 0.449
+    self._PITCH_NATURAL_THRESHOLD = 0.8
     self._YAW_NATURAL_OFFSET = 0.075 # initial value before offset is learned
     self._PITCH_NATURAL_VAR = 3*0.01
     self._YAW_NATURAL_VAR = 3*0.05
@@ -63,11 +63,11 @@ class DRIVER_MONITOR_SETTINGS:
     self._YAW_MAX_OFFSET = 0.289
     self._YAW_MIN_OFFSET = -0.0246
 
-    self._DCAM_UNCERTAIN_ALERT_THRESHOLD = 0.1
-    self._DCAM_UNCERTAIN_ALERT_COUNT = int(60  / DT_DMON)
+    self._DCAM_UNCERTAIN_ALERT_THRESHOLD = 0.3
+    self._DCAM_UNCERTAIN_ALERT_COUNT = int(120  / DT_DMON)
     self._DCAM_UNCERTAIN_RESET_COUNT = int(2  / DT_DMON)
-    self._HI_STD_THRESHOLD = 0.3
-    self._HI_STD_FALLBACK_TIME = int(10  / DT_DMON)  # fall back to wheel touch if model is uncertain for 10s
+    self._HI_STD_THRESHOLD = 0.5
+    self._HI_STD_FALLBACK_TIME = int(30  / DT_DMON)  # fall back to wheel touch if model is uncertain for 30s
     self._DISTRACTED_FILTER_TS = 0.25  # 0.6Hz
 
     self._POSE_CALIB_MIN_SPEED = 13  # 30 mph
@@ -402,10 +402,10 @@ class DriverMonitoring:
       rpyCalib = [0., 0., 0.]
     else:
       car_speed = sm['carState'].vEgo
-      enabled = sm['selfdriveState'].enabled
+      enabled = sm['selfdriveState'].enabled or sm['carControl'].latActive
       wrong_gear = sm['carState'].gearShifter not in (car.CarState.GearShifter.drive, car.CarState.GearShifter.low)
       standstill = sm['carState'].standstill
-      driver_engaged = sm['carState'].steeringPressed or sm['carState'].gasPressed
+      driver_engaged = sm['carState'].steeringPressed or (sm['selfdriveState'].enabled and sm['carState'].gasPressed)
       brake_disengage_prob = sm['modelV2'].meta.disengagePredictions.brakeDisengageProbs[0] # brake disengage prob in next 2s
       steering_angle_deg = sm['carState'].steeringAngleDeg
       rpyCalib = sm['liveCalibration'].rpyCalib
