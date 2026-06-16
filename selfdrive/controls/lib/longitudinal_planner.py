@@ -167,7 +167,24 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
 
     personality = sm['selfdriveState'].personality
     if dp_flags & DPFlags.APM:
-      personality = self.apm.get_personality(v_ego, personality)
+      # 更新 APM 模組狀態 (檢查 Params 等)
+      self.apm.update(sm)
+      
+      # 從雷達狀態取得前車資訊
+      has_lead = sm['radarState'].leadOne.status
+      v_lead = sm['radarState'].leadOne.vLead if has_lead else 0.0
+      a_lead = sm['radarState'].leadOne.aLeadK if has_lead else 0.0
+      d_lead = sm['radarState'].leadOne.dRel if has_lead else 0.0
+
+      # 將完整參數傳遞給 APM 進行模式判定
+      personality = self.apm.get_personality(
+        v_ego=v_ego,
+        has_lead=has_lead,
+        v_lead=v_lead,
+        a_lead=a_lead,
+        d_lead=d_lead,
+        personality=personality
+      )
 
     self.mpc.set_weights(prev_accel_constraint, personality=personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
