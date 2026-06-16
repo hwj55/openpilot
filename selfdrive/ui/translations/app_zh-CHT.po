@@ -1136,11 +1136,6 @@ msgstr "OP+"
 msgid "OP-"
 msgstr "OP-"
 
-#: dragonpilot/settings.py:97 dragonpilot/settings.py:114
-#: dragonpilot/settings.py:206 dragonpilot/settings.py:221
-#: dragonpilot/settings.py:268 dragonpilot/settings.py:282
-#: dragonpilot/settings.py:306
-#, python-format
 msgid "Off"
 msgstr "關閉"
 
