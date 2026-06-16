@@ -18,18 +18,39 @@ def main():
 
   ldw = LaneDepartureWarning()
   longitudinal_planner = LongitudinalPlanner(CP)
-  pm = messaging.PubMaster(['longitudinalPlan', 'driverAssistance'])
-  sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2', 'selfdriveState'],
-                           poll='modelV2')
+  
+  # 補上舊版的 'longitudinalPlanDP' 解決 KeyError
+  pm = messaging.PubMaster(['longitudinalPlan', 'longitudinalPlanDP', 'driverAssistance'])
+  
+  # 補上舊版的 'controlsStateExt' 確保所有 DP 資料能順利接收
+  sm = messaging.SubMaster([
+    'carControl', 
+    'carState', 
+    'controlsState', 
+    'liveParameters', 
+    'radarState', 
+    'modelV2', 
+    'selfdriveState',
+    'controlsStateExt'
+  ], poll='modelV2')
 
   dp_flags = 0
 
-  if params.get_bool("dp_lon_acm"):
+  # 讀取新版原有的 DP 功能開關
+  if params.get_bool("dp_lon_acm") and hasattr(DPFlags, 'ACM'):
     dp_flags |= DPFlags.ACM
-  if params.get_bool("dp_lon_aem"):
+  if params.get_bool("dp_lon_aem") and hasattr(DPFlags, 'AEM'):
     dp_flags |= DPFlags.AEM
-  if params.get_bool("dp_lon_apm"):
+  if params.get_bool("dp_lon_apm") and hasattr(DPFlags, 'APM'):
     dp_flags |= DPFlags.APM
+    
+  # 保留並相容舊版的其他開關 (加入 hasattr 防呆，避免新版移除該變數導致報錯)
+  if params.get_bool("dp_lon_ocm") and hasattr(DPFlags, 'OCM'):
+    dp_flags |= DPFlags.OCM
+  if params.get_bool("dp_lon_dtsc") and hasattr(DPFlags, 'DTSC'):
+    dp_flags |= DPFlags.DTSC
+  if params.get_bool("dp_lon_dasr") and hasattr(DPFlags, 'DASR'):
+    dp_flags |= DPFlags.DASR
 
   while True:
     sm.update()
