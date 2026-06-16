@@ -44,6 +44,7 @@ def get_max_accel(v_ego):
 def get_coast_accel(pitch):
   return np.sin(pitch) * -5.65 - 0.3  # fitted from data using xx/projects/allow_throttle/compute_coast_accel.py
 
+
 def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   """
   This function returns a limited long acceleration allowed, depending on the existing lateral acceleration
@@ -54,6 +55,7 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
 
   return [a_target[0], min(a_target[1], a_x_allowed)]
+
 
 # 繼承 LongitudinalPlannerDP，保留副檔案的優勢
 class LongitudinalPlanner(LongitudinalPlannerDP):
@@ -110,19 +112,7 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     LongitudinalPlannerDP.update(self, sm)
 
     if dp_flags & DPFlags.AEM:
-      model_msg = sm['modelV2']
-      v_ego = sm['carState'].vEgo
-
-      # 擷取原始模型訊號
-      should_stop = model_msg.action.shouldStop
-      a_target = model_msg.action.desiredAcceleration
-      
-      # 擷取模型預測軌跡終點
-      model_x = model_msg.position.x
-      trajectory_length = model_x[-1] if len(model_x) > 0 else 0.0
-
-      # 將四個關鍵參數傳遞給 AEM 進行模式判定
-      self.aem.update_states(v_ego, should_stop, a_target, trajectory_length)
+      self.aem.update_states(model_msg=sm['modelV2'], radar_msg=sm['radarState'], v_ego=sm['carState'].vEgo)
       mode = self.aem.get_mode(mode)
 
     if len(sm['carControl'].orientationNED) == 3:
