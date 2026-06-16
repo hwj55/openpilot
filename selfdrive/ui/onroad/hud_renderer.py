@@ -79,8 +79,8 @@ class HudRenderer(Widget):
     self.speed: float = 0.0
     self.v_ego_cluster_seen: bool = False
     
-    # 新增前車距離字串變數，預設為 N/A
-    self.lead_dist: str = "N/A"
+    # 前車距離字串變數，預設改為 -
+    self.lead_dist: str = "-"
 
     self._font_semi_bold: rl.Font = gui_app.font(FontWeight.SEMI_BOLD)
     self._font_bold: rl.Font = gui_app.font(FontWeight.BOLD)
@@ -90,9 +90,9 @@ class HudRenderer(Widget):
 
     #self._torque_bar = TorqueBar(scale=4.0)
 
-    # Lincoln perf overlay init
+    # Lincoln perf overlay init (效能統計字典預設值全部改為 -)
     self._perf_font = gui_app.font(FontWeight.MEDIUM)
-    self._perf_stats: dict[str, str] = {"cpu_temp": "N/A", "mem_usage": "N/A", "disk_free": "N/A"}
+    self._perf_stats: dict[str, str] = {"cpu_temp": "-", "mem_usage": "-", "disk_free": "-"}
     self._perf_lock = threading.Lock()
     self._perf_running = True
     self._perf_thread = threading.Thread(target=self._perf_update_loop, daemon=True)
@@ -105,18 +105,18 @@ class HudRenderer(Widget):
       self.is_cruise_set = False
       self.set_speed = SET_SPEED_NA
       self.speed = 0.0
-      self.lead_dist = "N/A"  # 系統未啟動時重置為 N/A
+      self.lead_dist = "-"  # 系統未啟動時重置為 -
       return
 
     controls_state = sm['controlsState']
     car_state = sm['carState']
     radar_state = sm['radarState']
 
-    # 判斷是否有前車，有則顯示距離，無則顯示 N/A
+    # 判斷是否有前車，有則顯示距離，無則顯示 -
     if radar_state.leadOne.status:
       self.lead_dist = f"{radar_state.leadOne.dRel:.0f}m"
     else:
-      self.lead_dist = "N/A"
+      self.lead_dist = "-"
 
     v_cruise_cluster = car_state.vCruiseCluster
     self.set_speed = (
@@ -230,10 +230,11 @@ class HudRenderer(Widget):
     stats = self._get_perf_stats()
     control_text = self._get_control_state_text()
 
+    # 取得各項數值，若不存在則給予預設值 -
     lead_dist = self.lead_dist
-    cpu_temp = stats.get("cpu_temp", "N/A")
-    mem_usage = stats.get("mem_usage", "N/A")
-    disk_free = stats.get("disk_free", "N/A")
+    cpu_temp = stats.get("cpu_temp", "-")
+    mem_usage = stats.get("mem_usage", "-")
+    disk_free = stats.get("disk_free", "-")
 
     # Order: Lead Dist -> CPU Temp -> Memory -> Disk Free -> Control
     items = [
@@ -309,7 +310,7 @@ class HudRenderer(Widget):
         temp_c = int(f.read().strip()) / 1000.0
         return f"{temp_c:.0f}°C"
     except Exception:
-      return "N/A"
+      return "-"
 
   @staticmethod
   def _read_mem_usage() -> str:
@@ -330,7 +331,7 @@ class HudRenderer(Widget):
         return f"{used_pct:.0f}%"
     except Exception:
       pass
-    return "N/A"
+    return "-"
 
   @staticmethod
   def _read_disk_free() -> str:
@@ -342,4 +343,4 @@ class HudRenderer(Widget):
       free_mb = usage.free / (1024 ** 2)
       return f"{free_mb:.0f}MB"
     except Exception:
-      return "N/A"
+      return "-"
