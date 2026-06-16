@@ -1036,11 +1036,6 @@ msgstr ""
 msgid "Door Auto Lock/Unlock"
 msgstr "车门自动锁定/解锁"
 
-#: dragonpilot/settings.py:172
-#, python-format
-
-#: dragonpilot/settings.py:160
-#, python-format
 msgid "Dynamic Turn Speed Control (DTSC)"
 msgstr "动态转弯速度控制 (DTSC)"
 
@@ -1509,7 +1504,7 @@ msgid "Scale steering torque down at low speeds to avoid EPS lockout."
 msgstr "低速行驶时降低转向扭矩，以避免 EPS 锁定。"
 
 msgid "Restores stop-and-go behavior on VAG A0 platform vehicles (Polo, Fabia, Ibiza, etc.), allowing openpilot to resume from a full stop without driver intervention."
-msgstr "恢复 VAG A0 平台车辆（Polo、Fabia、Ibiza 等）的走走停停功能，让 openpilot 从完全停止状态恢复行驶，而无需驾驶干预干预。"
+msgstr "恢复 VAG A0 平台车辆（Polo、Fabia、Ibiza 等）的走走停停功能，让 openpilot 从完全停止状态恢复行驶，而无需驾驶干预。"
 msgid ""
 "Force openpilot to go into onroad/offroad state.<br>(e.g. for update purpose)"
 msgstr "强制 openpilot 切换上线/离线状态。<br>（例如：用于更新）"
