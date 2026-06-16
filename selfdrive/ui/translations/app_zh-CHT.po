@@ -1550,3 +1550,9 @@ msgstr ""
 "什麼樣的 USB-C 充電器比較好？任何快充手機或筆記本充電器都可以。\n"
 "\n"
 "我運行什麼軟件有關係嗎？有，只有上游的 openpilot（及特定分支）可用於訓練。"
+
+msgid "Adaptive Coasting Mode (ACM) reduces braking to allow smoother coasting when appropriate.
+msgstr "自適應滑行模式 (ACM) 會在適當的時候減少制動，從而實現更平穩的滑行。"
+
+msgid "Automatically switches personality to \"Aggressive\" below 30 km/h and restores your selected personality above 40 km/h."
+msgstr "車速低於 30 公里/小時時，自動切換至‘激進’模式；車速高於 40 公里/小時時，恢復至您選擇的模式。"
