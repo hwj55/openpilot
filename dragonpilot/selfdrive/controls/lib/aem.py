@@ -22,9 +22,15 @@ import numpy as np
 SPEED_ENABLE_MS = 70.0 / 3.6   # 約 19.44 m/s (低於此速度允許啟用)
 SPEED_DISABLE_MS = 80.0 / 3.6  # 約 22.22 m/s (高於此速度強制關閉)
 
-# 動態車距參數
-TIME_GAP = 1.5         # 秒 (動態車距時間)
-MIN_DISTANCE = 8.0     # 公尺 (最短觸發距離)
+# 動態車距參數 (保留作為緊急防護：應對前車急煞或機車切入)
+TIME_GAP = 1.5         # 秒 (緊急動態車距時間)
+MIN_DISTANCE = 8.0     # 公尺 (緊急最短觸發距離)
+
+# ==========================================
+# 新增：紅燈/路口提早預判參數 (用於平緩舒適煞停)
+# ==========================================
+EARLY_STOP_TIME_GAP = 3.5          # 秒 (提供更長的安全煞車緩衝時間)
+EARLY_STOP_MIN_DISTANCE = 30.0     # 公尺 (確保市區低速時也有 30 公尺的提早切換餘裕)
 
 # 綠燈起步/暢通判定參數
 GREEN_LIGHT_X_THRESHOLD = 20.0 # 公尺 (軌跡大於此值視為綠燈或路況暢通)
@@ -50,34 +56,36 @@ class AEM:
     elif v_ego > SPEED_DISABLE_MS:
       self._speed_condition_met = False
 
-    # 若車速大於 80km/h，強制維持 ACC 不允許切換
+    # 若車速大於 80km/h，強制維持 ACC 不允許切換 (保留高速公路舒適度)
     if not self._speed_condition_met:
       self._active = False
       return
 
     # 2. 綠燈起步 / 前方暢通優先判定
-    # 必須在模型「沒有要停 (not should_stop)」的前提下，軌跡大於 20m 才切回 ACC
-    # 避免遠處紅燈被誤判為暢通綠燈
-    if not should_stop and trajectory_length > GREEN_LIGHT_X_THRESHOLD:
+    # 必須在模型沒有要停，且沒有減速意圖 (a_target > -0.3) 的前提下，才視為暢通並切回 ACC
+    if not should_stop and a_target > -0.3 and trajectory_length > GREEN_LIGHT_X_THRESHOLD:
       self._active = False
       return
 
-    # 3. 計算動態觸發距離閾值：用於對付前車急煞或動態障礙物
-    trigger_threshold = max(MIN_DISTANCE, v_ego * TIME_GAP)
+    # 3. 計算動態觸發距離閾值
+    urgent_trigger_threshold = max(MIN_DISTANCE, v_ego * TIME_GAP)
+    early_stop_threshold = max(EARLY_STOP_MIN_DISTANCE, v_ego * EARLY_STOP_TIME_GAP)
 
     # 4. 模式切換核心邏輯
     if should_stop:
       # 【情況 A：遇到紅綠燈或停止線】
-      # 只要模型認為該停，立刻切換至 blended 模式，讓 E2E 模型接管縱向規劃
+      # 模型已明確判定該停，立刻切換至實驗模式
       self._active = True
 
-    elif a_target < -1.5:
-      # 【情況 B：遇到動態障礙物 / 前車急煞】
-      # 雖然模型有強烈減速意圖，但我們等到距離逼近到 1.5 秒/8 公尺內，才切換為 blended
-      if trajectory_length <= trigger_threshold:
-        self._active = True
-      else:
-        self._active = False
+    elif a_target < -0.3 and trajectory_length <= early_stop_threshold:
+      # 【情況 B (新增)：紅燈 / 遠處靜止車輛提早預判】
+      # 當模型開始有輕微減速意圖，且進入拉長的舒適緩衝範圍，立刻由實驗模式接管
+      self._active = True
+
+    elif a_target < -1.0 and trajectory_length <= urgent_trigger_threshold:
+      # 【情況 C：遇到動態障礙物 / 前車急煞】
+      # 模型有強烈減速意圖，進入緊急安全距離才切換
+      self._active = True
         
     else:
       # 無需煞停或減速，保持一般 ACC 模式
