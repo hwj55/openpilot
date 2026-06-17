@@ -833,7 +833,7 @@ msgstr "方向"
 
 #: selfdrive/ui/onroad/augmented_road_view.py:272
 msgid "Memory"
-msgstr "記憶體用量"
+msgstr "RAM用量"
 
 #: selfdrive/ui/onroad/augmented_road_view.py:273
 msgid "CPU Temp"
@@ -849,7 +849,7 @@ msgstr "自動巡航"
 
 #: selfdrive/ui/onroad/augmented_road_view.py:335
 msgid "Manual control"
-msgstr "人工接管"
+msgstr "駕駛接管"
 
 msgid "### Human Turn Detection ###"
 msgstr "### 人工轉彎檢測 ###"
