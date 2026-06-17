@@ -88,7 +88,7 @@ class AEM:
       # 【情況 B：紅燈 / 遠處靜止車輛提早預判】
       self._active = True
 
-    elif a_target < -1.5 and trajectory_length <= urgent_trigger_threshold:
+    elif a_target < -1.0 and trajectory_length <= urgent_trigger_threshold:
       # 【情況 C：遇到動態障礙物 / 前車急煞】
       self._active = True
         
