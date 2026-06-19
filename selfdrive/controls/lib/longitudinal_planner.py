@@ -214,12 +214,34 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     output_a_target_e2e = sm['modelV2'].action.desiredAcceleration
     output_should_stop_e2e = sm['modelV2'].action.shouldStop
 
+    # =========================================================
+    # 實驗模式 (紅綠燈/停止線) 精準軌跡覆寫
+    # =========================================================
     if mode == 'acc':
       output_a_target = output_a_target_mpc
       self.output_should_stop = output_should_stop_mpc
     else:
       output_a_target = min(output_a_target_mpc, output_a_target_e2e)
       self.output_should_stop = output_should_stop_e2e or output_should_stop_mpc
+      
+      # 若神經網路 (e2e) 要求更深的煞車，代表前方有紅綠燈或需停讓的障礙物
+      if output_a_target_e2e < output_a_target_mpc:
+        # 切換 UI 顯示來源
+        try:
+          from cereal import log
+          self.mpc.source = log.LongitudinalPlan.LongitudinalPlanSource.e2e
+        except ImportError:
+          pass
+
+        # 提取神經網路預測的真實減速軌跡
+        _, v_e2e, a_e2e, j_e2e, _ = self.parse_model(sm['modelV2'])
+        
+        # 使用 np.interp 將 13 點的預測陣列完美轉換為 PID 所需的 17 點 (CONTROL_N) 陣列
+        # 此舉確保底層控制器同時收到正確的「目標減速度」與「目標降速曲線」，解決油門對抗煞車的問題
+        self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, v_e2e)
+        self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, a_e2e)
+        self.j_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, j_e2e)
+    # =========================================================
 
     for idx in range(2):
       accel_clip[idx] = np.clip(accel_clip[idx], self.prev_accel_clip[idx] - 0.05, self.prev_accel_clip[idx] + 0.05)
