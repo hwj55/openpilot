@@ -49,6 +49,14 @@ class AEM:
     :param a_target: float, 模型目標加速度 (m/s^2)
     :param trajectory_length: float, 預測軌跡總長 (m)
     """
+
+    # ==========================================
+    # 新增：過濾遠距離的「幽靈煞車/誤判紅燈」訊號
+    # ==========================================
+    # 如果模型喊停，但其實距離還很遠(>40公尺)，而且車子只是在滑行(a_target > -0.3)
+    # 我們就判定這是 AI 的誤判，強制把 should_stop 轉為 False
+    if should_stop and trajectory_length > 40.0 and a_target > -0.3:
+      should_stop = False
     
     # 1. 處理車速遲滯區間
     if v_ego < SPEED_ENABLE_MS:
