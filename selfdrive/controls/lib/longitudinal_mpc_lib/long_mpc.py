@@ -268,6 +268,7 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
+  # 加入 a_min_arr 與 a_max_arr 參數，讓 MPC 可以接收 DTSC 彎道極限
   def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard, a_cruise_min_override=None, a_min_arr=None, a_max_arr=None):
     v_ego = self.x0[1]
     
@@ -312,6 +313,7 @@ class LongitudinalMpc:
       self.solver.set(i, "yref", self.yref[i])
     self.solver.set(N, "yref", self.yref[N][:COST_E_DIM])
 
+    # [修復] 如果有收到陣列參數，就用接收到的陣列，確保 DTSC 限制能真正發揮作用
     if a_min_arr is not None and a_max_arr is not None:
       self.params[:,0] = a_min_arr
       self.params[:,1] = a_max_arr
