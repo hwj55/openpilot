@@ -188,7 +188,7 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     if force_slow_decel:
       v_cruise_target = 0.0
 
-    # 傳入彎道約束陣列給 MPC，確保 DTSC 發揮作用
+    # 傳遞 a_min_arr 與 a_max_arr 給修改後的 MPC
     self.mpc.update(sm['radarState'], v_cruise_target, personality=personality, a_cruise_min_override=a_cruise_min_override, a_min_arr=a_min_dtsc_out, a_max_arr=a_max_dtsc_out)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
@@ -215,25 +215,19 @@ class LongitudinalPlanner(LongitudinalPlannerDP):
     output_a_target_e2e = sm['modelV2'].action.desiredAcceleration
     output_should_stop_e2e = sm['modelV2'].action.shouldStop
 
-    # =========================================================
-    # 回歸原始版的實驗模式 (紅綠燈/停止線) 判斷邏輯
-    # =========================================================
     if mode == 'acc':
       output_a_target = output_a_target_mpc
       self.output_should_stop = output_should_stop_mpc
     else:
-      # 直接使用原始的 min 函數，讓底層 PID 自行接管
       output_a_target = min(output_a_target_mpc, output_a_target_e2e)
       self.output_should_stop = output_should_stop_e2e or output_should_stop_mpc
       
-      # 若神經網路介入煞車較深，切換 UI 顯示來源
       if output_a_target < output_a_target_mpc:
         try:
           from cereal import log
           self.mpc.source = log.LongitudinalPlan.LongitudinalPlanSource.e2e
         except ImportError:
           pass
-    # =========================================================
 
     for idx in range(2):
       accel_clip[idx] = np.clip(accel_clip[idx], self.prev_accel_clip[idx] - 0.05, self.prev_accel_clip[idx] + 0.05)
