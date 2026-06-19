@@ -1,106 +1,179 @@
 """
-Copyright (c) 2025, Rick Lan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, and/or sublicense,
-for non-commercial purposes only, subject to the following conditions:
-
-- The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-- Commercial use (e.g. use in a product, service, or activity intended to
-  generate revenue) is prohibited without explicit written permission from
-  the copyright holder.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Modified ACM (Advanced Coasting Mode) integrated with OCM speed logic.
+- Switch logic: Original ACM (external toggle of self.enabled).
+- Coasting thresholds: OCM (2km/h overtake, 1km/h hysteresis, 40/50km/h bounds).
 """
 
+import time
 import numpy as np
+from openpilot.common.swaglog import cloudlog
 
-# 車速閾值 (將 km/h 轉換為 m/s)
-SPEED_ENABLE_MS = 70.0 / 3.6   # 約 19.44 m/s (低於此速度允許啟用)
-SPEED_DISABLE_MS = 80.0 / 3.6  # 約 22.22 m/s (高於此速度強制關閉)
+# =========================================================
+# 滑行速度與安全參數設定區 (沿用 OCM 邏輯)
+# =========================================================
+OVERTAKE_THRESHOLD = 2.0 / 3.6   # 2 km/h - 只要比定速快 2 公里，就允許進入滑行
+HYSTERESIS_OFFSET = 1.0 / 3.6    # 1 km/h - 保持滑行直到接近定速時才解除
+TTC_THRESHOLD = 2.0              # 秒 - 前方 2.0 秒內有車即停用
 
-# 動態車距參數 (保留作為緊急防護：應對前車急煞或機車切入)
-TIME_GAP = 1.5         # 秒 (緊急動態車距時間)
-MIN_DISTANCE = 8.0     # 公尺 (緊急最短觸發距離)
+# 車速開關門檻 (50 km/h 打開，40 km/h 關閉)
+MIN_SPEED_ENABLE = 50.0 / 3.6    
+MIN_SPEED_DISABLE = 40.0 / 3.6   
 
-# ==========================================
-# 新增：紅燈/路口提早預判參數 (用於平緩舒適煞停)
-# ==========================================
-EARLY_STOP_TIME_GAP = 3.5          # 秒 (提供更長的安全煞車緩衝時間)
-EARLY_STOP_MIN_DISTANCE = 30.0     # 公尺 (確保市區低速時也有 30 公尺的提早切換餘裕)
+# 下坡/超速防護上限
+MAX_OVERSPEED_THRESHOLD = 20.0 / 3.6 # 20 km/h - 車速超過定速 20 公里以上時強制停用滑行交還引擎煞車
 
-# 綠燈起步/暢通判定參數
-GREEN_LIGHT_X_THRESHOLD = 20.0 # 公尺 (軌跡大於此值視為綠燈或路況暢通)
+# 緊急安全防線
+EMERGENCY_TTC = 2.0
+EMERGENCY_RELATIVE_SPEED = 10.0
+EMERGENCY_DECEL_THRESHOLD = -1.5 # 煞車力道超過此值視為緊急狀況，立刻交還控制權
+
+# 動態安全距離參數
+SPEED_BP = [0., 10., 20., 30.]
+MIN_DIST_V = [5., 10., 15., 20.]
+
+# 坡度參數
+PITCH_SMOOTH_ALPHA_UP = 0.30           
+PITCH_SMOOTH_ALPHA_DOWN = 0.15
+PITCH_DOWNHILL_THRESHOLD = -0.030      # 判定為下坡的閾值 (-3% 坡度)
 
 
-class AEM:
+class ACM:
   def __init__(self):
-    self._active = False
-    self._speed_condition_met = True
-
-  def update_states(self, v_ego, should_stop, a_target, trajectory_length):
-    """
-    更新 AEM 狀態 (專注於判定是否切換至實驗模式)
-    :param v_ego: 當前車速 (m/s)
-    :param should_stop: boolean, 模型判定是否該停 (紅綠燈/停止線)
-    :param a_target: float, 模型目標加速度 (m/s^2)
-    :param trajectory_length: float, 預測軌跡總長 (m)
-    """
+    # 開關沿用 ACM：預設為 False，交由外部程式邏輯來控制切換
+    self.enabled = False
     
-    # 1. 處理車速遲滯區間
-    if v_ego < SPEED_ENABLE_MS:
-      self._speed_condition_met = True
-    elif v_ego > SPEED_DISABLE_MS:
-      self._speed_condition_met = False
+    self.active = False
+    self.just_disabled = False
+    self.speed_allowed = False  
+    
+    self._is_speed_over_cruise = False
+    self._has_lead = False
+    self._active_prev = False
+    self._last_lead_time = 0.0
+    
+    # 坡度記憶
+    self.current_pitch = 0.0              
+    self._is_first_pitch = True           
 
-    # 若車速大於 80km/h，強制維持 ACC 不允許切換 (保留高速公路舒適度)
-    if not self._speed_condition_met:
-      self._active = False
+  def _update_pitch(self, orientation_ned):
+    """更新並平滑化道路坡度資訊"""
+    if len(orientation_ned) == 3:
+      new_pitch = orientation_ned[1]
+      if self._is_first_pitch:
+          self.current_pitch = new_pitch
+          self._is_first_pitch = False
+      else:
+          alpha = PITCH_SMOOTH_ALPHA_UP if new_pitch > self.current_pitch else PITCH_SMOOTH_ALPHA_DOWN
+          self.current_pitch = alpha * new_pitch + (1.0 - alpha) * self.current_pitch
+
+  def _check_emergency_conditions(self, lead, v_ego, current_time):
+    """緊急狀況判斷 (結合動態安全距離)"""
+    if not lead or not lead.status:
+      return False
+      
+    closing_speed = max(v_ego - lead.vLead, 0.1)
+    self.lead_ttc = lead.dRel / closing_speed
+    relative_speed = v_ego - lead.vLead
+    
+    min_dist_for_speed = np.interp(v_ego, SPEED_BP, MIN_DIST_V)
+
+    if (self.lead_ttc < EMERGENCY_TTC) or \
+       (relative_speed > EMERGENCY_RELATIVE_SPEED) or \
+       (lead.dRel < min_dist_for_speed and relative_speed > 0):
+      self._last_lead_time = current_time
+      if self.active:
+        cloudlog.warning(f"ACM emergency disable: dRel={lead.dRel:.1f}m, TTC={self.lead_ttc:.1f}s")
+      return True
+      
+    return False
+
+  def _update_lead_status(self, lead, v_ego, current_time):
+    if lead and lead.status:
+      closing_speed = max(v_ego - lead.vLead, 0.1)
+      self.lead_ttc = lead.dRel / closing_speed
+      if self.lead_ttc < TTC_THRESHOLD:
+        self._has_lead = True
+        self._last_lead_time = current_time
+      else:
+        self._has_lead = False
+    else:
+      self._has_lead = False
+
+  def _should_activate(self, user_ctrl_lon, v_ego, v_cruise, in_cooldown):
+    # 坡度安全防護：如果是明顯下坡 (-3%以上)，重力會讓車速飆升，不允許純滑行
+    if self.current_pitch < PITCH_DOWNHILL_THRESHOLD:
+        return False
+
+    # 超速上限防護：如果當前車速大於「定速 + 超速門檻」，強制不啟動滑行
+    if v_ego > (v_cruise + MAX_OVERSPEED_THRESHOLD):
+        return False
+
+    if self.active:
+      self._is_speed_over_cruise = v_ego > (v_cruise + HYSTERESIS_OFFSET)
+    else:
+      self._is_speed_over_cruise = v_ego >= (v_cruise + OVERTAKE_THRESHOLD)
+
+    return (not user_ctrl_lon and not self._has_lead and 
+            not in_cooldown and self._is_speed_over_cruise)
+
+  def update_states(self, cc, rs, user_ctrl_lon, v_ego, v_cruise):
+    # 車速總開關狀態更新 (40關閉 50打開)
+    if v_ego >= MIN_SPEED_ENABLE:
+      self.speed_allowed = True
+    elif v_ego <= MIN_SPEED_DISABLE:
+      self.speed_allowed = False
+
+    # 絕對硬防線：當前車速低於巡航車速時，強制關閉
+    if v_ego < v_cruise:
+      self.active = False
+      self._active_prev = False
       return
 
-    # ==========================================
-    # 2. 加速意圖優先判定 (新增：模型一加速就交給原廠 ACC)
-    # ==========================================
-    # 只要模型有明確的加速意圖 (大於 0.1)，立刻切換為 ACC
-    if a_target > 0.1:
-      self._active = False
+    # 如果開關未啟用、車速未達標、或姿態資料不完整 (原版 ACM 防呆邏輯)
+    if not self.enabled or not self.speed_allowed or len(cc.orientationNED) != 3:
+      self.active = False
       return
 
-    # 3. 綠燈起步 / 前方暢通優先判定
-    # 必須在模型沒有要停，且沒有減速意圖 (a_target > -0.3) 的前提下，才視為暢通並切回 ACC
-    if not should_stop and a_target > -0.3 and trajectory_length > GREEN_LIGHT_X_THRESHOLD:
-      self._active = False
+    self._update_pitch(cc.orientationNED)
+      
+    current_time = time.monotonic()
+    lead = rs.leadOne
+
+    if self._check_emergency_conditions(lead, v_ego, current_time):
+      self.active = False
+      self._active_prev = False
       return
 
-    # 4. 計算動態觸發距離閾值
-    urgent_trigger_threshold = max(MIN_DISTANCE, v_ego * TIME_GAP)
-    early_stop_threshold = max(EARLY_STOP_MIN_DISTANCE, v_ego * EARLY_STOP_TIME_GAP)
+    self._update_lead_status(lead, v_ego, current_time)
+    in_cooldown = (current_time - self._last_lead_time) < 0.5
+    
+    self.active = self._should_activate(user_ctrl_lon, v_ego, v_cruise, in_cooldown)
 
-    # 5. 模式切換核心邏輯
-    if should_stop:
-      # 【情況 A：遇到紅綠燈或停止線】
-      self._active = True
+    self.just_disabled = self._active_prev and not self.active
+    
+    # 寫入系統日誌
+    if self.active and not self._active_prev:
+      cloudlog.info(f"ACM activated: v_ego={v_ego*3.6:.1f} km/h, v_cruise={v_cruise*3.6:.1f} km/h")
+    elif self.just_disabled:
+      cloudlog.info("ACM deactivated")
+      
+    self._active_prev = self.active
 
-    elif a_target < -0.5 and trajectory_length <= early_stop_threshold:
-      # 【情況 B：紅燈 / 遠處靜止車輛提早預判】
-      self._active = True
+  def update_a_desired_trajectory(self, a_desired_trajectory):
+    if not self.active:
+      return a_desired_trajectory
 
-    elif a_target < -1.0 and trajectory_length <= urgent_trigger_threshold:
-      # 【情況 C：遇到動態障礙物 / 前車急煞】
-      self._active = True
+    # 安全檢查：若 MPC 模型判定需要急煞，不予攔截
+    min_accel = np.min(a_desired_trajectory)
+    if min_accel < EMERGENCY_DECEL_THRESHOLD:
+      cloudlog.warning(f"ACM aborting: MPC requested {min_accel:.2f} m/s² braking")
+      self.active = False
+      return a_desired_trajectory
+
+    # 取消滑行下限，實現平順滑行 (保留 -1.0 的過彎穩定底線)
+    modified = np.copy(a_desired_trajectory)
+    for i in range(len(modified)):
+      if -1.0 < modified[i] < 0:
+        modified[i] = 0.0
         
-    else:
-      # 無需煞停或減速，保持一般 ACC 模式
-      self._active = False
-
-  def get_mode(self, current_mode):
-    """
-    獲取當前應使用的模式
-    """
-    if self._active:
-      return 'blended'  
-    else:
-      return 'acc'
+    return modified
