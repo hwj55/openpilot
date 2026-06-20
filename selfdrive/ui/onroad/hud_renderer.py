@@ -19,7 +19,7 @@ SET_SPEED_NA = 255
 KM_TO_MILE = 0.621371
 CRUISE_DISABLED_CHAR = '–'
 
-# DP Perf Constants
+# DP Perf Constants (字體恢復為 50)
 PERF_FONT_SIZE = 50
 PERF_PADDING = 14
 PERF_MARGIN_BOTTOM = 0   # 設定為 0 以貼齊底部
@@ -234,7 +234,6 @@ class HudRenderer(Widget):
     stats = self._get_perf_stats()
     control_text = self._get_control_state_text()
 
-    # 取得各項數值，若不存在則給予預設值 -
     lead_dist = self.lead_dist
     cpu_temp = stats.get("cpu_temp", "-")
     mem_usage = stats.get("mem_usage", "-")
@@ -246,12 +245,13 @@ class HudRenderer(Widget):
       f"{tr('CPU Temp')} {cpu_temp}",
       f"{tr('Memory')} {mem_usage}",
       f"{tr('Disk Free')} {disk_free}",
-      f"{tr('Control')} {control_text}",
+      f"{control_text}",
     ]
 
-    # 【固定寬度與欄位邏輯】
-    # 設定整個狀態列的總寬度為螢幕寬度減去 40，讓它永遠固定不動
-    bar_width = max(rect.width - 40, 0)
+    measurements = [measure_text_cached(self._perf_font, text, PERF_FONT_SIZE) for text in items]
+
+    # 設定整個狀態列的總寬度 (稍微留點邊距)
+    bar_width = max(rect.width - 20, 0)
     bar_height = PERF_FONT_SIZE + 2 * PERF_PADDING
 
     bar_x = rect.x + (rect.width - bar_width) / 2
@@ -271,18 +271,18 @@ class HudRenderer(Widget):
     # 將總寬度均分為等寬的 5 個欄位 (slots)
     slot_width = bar_width / len(items)
     text_y = bar_y + PERF_PADDING
-    
-    # 計算讓文字在欄位內大約置中的起始 X 座標預留空間 (假設最長字串約為 280)
-    fixed_left_padding = max((slot_width - 280) / 2, float(PERF_PADDING))
 
-    for i, text in enumerate(items):
-      # 每個欄位的文字都有固定的起點 X 座標，因此字串長度改變時，絕對不會影響到其他欄位的位置
-      cursor_x = bar_x + (i * slot_width) + fixed_left_padding
+    for i, (text, measurement) in enumerate(zip(items, measurements)):
+      # 精準置中演算法
+      cursor_x = bar_x + (i * slot_width) + (slot_width - measurement.x) / 2
 
-      # 動態決定前車距離的顏色 (小於 15 公尺時顯示橘色，其餘顯示白色)
       text_color = rl.WHITE
+      # 動態決定前車距離的顏色 (小於 15 公尺時顯示橘色)
       if i == 0 and self.lead_dist != "-" and self.lead_dist_raw < 15.0:
         text_color = rl.Color(255, 188, 0, 200)
+      # 當控制狀態不為自動巡航時，文字改為黃色
+      elif i == 4 and ui_state.status != UIStatus.ENGAGED:
+        text_color = rl.YELLOW
 
       rl.draw_text_ex(self._perf_font, text, rl.Vector2(cursor_x, text_y), PERF_FONT_SIZE, 0, text_color)
 
@@ -348,8 +348,8 @@ class HudRenderer(Widget):
       usage = shutil.disk_usage("/data")
       free_gb = usage.free / (1024 ** 3)
       if free_gb >= 1.0:
-        return f"{free_gb:.1f}GB"
+        return f"{free_gb:.1f}G" # GB 改為 G
       free_mb = usage.free / (1024 ** 2)
-      return f"{free_mb:.0f}MB"
+      return f"{free_mb:.0f}MB"   #
     except Exception:
       return "-"
