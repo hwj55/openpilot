@@ -3,7 +3,7 @@
 C3XL Boot Speedup Patch - restore all fast-boot modifications after git pull.
 
 Usage:
-    python3 /data/apply_boot_patch.py
+    python3 /data/fastboot_patch.py
 
 Place this file in /data/ on the device. Run after every git pull that
 overwrites modified files.  Safe to run multiple times (idempotent).
